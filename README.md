@@ -2,7 +2,7 @@
 
 > **Votre bar à la maison** — 130 recettes de cocktails classiques et créatifs, accessibles partout, même sans connexion.
 
-🔗 **[Ouvrir l'application](https://alexbien-59.github.io/moncktl/)**
+🔗 **[Ouvrir l'application](https://a-rech.github.io/moncktl/)**
 
 ---
 
@@ -22,17 +22,17 @@
 
 ## 📱 Installer sur votre téléphone
 
-### iPhone / iPad (Safari)
-1. Ouvrez [https://alexbien-59.github.io/moncktl/](https://alexbien-59.github.io/moncktl/) dans **Safari**
-2. Appuyez sur le bouton **Partager** ↑
-3. Sélectionnez **"Sur l'écran d'accueil"**
-4. Confirmez → l'icône 🍸 apparaît sur votre écran
-
 ### Android (Chrome)
 1. Ouvrez l'URL dans **Chrome**
 2. Appuyez sur le menu **⋮**
 3. Sélectionnez **"Ajouter à l'écran d'accueil"**
 4. Confirmez l'installation
+
+### iPhone / iPad (Safari)
+1. Ouvrez [https://a-rech.github.io/moncktl/](https://a-rech.github.io/moncktl/) dans **Safari**
+2. Appuyez sur le bouton **Partager** ↑
+3. Sélectionnez **"Sur l'écran d'accueil"**
+4. Confirmez → l'icône 🍸 apparaît sur votre écran
 
 ---
 
