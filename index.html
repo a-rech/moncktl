@@ -395,7 +395,33 @@
     .install-btn-copy.copied { background: #4a7c59; border-color: #4a7c59; color: white; }
     .install-btn-share { background: var(--surface); color: var(--text2); }
     .install-btn-share:hover { border-color: var(--accent); color: var(--accent); }
-    .install-steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: step-counter; }
+    .install-details {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+    .install-summary {
+      list-style: none;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .install-summary::-webkit-details-marker { display: none; }
+    .install-summary:hover { background: var(--surface2); }
+    .install-summary .prefs-label { margin-bottom: 0; color: var(--text); }
+    .install-arrow {
+      font-size: 14px;
+      color: var(--text3);
+      transition: transform .2s, color .2s;
+      flex-shrink: 0;
+    }
+    .install-details[open] .install-arrow {
+      transform: rotate(90deg);
+      color: var(--accent);
+    }
+    .install-steps { list-style: none; padding: 14px 16px 16px; margin: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: step-counter; border-top: 1px solid var(--border); }
     .install-steps li {
       counter-increment: step-counter; display: flex; align-items: flex-start;
       gap: 10px; font-size: 14px; color: var(--text2); line-height: 1.5;
@@ -481,7 +507,7 @@
       <div class="prefs-row">
         <div class="prefs-label">Lien de l'application</div>
         <div class="install-link-box">
-          <span class="install-link-url">https://alexbien-59.github.io/moncktl/</span>
+          <span class="install-link-url">https://a-rech.github.io/moncktl/</span>
           <div class="install-link-btns">
             <button class="install-btn-copy" onclick="copyInstallLink(this)">📋 Copier</button>
             <button class="install-btn-share" onclick="shareInstallLink()">↑ Partager</button>
@@ -489,21 +515,31 @@
         </div>
       </div>
       <div class="prefs-row">
-        <div class="prefs-label">Android (Chrome)</div>
-        <ol class="install-steps">
-          <li>Ouvrez le lien dans <strong>Chrome</strong></li>
-          <li>Appuyez sur le menu <strong>⋮</strong> en haut à droite</li>
-          <li>Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong></li>
-          <li>Appuyez sur <strong>« Installer »</strong></li>
-        </ol>
+        <details class="install-details">
+          <summary class="install-summary">
+            <span class="prefs-label">Android (Chrome)</span>
+            <span class="install-arrow" aria-hidden="true">›</span>
+          </summary>
+          <ol class="install-steps">
+            <li>Ouvrez le lien dans <strong>Chrome</strong></li>
+            <li>Appuyez sur le menu <strong>⋮</strong> en haut à droite</li>
+            <li>Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong></li>
+            <li>Appuyez sur <strong>« Installer »</strong></li>
+          </ol>
+        </details>
       </div>
       <div class="prefs-row">
-        <div class="prefs-label">iPhone / iPad (Safari)</div>
-        <ol class="install-steps">
-          <li>Ouvrez le lien dans <strong>Safari</strong></li>
-          <li>Appuyez sur l'icône <strong>Partager ↑</strong> en bas</li>
-          <li>Sélectionnez <strong>« Sur l'écran d'accueil »</strong></li>
-        </ol>
+        <details class="install-details">
+          <summary class="install-summary">
+            <span class="prefs-label">iPhone / iPad (Safari)</span>
+            <span class="install-arrow" aria-hidden="true">›</span>
+          </summary>
+          <ol class="install-steps">
+            <li>Ouvrez le lien dans <strong>Safari</strong></li>
+            <li>Appuyez sur l'icône <strong>Partager ↑</strong> en bas</li>
+            <li>Sélectionnez <strong>« Sur l'écran d'accueil »</strong></li>
+          </ol>
+        </details>
       </div>
     </div>
 
@@ -514,7 +550,7 @@
       <div class="prefs-about-line"><span>Cocktails</span><span class="prefs-about-val" id="about-recipe-count">—</span></div>
       <div class="prefs-about-line"><span>Favoris</span><span class="prefs-about-val" id="about-fav-count">—</span></div>
       <div class="prefs-about-line"><span>Notes</span><span class="prefs-about-val" id="about-notes-count">—</span></div>
-      <div class="prefs-about-line"><span>Source</span><span class="prefs-about-val"><a href="https://github.com/Alexbien-59/moncktl" target="_blank" style="color:var(--accent)">GitHub</a></span></div>
+      <div class="prefs-about-line"><span>Source</span><span class="prefs-about-val"><a href="https://github.com/a-rech/moncktl" target="_blank" style="color:var(--accent)">GitHub</a></span></div>
     </div>
   </div>
 </div>
@@ -1752,7 +1788,7 @@ function togglePref(key, btn) {
 }
 
 function copyInstallLink(btn) {
-  var url = 'https://alexbien-59.github.io/moncktl/';
+  var url = 'https://a-rech.github.io/moncktl/';
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(function() {
       btn.textContent = '✓ Copié !'; btn.classList.add('copied');
@@ -1768,7 +1804,7 @@ function copyInstallLink(btn) {
 }
 
 function shareInstallLink() {
-  var url   = 'https://alexbien-59.github.io/moncktl/';
+  var url   = 'https://a-rech.github.io/moncktl/';
   var title = 'MonCocktail — Votre bar à la maison';
   var text  = '130 recettes de cocktails, recherche par ingrédients, favoris et lexique de bar.';
   if (navigator.share) {
