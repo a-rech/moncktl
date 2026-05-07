@@ -1821,7 +1821,7 @@ function copyInstallLink(btn) {
 function shareInstallLink() {
   var url   = 'https://a-rech.github.io/moncktl/';
   var title = 'MonCocktail — Votre bar à la maison';
-  var text  = '130 recettes de cocktails, recherche par ingrédients, favoris et lexique de bar.';
+  var text  = '130 recettes de cocktails, par ingrédients, via le catalogue ou au hasard.';
   if (navigator.share) {
     navigator.share({ title: title, text: text, url: url })
       .catch(function(e) { if (e.name !== 'AbortError') window.open(url, '_blank'); });
