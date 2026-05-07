@@ -52,7 +52,8 @@
       --shadow:0 4px 28px rgba(0,0,0,0.55);
     }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;zoom:var(--font-zoom,1);}
+    .taste-profile{display:var(--taste-display,block);}
     /* TOPBAR */
     .topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:58px;}
     .topbar-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;}
@@ -296,6 +297,115 @@
     .fab-update.visible { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
     .fab-update:hover { filter: brightness(1.12); }
     @media(max-width:480px){ .fab-update{ font-size:13px; padding:11px 18px; bottom:70px; } }
+
+    /* ── BOUTON PRÉFÉRENCES INLINE ─────────────────────────── */
+    .prefs-home-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 12px 16px; margin-top: 8px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text2);
+      transition: all .2s;
+    }
+    .prefs-home-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--surface2); }
+
+    /* ── PANNEAU PRÉFÉRENCES ───────────────────────────────── */
+    .prefs-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      z-index: 400; opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .prefs-overlay.open { opacity: 1; pointer-events: auto; }
+    .prefs-panel {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 401;
+      background: var(--surface); border-radius: 20px 20px 0 0;
+      padding: 20px 20px 32px;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      max-height: 82vh; overflow-y: auto;
+    }
+    .prefs-overlay.open .prefs-panel { transform: translateY(0); }
+    .prefs-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 18px; }
+    .prefs-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .prefs-title { font-size: 17px; font-weight: 500; color: var(--text); }
+    .prefs-close {
+      width: 30px; height: 30px; border-radius: 50%; background: var(--surface2);
+      border: none; cursor: pointer; font-size: 16px; color: var(--text2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .prefs-tabs { display: flex; gap: 6px; margin-bottom: 22px; }
+    .prefs-tab {
+      flex: 1; padding: 8px 6px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+      color: var(--text2); cursor: pointer; transition: all .15s; text-align: center;
+    }
+    .prefs-tab.active { background: var(--accent); border-color: var(--accent); color: #0C0F1D; }
+    .prefs-section { display: none; }
+    .prefs-section.active { display: block; }
+    .prefs-row { margin-bottom: 22px; }
+    .prefs-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--text3); font-weight: 500; margin-bottom: 10px;
+    }
+    .prefs-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .prefs-option {
+      flex: 1; min-width: 60px; padding: 9px 8px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface2);
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--text2); cursor: pointer; transition: all .15s; text-align: center;
+    }
+    .prefs-option:hover { border-color: var(--accent); color: var(--accent); }
+    .prefs-option.active { background: var(--accent); border-color: var(--accent); color: #0C0F1D; }
+    .prefs-toggle-row {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
+    }
+    .prefs-toggle-label { font-size: 14px; color: var(--text); }
+    .prefs-toggle-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .toggle-switch {
+      width: 44px; height: 26px; border-radius: 13px; background: var(--border);
+      border: none; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%;
+      background: white; top: 3px; left: 3px; transition: left .2s;
+    }
+    .toggle-switch.on { background: var(--accent); }
+    .toggle-switch.on::after { left: 21px; }
+    .prefs-about-line {
+      display: flex; justify-content: space-between; padding: 12px 0;
+      border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text2);
+    }
+    .prefs-about-line:last-child { border-bottom: none; }
+    .prefs-about-line span:first-child { color: var(--text3); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .prefs-about-val { color: var(--text); font-weight: 500; }
+    /* Onglet installation */
+    .install-link-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .install-link-url { font-size: 13px; color: var(--accent); font-weight: 500; word-break: break-all; line-height: 1.4; }
+    .install-link-btns { display: flex; gap: 8px; }
+    .install-btn-copy, .install-btn-share {
+      flex: 1; padding: 9px 10px; border-radius: 8px; text-align: center;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all .15s; border: 1px solid var(--border); text-decoration: none;
+    }
+    .install-btn-copy { background: var(--accent); color: #0C0F1D; border-color: var(--accent); }
+    .install-btn-copy:hover { filter: brightness(1.1); }
+    .install-btn-copy.copied { background: #4a7c59; border-color: #4a7c59; color: white; }
+    .install-btn-share { background: var(--surface); color: var(--text2); }
+    .install-btn-share:hover { border-color: var(--accent); color: var(--accent); }
+    .install-steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; counter-reset: step-counter; }
+    .install-steps li {
+      counter-increment: step-counter; display: flex; align-items: flex-start;
+      gap: 10px; font-size: 14px; color: var(--text2); line-height: 1.5;
+    }
+    .install-steps li::before {
+      content: counter(step-counter); min-width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent); color: #0C0F1D; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .install-steps li strong { color: var(--text); }
   </style>
 </head>
 <body>
@@ -320,6 +430,91 @@
       <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos alcools et sirops préférés</p></div>
       <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés</p></div>
       <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Aléatoire</h3><p>Laissez le hasard remplir votre verre</p></div>
+    </div>
+    <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Préférences</button>
+  </div>
+</div>
+
+<!-- PANNEAU PRÉFÉRENCES -->
+<div class="prefs-overlay" id="prefs-overlay" onclick="closePrefsOnOverlay(event)">
+  <div class="prefs-panel" id="prefs-panel">
+    <div class="prefs-handle"></div>
+    <div class="prefs-header">
+      <span class="prefs-title">⚙️ Préférences</span>
+      <button class="prefs-close" onclick="closePrefs()">✕</button>
+    </div>
+    <div class="prefs-tabs">
+      <button class="prefs-tab active" onclick="setPrefTab('affichage',this)">🖥 Affichage</button>
+      <button class="prefs-tab" onclick="setPrefTab('install',this)">📱 Installation</button>
+      <button class="prefs-tab" onclick="setPrefTab('about',this)">ℹ️ À propos</button>
+    </div>
+
+    <!-- Onglet Affichage -->
+    <div class="prefs-section active" id="prefs-affichage">
+      <div class="prefs-row">
+        <div class="prefs-label">Taille de police</div>
+        <div class="prefs-options">
+          <button class="prefs-option" data-font="14" onclick="setFontSize(14,this)">Petit</button>
+          <button class="prefs-option active" data-font="16" onclick="setFontSize(16,this)">Moyen</button>
+          <button class="prefs-option" data-font="18" onclick="setFontSize(18,this)">Grand</button>
+          <button class="prefs-option" data-font="20" onclick="setFontSize(20,this)">Très grand</button>
+        </div>
+      </div>
+      <div class="prefs-row">
+        <div class="prefs-label">Thème</div>
+        <div class="prefs-options">
+          <button class="prefs-option active" data-theme="dark" onclick="setTheme('dark',this)">🌙 Sombre</button>
+          <button class="prefs-option" data-theme="light" onclick="setTheme('light',this)">☀️ Clair</button>
+        </div>
+      </div>
+      <div class="prefs-toggle-row">
+        <div>
+          <div class="prefs-toggle-label">Afficher le profil gustatif</div>
+          <div class="prefs-toggle-sub">Barres sucrosité / amertume / alcool sur chaque fiche</div>
+        </div>
+        <button class="toggle-switch on" id="toggle-taste" onclick="togglePref('taste',this)"></button>
+      </div>
+    </div>
+
+    <!-- Onglet Installation -->
+    <div class="prefs-section" id="prefs-install">
+      <div class="prefs-row">
+        <div class="prefs-label">Lien de l'application</div>
+        <div class="install-link-box">
+          <span class="install-link-url">https://alexbien-59.github.io/moncktl/</span>
+          <div class="install-link-btns">
+            <button class="install-btn-copy" onclick="copyInstallLink(this)">📋 Copier</button>
+            <button class="install-btn-share" onclick="shareInstallLink()">↑ Partager</button>
+          </div>
+        </div>
+      </div>
+      <div class="prefs-row">
+        <div class="prefs-label">Android (Chrome)</div>
+        <ol class="install-steps">
+          <li>Ouvrez le lien dans <strong>Chrome</strong></li>
+          <li>Appuyez sur le menu <strong>⋮</strong> en haut à droite</li>
+          <li>Sélectionnez <strong>« Ajouter à l'écran d'accueil »</strong></li>
+          <li>Appuyez sur <strong>« Installer »</strong></li>
+        </ol>
+      </div>
+      <div class="prefs-row">
+        <div class="prefs-label">iPhone / iPad (Safari)</div>
+        <ol class="install-steps">
+          <li>Ouvrez le lien dans <strong>Safari</strong></li>
+          <li>Appuyez sur l'icône <strong>Partager ↑</strong> en bas</li>
+          <li>Sélectionnez <strong>« Sur l'écran d'accueil »</strong></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Onglet À propos -->
+    <div class="prefs-section" id="prefs-about">
+      <div class="prefs-about-line"><span>Application</span><span class="prefs-about-val">MonCocktail</span></div>
+      <div class="prefs-about-line"><span>Version</span><span class="prefs-about-val" id="about-version">—</span></div>
+      <div class="prefs-about-line"><span>Cocktails</span><span class="prefs-about-val" id="about-recipe-count">—</span></div>
+      <div class="prefs-about-line"><span>Favoris</span><span class="prefs-about-val" id="about-fav-count">—</span></div>
+      <div class="prefs-about-line"><span>Notes</span><span class="prefs-about-val" id="about-notes-count">—</span></div>
+      <div class="prefs-about-line"><span>Source</span><span class="prefs-about-val"><a href="https://github.com/Alexbien-59/moncktl" target="_blank" style="color:var(--accent)">GitHub</a></span></div>
     </div>
   </div>
 </div>
@@ -908,6 +1103,7 @@ function updateQuantities(id) {
 
 // ── 16. INITIALISATION ────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function() {
+  applyPrefs(); // Appliquer les préférences sauvegardées
   // Bouton retour en haut
   window.addEventListener('scroll', function() {
     var st = document.getElementById('btn-scroll-top');
@@ -1427,6 +1623,160 @@ function buildTasteProfile(id) {
     +   '<span class="taste-val">' + alLabel + '</span>'
     + '</div>'
     + '</div>';
+}
+
+// ── PRÉFÉRENCES ───────────────────────────────────────────────────────────
+// Thème par défaut : sombre (cohérent avec la palette MonCocktail)
+var PREFS_DEFAULT = { fontSize: 16, theme: 'dark', taste: true };
+
+function loadPrefs() {
+  try { return Object.assign({}, PREFS_DEFAULT, JSON.parse(localStorage.getItem('mc_prefs') || '{}')); }
+  catch(e) { return Object.assign({}, PREFS_DEFAULT); }
+}
+
+function savePrefs(p) { lsSet('mc_prefs', p); }
+
+// Applique toutes les préférences au démarrage
+function applyPrefs() {
+  var p = loadPrefs();
+  // Zoom global — scale tout proportionnellement (14→0.875, 16→1, 18→1.125, 20→1.25)
+  document.documentElement.style.setProperty('--font-zoom', (p.fontSize / 16).toFixed(4));
+  applyTheme(p.theme);
+  // Profil gustatif
+  document.documentElement.style.setProperty('--taste-display', p.taste ? 'block' : 'none');
+}
+
+function applyTheme(theme) {
+  var r = document.documentElement;
+  if (theme === 'light') {
+    // Thème clair : fond pâle, texte sombre
+    r.style.setProperty('--bg',      '#F5F0E8');
+    r.style.setProperty('--surface', '#FFFFFF');
+    r.style.setProperty('--surface2','#EDE8DC');
+    r.style.setProperty('--text',    '#1A1208');
+    r.style.setProperty('--text2',   '#5A4A38');
+    r.style.setProperty('--text3',   '#8A7A68');
+    r.style.setProperty('--border',  '#D8CFC0');
+    r.style.setProperty('--tag-bg',  '#EDE8DC');
+    document.querySelector('meta[name="theme-color"]') && document.querySelector('meta[name="theme-color"]').setAttribute('content','#F5F0E8');
+  } else {
+    // Thème sombre — palette originale MonCocktail
+    r.style.setProperty('--bg',      '#0C0F1D');
+    r.style.setProperty('--surface', '#141829');
+    r.style.setProperty('--surface2','#1C2240');
+    r.style.setProperty('--text',    '#EDE8D8');
+    r.style.setProperty('--text2',   '#9A92B0');
+    r.style.setProperty('--text3',   '#5A5472');
+    r.style.setProperty('--border',  '#252B48');
+    r.style.setProperty('--tag-bg',  '#1C2240');
+    document.querySelector('meta[name="theme-color"]') && document.querySelector('meta[name="theme-color"]').setAttribute('content','#0C0F1D');
+  }
+}
+
+function syncPrefUI(p) {
+  document.querySelectorAll('[data-font]').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.dataset.font) === p.fontSize);
+  });
+  document.querySelectorAll('[data-theme]').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.theme === p.theme);
+  });
+  var tt = document.getElementById('toggle-taste');
+  if (tt) tt.classList.toggle('on', p.taste);
+}
+
+function openPrefs() {
+  var overlay = document.getElementById('prefs-overlay');
+  overlay.classList.add('open');
+  syncPrefUI(loadPrefs());
+  // Stats À propos
+  document.getElementById('about-recipe-count').textContent = COCKTAILS.length + ' cocktails';
+  var favs = lsGet('mc_favs', []);
+  document.getElementById('about-fav-count').textContent = favs.length + ' favori' + (favs.length !== 1 ? 's' : '');
+  var notes = Object.keys(localStorage).filter(function(k){ return k.startsWith('mc_note_'); }).length;
+  document.getElementById('about-notes-count').textContent = notes + ' note' + (notes !== 1 ? 's' : '');
+  // Version depuis le SW
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(function(reg) {
+      var sw = reg && (reg.active || reg.installing || reg.waiting);
+      if (sw) {
+        var mc = new MessageChannel();
+        mc.port1.onmessage = function(e) {
+          if (e.data && e.data.version) {
+            var v = e.data.version.replace(/^[^0-9]*/, '');
+            document.getElementById('about-version').textContent = v || e.data.version;
+          }
+        };
+        sw.postMessage({ type: 'GET_VERSION' }, [mc.port2]);
+      }
+    });
+  }
+}
+
+function closePrefs() {
+  document.getElementById('prefs-overlay').classList.remove('open');
+}
+
+function closePrefsOnOverlay(e) {
+  if (e.target === document.getElementById('prefs-overlay')) closePrefs();
+}
+
+function setPrefTab(tab, el) {
+  document.querySelectorAll('.prefs-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.prefs-section').forEach(function(s) { s.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('prefs-' + tab).classList.add('active');
+}
+
+function setFontSize(size, el) {
+  var p = loadPrefs(); p.fontSize = size; savePrefs(p);
+  document.querySelectorAll('[data-font]').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.dataset.font) === size);
+  });
+  document.documentElement.style.setProperty('--font-zoom', (size / 16).toFixed(4));
+}
+
+function setTheme(theme, el) {
+  var p = loadPrefs(); p.theme = theme; savePrefs(p);
+  document.querySelectorAll('[data-theme]').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  applyTheme(theme);
+}
+
+function togglePref(key, btn) {
+  var p = loadPrefs(); p[key] = !p[key]; savePrefs(p);
+  btn.classList.toggle('on', p[key]);
+  if (key === 'taste') {
+    document.documentElement.style.setProperty('--taste-display', p.taste ? 'block' : 'none');
+  }
+}
+
+function copyInstallLink(btn) {
+  var url = 'https://alexbien-59.github.io/moncktl/';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      btn.textContent = '✓ Copié !'; btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '📋 Copier'; btn.classList.remove('copied'); }, 2000);
+    });
+  } else {
+    var ta = document.createElement('textarea'); ta.value = url;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '✓ Copié !';
+    setTimeout(function() { btn.textContent = '📋 Copier'; }, 2000);
+  }
+}
+
+function shareInstallLink() {
+  var url   = 'https://alexbien-59.github.io/moncktl/';
+  var title = 'MonCocktail — Votre bar à la maison';
+  var text  = '130 recettes de cocktails, recherche par ingrédients, favoris et lexique de bar.';
+  if (navigator.share) {
+    navigator.share({ title: title, text: text, url: url })
+      .catch(function(e) { if (e.name !== 'AbortError') window.open(url, '_blank'); });
+  } else {
+    window.open(url, '_blank');
+  }
 }
 
 const FAMILIES = [
