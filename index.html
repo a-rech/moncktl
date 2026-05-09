@@ -379,6 +379,28 @@
     .prefs-about-line:last-child { border-bottom: none; }
     .prefs-about-line span:first-child { color: var(--text3); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
     .prefs-about-val { color: var(--text); font-weight: 500; }
+
+    /* ── ONGLET DONNÉES ── */
+    .data-action-btn {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; padding: 14px 16px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      color: var(--text); cursor: pointer; transition: all .2s; text-align: left;
+      margin-bottom: 10px;
+    }
+    .data-action-btn:hover { border-color: var(--accent); background: var(--surface2); }
+    .data-action-btn .btn-icon { font-size: 22px; flex-shrink: 0; }
+    .data-action-btn .btn-desc { font-size: 12px; color: var(--text3); font-weight: 400; margin-top: 2px; }
+    .data-action-btn.danger { border-color: #e08080; color: #c05050; }
+    .data-action-btn.danger:hover { background: rgba(224,128,128,.12); }
+    .data-status {
+      padding: 10px 14px; border-radius: 10px; font-size: 13px;
+      margin-top: 4px; display: none;
+    }
+    .data-status.ok  { background: rgba(74,124,89,.18); color: #7ab893; display: block; }
+    .data-status.err { background: rgba(224,128,128,.18); color: #e08080; display: block; }
+    .data-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
     @media (min-width: 900px) {
       .prefs-panel {
         left: 50%;
@@ -487,6 +509,7 @@
     <div class="prefs-tabs">
       <button class="prefs-tab active" onclick="setPrefTab('affichage',this)">🖥 Affichage</button>
       <button class="prefs-tab" onclick="setPrefTab('install',this)">📱 Installation</button>
+      <button class="prefs-tab" onclick="setPrefTab('donnees',this)">💾 Données</button>
       <button class="prefs-tab" onclick="setPrefTab('about',this)">ℹ️ À propos</button>
     </div>
 
@@ -556,6 +579,52 @@
           </ol>
         </details>
       </div>
+    </div>
+
+    <!-- Onglet Données -->
+    <div class="prefs-section" id="prefs-donnees">
+
+      <div class="prefs-row">
+        <div class="prefs-label">Exporter mes données</div>
+        <button class="data-action-btn" onclick="exportData()">
+          <span class="btn-icon">📤</span>
+          <div>
+            <div>Exporter favoris &amp; notes</div>
+            <div class="btn-desc">Télécharge un fichier .json à conserver ou transférer</div>
+          </div>
+        </button>
+        <div class="data-status" id="export-status"></div>
+      </div>
+
+      <hr class="data-divider">
+
+      <div class="prefs-row">
+        <div class="prefs-label">Importer des données</div>
+        <button class="data-action-btn" onclick="document.getElementById('import-file').click()">
+          <span class="btn-icon">📥</span>
+          <div>
+            <div>Importer un fichier de sauvegarde</div>
+            <div class="btn-desc">Sélectionnez un fichier .json exporté depuis cette app</div>
+          </div>
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+        <div class="data-status" id="import-status"></div>
+      </div>
+
+      <hr class="data-divider">
+
+      <div class="prefs-row">
+        <div class="prefs-label">Zone de danger</div>
+        <button class="data-action-btn danger" onclick="resetAllData()">
+          <span class="btn-icon">🗑️</span>
+          <div>
+            <div>Effacer toutes mes données</div>
+            <div class="btn-desc">Supprime définitivement favoris, notes et préférences</div>
+          </div>
+        </button>
+        <div class="data-status" id="reset-status"></div>
+      </div>
+
     </div>
 
     <!-- Onglet À propos -->
@@ -1828,6 +1897,120 @@ function shareInstallLink() {
   } else {
     window.open(url, '_blank');
   }
+}
+
+// ── DONNÉES : EXPORT / IMPORT / RESET ─────────────────────────────────────
+
+function collectUserData() {
+  var data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'MonCocktail',
+    favorites: [],
+    notes: {},
+    ratings: {}
+  };
+  try { data.favorites = lsGet('mc_favs', []); } catch(e) {}
+  Object.keys(localStorage).forEach(function(key) {
+    if (key.startsWith('mc_note_')) {
+      data.notes[key.replace('mc_note_', '')] = localStorage.getItem(key);
+    }
+  });
+  try { data.ratings = lsGet('mc_ratings', {}); } catch(e) {}
+  return data;
+}
+
+function exportData() {
+  var data = collectUserData();
+  var favCount  = data.favorites.length;
+  var noteCount = Object.keys(data.notes).length;
+  var ratCount  = Object.keys(data.ratings).length;
+
+  if (favCount === 0 && noteCount === 0 && ratCount === 0) {
+    showDataStatus('export-status', 'Aucune donnée à exporter.', false);
+    return;
+  }
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'moncktl-sauvegarde-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+
+  showDataStatus('export-status',
+    '✓ ' + favCount + ' favori' + (favCount !== 1 ? 's' : '') +
+    ', ' + noteCount + ' note' + (noteCount !== 1 ? 's' : '') +
+    ' et ' + ratCount + ' évaluation' + (ratCount !== 1 ? 's' : '') + ' exportés.', true);
+}
+
+function importData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data || data.app !== 'MonCocktail' || data.version !== 1) {
+        showDataStatus('import-status', '✗ Fichier invalide ou incompatible.', false);
+        return;
+      }
+      // Favoris : fusion sans doublon
+      var existing = lsGet('mc_favs', []);
+      var merged = Array.from(new Set(existing.concat(data.favorites || [])));
+      lsSet('mc_favs', merged);
+      var favAdded = merged.length - existing.length;
+
+      // Notes
+      var noteCount = 0;
+      Object.keys(data.notes || {}).forEach(function(id) {
+        if (data.notes[id] && data.notes[id].trim()) {
+          localStorage.setItem('mc_note_' + id, data.notes[id]);
+          noteCount++;
+        }
+      });
+
+      // Évaluations : garde la note la plus élevée en cas de conflit
+      var existingRat = lsGet('mc_ratings', {});
+      var ratCount = 0;
+      Object.keys(data.ratings || {}).forEach(function(id) {
+        existingRat[id] = Math.max(existingRat[id] || 0, data.ratings[id]);
+        ratCount++;
+      });
+      lsSet('mc_ratings', existingRat);
+
+      showDataStatus('import-status',
+        '✓ ' + favAdded + ' favori' + (favAdded !== 1 ? 's' : '') +
+        ' ajouté' + (favAdded !== 1 ? 's' : '') +
+        ', ' + noteCount + ' note' + (noteCount !== 1 ? 's' : '') +
+        ' et ' + ratCount + ' évaluation' + (ratCount !== 1 ? 's' : '') + ' restaurées.', true);
+      input.value = '';
+    } catch(err) {
+      showDataStatus('import-status', '✗ Erreur : ' + err.message, false);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAllData() {
+  if (!confirm('Supprimer définitivement favoris, notes, évaluations et préférences ?\nCette action est irréversible.')) return;
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.startsWith('mc_')) keys.push(k);
+  }
+  keys.forEach(function(k) { localStorage.removeItem(k); });
+  showDataStatus('reset-status', '✓ Toutes les données ont été effacées.', true);
+  applyPrefs();
+}
+
+function showDataStatus(id, msg, ok) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'data-status ' + (ok ? 'ok' : 'err');
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { el.className = 'data-status'; }, 4000);
 }
 
 const FAMILIES = [
