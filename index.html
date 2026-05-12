@@ -469,6 +469,150 @@
       display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
     }
     .install-steps li strong { color: var(--text); }
+
+    /* ══════════════════════════════════════════════════
+       PAGE CRÉATION DE COCKTAIL
+       ══════════════════════════════════════════════════ */
+
+    /* --- Écran d'entrée : choisir le point de départ --- */
+    #page-add-entry .entry-choices {
+      display: flex; flex-direction: column; gap: 14px; margin-top: 24px;
+    }
+    .entry-choice-btn {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 22px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--surface);
+      cursor: pointer; transition: all .2s; text-align: left; width: 100%;
+    }
+    .entry-choice-btn:hover { border-color: var(--accent); background: var(--surface2); }
+    .entry-choice-btn:active { transform: scale(.99); }
+    .entry-choice-icon { font-size: 32px; flex-shrink: 0; }
+    .entry-choice-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .entry-choice-sub   { font-size: 13px; color: var(--text3); line-height: 1.4; }
+
+    /* Sélecteur catalogue (recherche pour cloner) */
+    .clone-search-wrap { position: relative; margin-top: 20px; }
+    .clone-search-input {
+      width: 100%; padding: 12px 42px 12px 42px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: var(--surface2); font-family: 'DM Sans', sans-serif;
+      font-size: 15px; color: var(--text); outline: none; transition: border-color .2s;
+    }
+    .clone-search-input::placeholder { color: var(--text3); }
+    .clone-search-input:focus { border-color: var(--accent); }
+    .clone-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
+    .clone-results { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+    .clone-result-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer; transition: all .15s;
+    }
+    .clone-result-item:hover { border-color: var(--accent); background: var(--surface2); }
+    .clone-result-emoji { font-size: 22px; flex-shrink: 0; }
+    .clone-result-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .clone-result-meta  { font-size: 12px; color: var(--text3); }
+
+    /* --- Formulaire de création --- */
+    #page-add-form .form-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+    }
+    .form-badge-src {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+      background: var(--surface2); color: var(--text3); border: 1px solid var(--border);
+    }
+
+    /* Groupes de champs */
+    .form-section {
+      margin-bottom: 28px; padding: 20px 18px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--surface);
+    }
+    .form-section-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--accent); font-weight: 600; margin-bottom: 16px;
+    }
+    .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px; }
+    .form-group.full { flex: 100%; min-width: 0; }
+    .form-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--text3); font-weight: 500;
+    }
+    .form-input, .form-select, .form-textarea {
+      padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface2); font-family: 'DM Sans', sans-serif;
+      font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; width: 100%;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-select { cursor: pointer; }
+    .form-textarea { resize: vertical; min-height: 64px; }
+    .form-input.emoji-pick { width: 64px; text-align: center; font-size: 22px; padding: 6px 10px; }
+
+    /* Ingrédients dynamiques */
+    .ing-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .ing-row { display: flex; gap: 8px; align-items: center; }
+    .ing-row .form-input.ing-name  { flex: 3; }
+    .ing-row .form-input.ing-qty   { flex: 1; min-width: 60px; }
+    .ing-row .form-input.ing-unit  { flex: 1.5; min-width: 60px; }
+    .ing-row-del {
+      width: 32px; height: 32px; flex-shrink: 0;
+      border: 1px solid var(--border); background: var(--surface); border-radius: 8px;
+      cursor: pointer; font-size: 16px; color: var(--text3); display: flex;
+      align-items: center; justify-content: center; transition: all .15s;
+    }
+    .ing-row-del:hover { border-color: var(--hard); color: var(--hard); background: rgba(224,92,92,.08); }
+
+    /* Étapes dynamiques */
+    .step-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .step-row { display: flex; gap: 10px; align-items: flex-start; }
+    .step-num {
+      min-width: 26px; height: 26px; border-radius: 50%; background: var(--accent);
+      color: #0C0F1D; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 8px;
+    }
+    .step-row .form-textarea { flex: 1; min-height: 52px; }
+    .step-row-del { margin-top: 8px; }
+
+    /* Bouton ajouter ligne */
+    .add-row-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; border: 1px dashed var(--border);
+      background: transparent; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--text3); cursor: pointer; transition: all .15s;
+    }
+    .add-row-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Tags dynamiques */
+    .tag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 13px; color: var(--text2); cursor: pointer;
+      transition: all .15s;
+    }
+    .tag-chip:hover { border-color: var(--hard); }
+    .tag-chip.from-ing { border-color: var(--accent); color: var(--accent); }
+
+    /* Barre de sauvegarde sticky */
+    .form-save-bar {
+      position: sticky; bottom: 0; background: var(--surface);
+      border-top: 1px solid var(--border); padding: 14px 18px;
+      display: flex; gap: 10px; margin: 0 -24px -32px;
+      z-index: 10;
+    }
+    .form-save-bar .btn-primary { flex: 1; }
+    .form-save-bar .btn-secondary { flex-shrink: 0; }
+
+    /* Carte "Ma recette" dans le catalogue */
+    .user-recipe-badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+      border-radius: 20px; background: rgba(212,170,74,.15); border: 1px solid var(--accent);
+      font-size: 11px; color: var(--accent); font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -684,6 +828,152 @@
     <button class="btn btn-primary" id="btn-random" onclick="pickRandom()">🎲 Nouveau cocktail</button>
   </div>
   <div id="random-recipe-container"></div>
+</div>
+
+<!-- PAGE CHOIX POINT DE DÉPART (accès via recherche "ajout") -->
+<div id="page-add-entry" class="page">
+  <button class="back-btn" onclick="goBack()">← Retour</button>
+  <div class="section-title" style="margin-bottom:6px">Créer un cocktail</div>
+  <p class="section-sub">Par où voulez-vous commencer ?</p>
+  <div class="entry-choices">
+    <button class="entry-choice-btn" onclick="startFromScratch()">
+      <span class="entry-choice-icon">✨</span>
+      <div>
+        <div class="entry-choice-title">Créer de zéro</div>
+        <div class="entry-choice-sub">Formulaire vierge — donnez libre cours à votre créativité</div>
+      </div>
+    </button>
+    <button class="entry-choice-btn" onclick="startFromCatalogue()">
+      <span class="entry-choice-icon">🍸</span>
+      <div>
+        <div class="entry-choice-title">Adapter une recette existante</div>
+        <div class="entry-choice-sub">Partez d'un cocktail du catalogue pour le personnaliser</div>
+      </div>
+    </button>
+  </div>
+  <div id="clone-picker" style="display:none;margin-top:24px;">
+    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;">Choisissez une recette à adapter</div>
+    <div class="clone-search-wrap">
+      <span class="clone-search-icon">🔍</span>
+      <input class="clone-search-input" id="clone-search-input" type="text"
+        placeholder="Rechercher par nom ou ingrédient…"
+        oninput="filterCloneResults(this.value)" autocomplete="off">
+    </div>
+    <div class="clone-results" id="clone-results"></div>
+  </div>
+</div>
+
+<!-- PAGE FORMULAIRE DE CRÉATION -->
+<div id="page-add-form" class="page">
+  <button class="back-btn" onclick="goBack()">← Retour</button>
+  <div class="form-header">
+    <div class="section-title" style="margin:0"><span id="form-title-label">Nouveau cocktail</span></div>
+    <span class="form-badge-src" id="form-source-badge" style="display:none"></span>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🍹 Identité</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 auto">
+        <label class="form-label">Emoji</label>
+        <input class="form-input emoji-pick" id="f-emoji" type="text" maxlength="2" placeholder="🍸">
+      </div>
+      <div class="form-group" style="flex:3">
+        <label class="form-label">Nom du cocktail *</label>
+        <input class="form-input" id="f-title" type="text" placeholder="Ex : Tropical Sunset">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Catégorie *</label>
+        <select class="form-select" id="f-cat">
+          <option value="">— Choisir —</option>
+          <option>Apéritifs</option><option>Shortdrinks</option><option>Longdrinks</option>
+          <option>Fizz &amp; Pétillants</option><option>Tiki &amp; Exotiques</option>
+          <option>Frozen</option><option>Shots &amp; Pousse-café</option>
+          <option>Bowls &amp; Punchs</option><option>Chauds</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alcool de base *</label>
+        <select class="form-select" id="f-base">
+          <option value="">— Choisir —</option>
+          <option>Rhum</option><option>Vodka</option><option>Gin</option>
+          <option>Whisky</option><option>Tequila</option><option>Cognac</option>
+          <option>Champagne</option><option>Vin</option>
+          <option>Amaretto</option><option>Absinthe</option><option>Autre</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">⏱ Détails</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Difficulté</label>
+        <select class="form-select" id="f-diff">
+          <option value="facile">Facile</option>
+          <option value="moyen" selected>Moyen</option>
+          <option value="difficile">Difficile</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Préparation (min)</label>
+        <input class="form-input" id="f-prep" type="number" min="1" max="60" value="5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Portions</label>
+        <input class="form-input" id="f-portions" type="number" min="1" max="20" value="1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Verre *</label>
+        <select class="form-select" id="f-glass">
+          <option value="">— Choisir —</option>
+          <option>Highball</option><option>Collins</option><option>Rocks</option>
+          <option>Martini</option><option>Coupe</option><option>Flûte</option>
+          <option>Ballon</option><option>Copa (ballon)</option>
+          <option>Mug en cuivre</option><option>Tiki mug</option>
+          <option>Shot</option><option>Verre à absinthe</option>
+          <option>Julep cup</option><option>Punch bowl</option><option>Verre à pied</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🫙 Ingrédients</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">
+      <span style="flex:3">Ingrédient</span><span style="flex:1">Qté</span>
+      <span style="flex:1.5">Unité</span><span style="width:32px"></span>
+    </div>
+    <div class="ing-list" id="ing-list"></div>
+    <button class="add-row-btn" onclick="addIngRow()">+ Ajouter un ingrédient</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">📋 Étapes de préparation</div>
+    <div class="step-list" id="step-list"></div>
+    <button class="add-row-btn" onclick="addStepRow()">+ Ajouter une étape</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">🏷 Tags de recherche</div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:10px">Générés automatiquement depuis les ingrédients. Vous pouvez en ajouter d'autres.</p>
+    <div class="tag-chips" id="tag-chips"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input class="form-input" id="tag-input" type="text" placeholder="Ajouter un tag…"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();addTagFromInput()}" style="flex:1">
+      <button class="btn btn-secondary" onclick="addTagFromInput()">Ajouter</button>
+    </div>
+  </div>
+
+  <div class="form-save-bar">
+    <button class="btn btn-secondary" onclick="resetAddForm()">Réinitialiser</button>
+    <button class="btn btn-primary" onclick="saveUserCocktail()">💾 Sauvegarder</button>
+  </div>
 </div>
 
 <div id="page-recipe" class="page">
@@ -1089,6 +1379,13 @@ function onCatSearch(query) {
 
 function execCatSearch() {
   var query = document.getElementById('cat-search-input').value.trim();
+  // Mot-clé secret pour accéder au formulaire de création de cocktail
+  if (query.toLowerCase() === 'ajout') {
+    document.getElementById('cat-search-input').value = '';
+    document.getElementById('cat-search-clear').style.display = 'none';
+    navTo('add-entry');
+    return;
+  }
   if (!query) { loadCatalogueTabs(); return; } // Barre vide → retour au catalogue normal
   var q = query.toLowerCase();
   // Recherche partielle (indexOf) dans 4 champs : titre, tags, alcool de base, catégorie
@@ -1195,6 +1492,7 @@ function showRecipe(id) {
     + '</div></div>'
     + buildTasteProfile(id)    // Profil gustatif en premier
     + buildStarsHtml(id)       // Ma note juste en dessous
+    + userCreatedBadge(id)     // Badge + bouton supprimer pour les créations perso
     + '<div class="notes-block">'
     + '<div class="recipe-section-title" style="margin-top:24px;margin-bottom:10px">MES NOTES</div>'
     + '<textarea id="notes-ta-' + id + '" class="notes-textarea" placeholder="Ajoutez vos notes personnelles : dosage préféré, variantes, astuces..." oninput="saveNote(' + id + ', this.value)">' + note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>'
@@ -1223,7 +1521,8 @@ function updateQuantities(id) {
 
 // ── 16. INITIALISATION ────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function() {
-  applyPrefs(); // Appliquer les préférences sauvegardées
+  applyPrefs();
+  loadUserCocktails(); // Fusionner les recettes utilisateur avec COCKTAILS // Appliquer les préférences sauvegardées
   // Bouton retour en haut
   window.addEventListener('scroll', function() {
     var st = document.getElementById('btn-scroll-top');
@@ -1899,6 +2198,291 @@ function shareInstallLink() {
   }
 }
 
+// ── CRÉATION DE COCKTAILS ─────────────────────────────────────────────────
+// Les cocktails créés par l'utilisateur sont stockés dans localStorage
+// sous la clé 'mc_user_cocktails' et fusionnés avec COCKTAILS au démarrage.
+
+var USER_COCKTAILS_KEY = 'mc_user_cocktails';
+
+// Charge les cocktails utilisateur et les fusionne avec COCKTAILS
+function loadUserCocktails() {
+  var stored = lsGet(USER_COCKTAILS_KEY, []);
+  // Retirer d'éventuels doublons (IDs utilisateur commencent à 10000)
+  COCKTAILS = COCKTAILS.filter(function(c) { return c.id < 10000; });
+  stored.forEach(function(c) { COCKTAILS.push(c); });
+}
+
+function saveUserCocktailsList(list) {
+  lsSet(USER_COCKTAILS_KEY, list);
+}
+
+// ── Navigation vers la création ───────────────────────────────────────────
+
+var formTags = []; // tags en cours d'édition
+var editingId = null; // null = nouveau, sinon ID du cocktail en édition
+
+function startFromScratch() {
+  editingId = null;
+  resetAddForm();
+  var badge = document.getElementById('form-source-badge');
+  badge.style.display = 'none';
+  document.getElementById('form-title-label').textContent = 'Nouveau cocktail';
+  addIngRow(); addIngRow(); addIngRow();
+  addStepRow(); addStepRow();
+  navTo('add-form');
+}
+
+function startFromCatalogue() {
+  var picker = document.getElementById('clone-picker');
+  picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+  if (picker.style.display === 'block') {
+    renderCloneResults(COCKTAILS);
+    document.getElementById('clone-search-input').focus();
+  }
+}
+
+function filterCloneResults(q) {
+  var filtered = q.trim().length === 0
+    ? COCKTAILS.filter(function(c) { return c.id < 10000; }) // Seulement les recettes du catalogue
+    : COCKTAILS.filter(function(c) {
+        return c.id < 10000 && (
+          c.title.toLowerCase().indexOf(q.toLowerCase()) !== -1 ||
+          c.baseAlcool.toLowerCase().indexOf(q.toLowerCase()) !== -1
+        );
+      });
+  renderCloneResults(filtered);
+}
+
+function renderCloneResults(list) {
+  var container = document.getElementById('clone-results');
+  if (list.length === 0) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:12px 0">Aucun résultat</div>';
+    return;
+  }
+  container.innerHTML = list.slice(0, 20).map(function(c) {
+    return '<div class="clone-result-item" onclick="cloneFromCocktail(' + c.id + ')">'
+      + '<span class="clone-result-emoji">' + c.emoji + '</span>'
+      + '<div><div class="clone-result-title">' + c.title + '</div>'
+      + '<div class="clone-result-meta">' + c.baseAlcool + ' · ' + c.cat + ' · ' + c.diff + '</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function cloneFromCocktail(id) {
+  var src = COCKTAILS.filter(function(c) { return c.id === id; })[0];
+  if (!src) return;
+  editingId = null;
+  fillFormFromCocktail(src);
+  // Badge source
+  var badge = document.getElementById('form-source-badge');
+  badge.textContent = '✦ Adapté de : ' + src.title;
+  badge.style.display = 'inline-flex';
+  document.getElementById('form-title-label').textContent = 'Adapter une recette';
+  navTo('add-form');
+}
+
+// ── Formulaire : remplir / vider ──────────────────────────────────────────
+
+function fillFormFromCocktail(c) {
+  document.getElementById('f-emoji').value   = c.emoji    || '🍸';
+  document.getElementById('f-title').value   = c.title    || '';
+  document.getElementById('f-cat').value     = c.cat      || '';
+  document.getElementById('f-base').value    = c.baseAlcool|| '';
+  document.getElementById('f-diff').value    = c.diff     || 'moyen';
+  document.getElementById('f-prep').value    = c.prep     || 5;
+  document.getElementById('f-portions').value= c.portions || 1;
+  document.getElementById('f-glass').value   = c.glass    || '';
+  // Ingrédients
+  document.getElementById('ing-list').innerHTML = '';
+  (c.ingredients || []).forEach(function(ing) { addIngRow(ing[0], ing[1], ing[2]); });
+  if (!c.ingredients || c.ingredients.length === 0) addIngRow();
+  // Étapes
+  document.getElementById('step-list').innerHTML = '';
+  (c.steps || []).forEach(function(s) { addStepRow(s); });
+  if (!c.steps || c.steps.length === 0) addStepRow();
+  // Tags
+  formTags = (c.tags || []).slice();
+  renderTagChips();
+}
+
+function resetAddForm() {
+  document.getElementById('f-emoji').value    = '🍸';
+  document.getElementById('f-title').value    = '';
+  document.getElementById('f-cat').value      = '';
+  document.getElementById('f-base').value     = '';
+  document.getElementById('f-diff').value     = 'moyen';
+  document.getElementById('f-prep').value     = '5';
+  document.getElementById('f-portions').value = '1';
+  document.getElementById('f-glass').value    = '';
+  document.getElementById('ing-list').innerHTML  = '';
+  document.getElementById('step-list').innerHTML = '';
+  document.getElementById('tag-input').value  = '';
+  formTags = [];
+  renderTagChips();
+}
+
+// ── Ingrédients dynamiques ─────────────────────────────────────────────────
+
+function addIngRow(name, qty, unit) {
+  var list = document.getElementById('ing-list');
+  var row  = document.createElement('div');
+  row.className = 'ing-row';
+  row.innerHTML =
+    '<input class="form-input ing-name" type="text" placeholder="Ex : Rhum blanc" value="' + (name||'') + '" oninput="syncTagsFromIngredients()">'
+  + '<input class="form-input ing-qty"  type="number" min="0" step="0.5" placeholder="4" value="' + (qty||'') + '">'
+  + '<input class="form-input ing-unit" type="text" placeholder="cl" value="' + (unit||'') + '">'
+  + '<button class="ing-row-del" onclick="removeRow(this)" title="Supprimer">✕</button>';
+  list.appendChild(row);
+}
+
+// ── Étapes dynamiques ──────────────────────────────────────────────────────
+
+function addStepRow(text) {
+  var list = document.getElementById('step-list');
+  var idx  = list.children.length + 1;
+  var row  = document.createElement('div');
+  row.className = 'step-row';
+  row.innerHTML =
+    '<span class="step-num">' + idx + '</span>'
+  + '<textarea class="form-textarea" placeholder="Décrivez cette étape…">' + (text||'') + '</textarea>'
+  + '<button class="ing-row-del step-row-del" onclick="removeStepRow(this)" title="Supprimer">✕</button>';
+  list.appendChild(row);
+}
+
+function removeRow(btn) {
+  btn.closest('.ing-row').remove();
+  syncTagsFromIngredients();
+}
+
+function removeStepRow(btn) {
+  btn.closest('.step-row').remove();
+  // Renuméroter
+  document.querySelectorAll('#step-list .step-num').forEach(function(span, i) {
+    span.textContent = i + 1;
+  });
+}
+
+// ── Tags ───────────────────────────────────────────────────────────────────
+
+// Synchronise les tags avec les noms d'ingrédients saisis
+function syncTagsFromIngredients() {
+  var ingNames = Array.from(document.querySelectorAll('#ing-list .ing-name'))
+    .map(function(inp) { return inp.value.trim(); })
+    .filter(function(v) { return v.length > 0; });
+  // Garder les tags manuels (pas issus d'ingrédients) + ajouter les nouveaux ingrédients
+  var manualTags = formTags.filter(function(t) { return ingNames.indexOf(t) === -1; });
+  formTags = ingNames.concat(manualTags.filter(function(t) { return ingNames.indexOf(t) === -1; }));
+  renderTagChips();
+}
+
+function addTagFromInput() {
+  var val = document.getElementById('tag-input').value.trim();
+  if (!val || formTags.indexOf(val) !== -1) return;
+  formTags.push(val);
+  document.getElementById('tag-input').value = '';
+  renderTagChips();
+}
+
+function removeTag(tag) {
+  formTags = formTags.filter(function(t) { return t !== tag; });
+  renderTagChips();
+}
+
+function renderTagChips() {
+  var ingNames = Array.from(document.querySelectorAll('#ing-list .ing-name'))
+    .map(function(inp) { return inp.value.trim(); });
+  document.getElementById('tag-chips').innerHTML = formTags.map(function(t) {
+    var fromIng = ingNames.indexOf(t) !== -1;
+    return '<span class="tag-chip' + (fromIng ? ' from-ing' : '') + '">'
+      + t + '<span onclick="removeTag(\'' + t.replace(/'/g,"\\'")+'\')">  ✕</span></span>';
+  }).join('');
+}
+
+// ── Validation et sauvegarde ───────────────────────────────────────────────
+
+function saveUserCocktail() {
+  var title   = document.getElementById('f-title').value.trim();
+  var cat     = document.getElementById('f-cat').value;
+  var base    = document.getElementById('f-base').value;
+  var glass   = document.getElementById('f-glass').value;
+
+  if (!title) { alert('Le nom du cocktail est obligatoire.'); return; }
+  if (!cat)   { alert('Choisissez une catégorie.'); return; }
+  if (!base)  { alert('Choisissez un alcool de base.'); return; }
+  if (!glass) { alert('Choisissez un verre.'); return; }
+
+  // Collecter les ingrédients
+  var ingredients = [];
+  document.querySelectorAll('#ing-list .ing-row').forEach(function(row) {
+    var name = row.querySelector('.ing-name').value.trim();
+    var qty  = parseFloat(row.querySelector('.ing-qty').value)  || 0;
+    var unit = row.querySelector('.ing-unit').value.trim();
+    if (name) ingredients.push([name, qty, unit]);
+  });
+  if (ingredients.length === 0) { alert('Ajoutez au moins un ingrédient.'); return; }
+
+  // Collecter les étapes
+  var steps = [];
+  document.querySelectorAll('#step-list .step-row textarea').forEach(function(ta) {
+    var s = ta.value.trim();
+    if (s) steps.push(s);
+  });
+  if (steps.length === 0) { alert('Ajoutez au moins une étape.'); return; }
+
+  // Construire l'objet cocktail
+  var stored = lsGet(USER_COCKTAILS_KEY, []);
+  var id = editingId || (10000 + Date.now() % 1000000);
+  var cocktail = {
+    id:        id,
+    title:     title,
+    emoji:     document.getElementById('f-emoji').value.trim() || '🍸',
+    cat:       cat,
+    baseAlcool:base,
+    diff:      document.getElementById('f-diff').value,
+    prep:      parseInt(document.getElementById('f-prep').value)    || 5,
+    portions:  parseInt(document.getElementById('f-portions').value)|| 1,
+    glass:     glass,
+    ingredients: ingredients,
+    steps:     steps,
+    tags:      formTags.length ? formTags : ingredients.map(function(i) { return i[0]; }),
+    userCreated: true
+  };
+
+  // Remplacer si édition, sinon ajouter
+  if (editingId) {
+    stored = stored.map(function(c) { return c.id === editingId ? cocktail : c; });
+  } else {
+    stored.push(cocktail);
+  }
+  saveUserCocktailsList(stored);
+  loadUserCocktails(); // Recharger COCKTAILS avec la nouvelle recette
+
+  // Naviguer vers la fiche de la recette créée
+  navTo('catalogue');
+  setTimeout(function() { showRecipe(id); }, 100);
+}
+
+// ── Affichage "Mes créations" dans les fiches ──────────────────────────────
+
+// Ajoute un badge + bouton supprimer sur les fiches de recettes créées
+function userCreatedBadge(id) {
+  var stored = lsGet(USER_COCKTAILS_KEY, []);
+  var isUser = stored.some(function(c) { return c.id === id; });
+  if (!isUser) return '';
+  return '<div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+    + '<span class="user-recipe-badge">✦ Ma création</span>'
+    + '<button class="back-btn" style="margin:0;font-size:13px;padding:6px 12px;color:var(--hard);border-color:var(--hard)" onclick="deleteUserCocktail(' + id + ')">🗑 Supprimer</button>'
+    + '</div>';
+}
+
+function deleteUserCocktail(id) {
+  if (!confirm('Supprimer définitivement cette recette ?')) return;
+  var stored = lsGet(USER_COCKTAILS_KEY, []).filter(function(c) { return c.id !== id; });
+  saveUserCocktailsList(stored);
+  loadUserCocktails();
+  goBack();
+}
+
 // ── DONNÉES : EXPORT / IMPORT / RESET ─────────────────────────────────────
 
 function collectUserData() {
@@ -1908,7 +2492,8 @@ function collectUserData() {
     app: 'MonCocktail',
     favorites: [],
     notes: {},
-    ratings: {}
+    ratings: {},
+    userCocktails: []
   };
   try { data.favorites = lsGet('mc_favs', []); } catch(e) {}
   Object.keys(localStorage).forEach(function(key) {
@@ -1917,6 +2502,7 @@ function collectUserData() {
     }
   });
   try { data.ratings = lsGet('mc_ratings', {}); } catch(e) {}
+  try { data.userCocktails = lsGet(USER_COCKTAILS_KEY, []); } catch(e) {}
   return data;
 }
 
@@ -1925,8 +2511,9 @@ function exportData() {
   var favCount  = data.favorites.length;
   var noteCount = Object.keys(data.notes).length;
   var ratCount  = Object.keys(data.ratings).length;
+  var cktCount  = data.userCocktails.length;
 
-  if (favCount === 0 && noteCount === 0 && ratCount === 0) {
+  if (favCount === 0 && noteCount === 0 && ratCount === 0 && cktCount === 0) {
     showDataStatus('export-status', 'Aucune donnée à exporter.', false);
     return;
   }
@@ -1941,7 +2528,8 @@ function exportData() {
   showDataStatus('export-status',
     '✓ ' + favCount + ' favori' + (favCount !== 1 ? 's' : '') +
     ', ' + noteCount + ' note' + (noteCount !== 1 ? 's' : '') +
-    ' et ' + ratCount + ' évaluation' + (ratCount !== 1 ? 's' : '') + ' exportés.', true);
+    ', ' + ratCount + ' évaluation' + (ratCount !== 1 ? 's' : '') +
+    ' et ' + cktCount + ' recette' + (cktCount !== 1 ? 's' : '') + ' exportés.', true);
 }
 
 function importData(input) {
@@ -1979,11 +2567,19 @@ function importData(input) {
       });
       lsSet('mc_ratings', existingRat);
 
+      // Recettes utilisateur : fusion sans doublon (par ID)
+      var existingCkts = lsGet(USER_COCKTAILS_KEY, []);
+      var existingIds = existingCkts.map(function(c) { return c.id; });
+      var newCkts = (data.userCocktails || []).filter(function(c) { return existingIds.indexOf(c.id) === -1; });
+      saveUserCocktailsList(existingCkts.concat(newCkts));
+      loadUserCocktails();
+
       showDataStatus('import-status',
         '✓ ' + favAdded + ' favori' + (favAdded !== 1 ? 's' : '') +
         ' ajouté' + (favAdded !== 1 ? 's' : '') +
         ', ' + noteCount + ' note' + (noteCount !== 1 ? 's' : '') +
-        ' et ' + ratCount + ' évaluation' + (ratCount !== 1 ? 's' : '') + ' restaurées.', true);
+        ', ' + ratCount + ' évaluation' + (ratCount !== 1 ? 's' : '') +
+        ' et ' + newCkts.length + ' recette' + (newCkts.length !== 1 ? 's' : '') + ' importées.', true);
       input.value = '';
     } catch(err) {
       showDataStatus('import-status', '✗ Erreur : ' + err.message, false);
