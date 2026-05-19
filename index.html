@@ -1571,6 +1571,7 @@ function showRecipe(id) {
     + buildTasteProfile(id)    // Profil gustatif en premier
     + buildStarsHtml(id)       // Ma note juste en dessous
     + userCreatedBadge(id)     // Badge + bouton supprimer pour les créations perso
+    + buildAdaptButton(id)     // Bouton "Adapter ce cocktail"
     + '<div class="notes-block">'
     + '<div class="recipe-section-title" style="margin-top:24px;margin-bottom:10px">MES NOTES</div>'
     + '<textarea id="notes-ta-' + id + '" class="notes-textarea" placeholder="Ajoutez vos notes personnelles : dosage préféré, variantes, astuces..." oninput="saveNote(' + id + ', this.value)">' + note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>'
@@ -2367,6 +2368,12 @@ function cloneFromCocktail(id) {
   navTo('add-form');
 }
 
+function adaptRecipe(id) {
+  // Fonction wrapper pour adapter une recette depuis sa fiche
+  // Fonctionne de la même façon que cloneFromCocktail
+  cloneFromCocktail(id);
+}
+
 // ── Formulaire : remplir / vider ──────────────────────────────────────────
 
 function fillFormFromCocktail(c) {
@@ -2639,6 +2646,14 @@ function userCreatedBadge(id) {
   return '<div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
     + '<span class="user-recipe-badge">✦ Ma création</span>'
     + '<button class="back-btn" style="margin:0;font-size:13px;padding:6px 12px;color:var(--hard);border-color:var(--hard)" onclick="deleteUserCocktail(' + id + ')">🗑 Supprimer</button>'
+    + '</div>';
+}
+
+function buildAdaptButton(id) {
+  return '<div style="margin-top:24px;margin-bottom:12px;">'
+    + '<button class="entry-choice-btn" style="width:100%;text-align:center;padding:12px 20px;background:linear-gradient(135deg,var(--accent),#d4a574);color:#0C0F1D;border:none;border-radius:8px;font-weight:500;cursor:pointer;transition:all .2s;font-size:14px;" onclick="adaptRecipe(' + id + ')" onmouseover="this.style.transform=\'scale(1.02)\';" onmouseout="this.style.transform=\'scale(1)\'">'
+    + '✨ Adapter ce cocktail à ma façon'
+    + '</button>'
     + '</div>';
 }
 
