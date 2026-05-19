@@ -629,6 +629,7 @@
     <button class="nav-btn" onclick="navTo('search')">🍸<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
+    <button class="nav-btn" onclick="navTo('import')">📥<span class="nav-label"> Importer</span></button>
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
@@ -1051,6 +1052,41 @@
     <button class="lex-tab" id="lt-materiel" onclick="setLexTab('materiel',this)">🔧 Matériel</button>
   </div>
   <div class="lex-list" id="lex-list"></div>
+</div>
+
+<div id="page-import" class="page">
+  <div style="display:flex;align-items:center;margin-bottom:12px;">
+    <button class="back-btn" onclick="goBack()" style="margin:0;">← Retour</button>
+  </div>
+  <div class="section-title" style="margin-bottom:4px">Importer une recette</div>
+  <p style="color:var(--text2);font-size:14px;margin-bottom:18px">Collez le code d'import reçu pour ajouter une recette à votre collection.</p>
+  
+  <div style="margin-bottom:20px">
+    <label style="display:block;font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text2)">Code d'import</label>
+    <textarea id="import-code-input" style="width:100%;height:120px;padding:12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none" placeholder="Collez le code ici (commence par mc_recipe_v1:...)"></textarea>
+  </div>
+  
+  <div style="display:flex;gap:10px;margin-bottom:20px">
+    <button class="entry-choice-btn" style="flex:1;padding:12px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;font-weight:500;cursor:pointer;transition:all .2s" onclick="attemptImport()" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      ✓ Importer
+    </button>
+    <button class="entry-choice-btn" style="flex:1;padding:12px;background:var(--border);color:var(--text);border:none;border-radius:6px;font-weight:500;cursor:pointer;transition:all .2s" onclick="document.getElementById('import-code-input').value='';document.getElementById('import-result').innerHTML=''" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      🗑 Effacer
+    </button>
+  </div>
+  
+  <div id="import-result"></div>
+  
+  <div style="margin-top:30px;padding:15px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+    <div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--text2)">💡 Comment ça marche ?</div>
+    <ul style="margin:0;padding-left:20px;font-size:12px;color:var(--text2);line-height:1.6">
+      <li>Ouvrez une fiche recette et cliquez [🔗 Partager]</li>
+      <li>Copiez le "CODE D'IMPORT"</li>
+      <li>Venez ici et collez-le</li>
+      <li>Cliquez [✓ Importer]</li>
+      <li>La recette s'ajoute avec ses notes et notes étoilées !</li>
+    </ul>
+  </div>
 </div>
 
 <script>
@@ -1572,6 +1608,7 @@ function showRecipe(id) {
     + buildTasteProfile(id)    // Profil gustatif en premier
     + buildStarsHtml(id)       // Ma note juste en dessous
     + userCreatedBadge(id)     // Badge + bouton supprimer pour les créations perso
+    + buildShareButton(id)     // Bouton "Partager cette recette"
     + buildAdaptButton(id)     // Bouton "Adapter ce cocktail"
     + '<div class="notes-block">'
     + '<div class="recipe-section-title" style="margin-top:24px;margin-bottom:10px">MES NOTES</div>'
@@ -2669,6 +2706,283 @@ function buildAdaptButton(id) {
     + '✨ Adapter ce cocktail à ma façon'
     + '</button>'
     + '</div>';
+}
+
+function buildShareButton(id) {
+  return '<div style="margin-top:24px;margin-bottom:12px;">'
+    + '<button class="entry-choice-btn" style="width:100%;text-align:center;padding:12px 20px;background:linear-gradient(135deg,#4A90E2,#357ABD);color:#fff;border:none;border-radius:8px;font-weight:500;cursor:pointer;transition:all .2s;font-size:14px;" onclick="shareRecipe(' + id + ')" onmouseover="this.style.transform=\'scale(1.02)\';" onmouseout="this.style.transform=\'scale(1)\'">'
+    + '🔗 Partager cette recette'
+    + '</button>'
+    + '</div>';
+}
+
+// ── PARTAGE DE RECETTES ─────────────────────────────────────────────
+
+function buildReadableRecipeText(c, note, userStars) {
+  // Construire le texte lisible en Markdown
+  var profile = c.profile || PROFILES[c.id] || {s:2, b:1, a:3};
+  var starsText = userStars > 0 ? '⭐'.repeat(userStars) : '';
+  
+  var text = c.emoji + ' ' + c.title + '\n';
+  text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  text += c.diff + ' | ' + c.baseAlcool + ' | ' + c.cat + '\n';
+  text += '⏱️  ' + c.prep + ' min | 🥃 ' + c.glass + ' | 👥 ' + c.portions + ' portion(s)\n';
+  if (starsText) text += '⭐ ' + starsText + '\n';
+  text += '\n';
+  
+  text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  text += 'INGRÉDIENTS\n';
+  text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  c.ingredients.forEach(function(ing) {
+    text += '• ' + ing[0] + ' - ' + ing[1] + ' ' + ing[2] + '\n';
+  });
+  text += '\n';
+  
+  text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  text += 'PRÉPARATION\n';
+  text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  c.steps.forEach(function(step, i) {
+    text += (i+1) + '. ' + step + '\n';
+  });
+  text += '\n';
+  
+  // Profil gustatif
+  text += '🍬 Sucrosité ';
+  for (var s = 0; s < 10; s++) {
+    text += (s < profile.s) ? '█' : '░';
+  }
+  text += ' (' + profile.s + '/10)\n';
+  
+  text += '🌿 Amertume ';
+  for (var b = 0; b < 10; b++) {
+    text += (b < profile.b) ? '█' : '░';
+  }
+  text += ' (' + profile.b + '/10)\n';
+  
+  text += '🔥 Alcool ';
+  for (var a = 0; a < 10; a++) {
+    text += (a < profile.a) ? '█' : '░';
+  }
+  text += ' (' + profile.a + '/10)\n';
+  text += '\n';
+  
+  // Notes
+  if (note && note.trim()) {
+    text += '📝 MES NOTES\n';
+    text += '"' + note + '"\n';
+    text += '\n';
+  }
+  
+  text += 'Partagé depuis MonCocktail 🍹\n';
+  
+  return text;
+}
+
+function exportRecipeData(c, note, userStars) {
+  // Exporter les données structurées
+  var profile = c.profile || PROFILES[c.id] || {s:2, b:1, a:3};
+  
+  return {
+    v: "1",
+    id: c.id,
+    title: c.title,
+    emoji: c.emoji,
+    cat: c.cat,
+    baseAlcool: c.baseAlcool,
+    diff: c.diff,
+    prep: c.prep,
+    glass: c.glass,
+    portions: c.portions,
+    ingredients: c.ingredients,
+    steps: c.steps,
+    tags: c.tags || [],
+    profile: profile,
+    userNote: note || '',
+    userStars: userStars || 0,
+    userCreated: c.userCreated || false
+  };
+}
+
+function generateRecipeShare(id) {
+  var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
+  if (!c) return null;
+  
+  var note = getNote(id);
+  var userStars = getRating(id) || 0;
+  
+  var readable = buildReadableRecipeText(c, note, userStars);
+  var data = exportRecipeData(c, note, userStars);
+  var encoded = btoa(JSON.stringify(data));
+  
+  return {
+    recipe: c,
+    readable: readable,
+    data: data,
+    encoded: encoded,
+    code: 'mc_recipe_v1:' + encoded
+  };
+}
+
+function shareRecipe(id) {
+  var share = generateRecipeShare(id);
+  if (!share) return;
+  
+  // Essayer Web Share API (mobile)
+  if (navigator.share) {
+    navigator.share({
+      title: share.recipe.title,
+      text: share.readable
+    }).catch(function(e) {
+      // Fallback si l'utilisateur annule
+    });
+  } else {
+    // Fallback : afficher modal avec options
+    showShareModal(id, share);
+  }
+}
+
+function showShareModal(id, share) {
+  var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000" onclick="if(event.target===this) document.querySelector(\'.share-modal-content\').parentElement.remove()">'
+    + '<div class="share-modal-content" style="background:var(--surface);border-radius:12px;padding:20px;max-width:90%;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
+    + '<h2 style="margin:0">Partager ' + share.recipe.title + '</h2>'
+    + '<button onclick="this.closest(\'.share-modal-content\').parentElement.remove()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>'
+    + '</div>'
+    
+    + '<div style="margin-bottom:20px">'
+    + '<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">TEXTE À PARTAGER</div>'
+    + '<textarea readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none" id="share-text-area">' + share.readable + '</textarea>'
+    + '<button onclick="copyToClipboard(document.getElementById(\'share-text-area\').value);this.textContent=\'✓ Copié!\';setTimeout(()=>this.textContent=\'📋 Copier le texte\',2000)" style="margin-top:8px;width:100%;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier le texte</button>'
+    + '</div>'
+    
+    + '<div style="margin-bottom:20px;border-top:1px solid var(--border);padding-top:20px">'
+    + '<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">CODE D\'IMPORT (pour réutiliser la recette)</div>'
+    + '<textarea readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all" id="share-code-area">' + share.code + '</textarea>'
+    + '<button onclick="copyToClipboard(document.getElementById(\'share-code-area\').value);this.textContent=\'✓ Copié!\';setTimeout(()=>this.textContent=\'🔐 Copier le code\',2000)" style="margin-top:8px;width:100%;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier le code</button>'
+    + '</div>'
+    
+    + '<div style="text-align:center;font-size:12px;color:var(--text3)">'
+    + '💡 Partagez le texte par SMS/Mail/Chat<br>'
+    + 'Collez le code dans MonCocktail pour importer'
+    + '</div>'
+    + '</div>'
+    + '</div>';
+  
+  var modal = document.createElement('div');
+  modal.innerHTML = html;
+  document.body.appendChild(modal);
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(function(e) {
+      console.error('Erreur copie:', e);
+    });
+  } else {
+    // Fallback ancien navigateur
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+
+// ── IMPORT DE RECETTES ──────────────────────────────────────────────
+
+function attemptImport() {
+  var code = document.getElementById('import-code-input').value.trim();
+  if (!code) {
+    showImportError('Collez un code d\'import d\'abord');
+    return;
+  }
+  
+  var result = importRecipeFromCode(code);
+  if (result.success) {
+    showImportSuccess(result.recipe);
+  } else {
+    showImportError(result.error);
+  }
+}
+
+function importRecipeFromCode(code) {
+  // Extraire le base64 du code
+  if (!code.startsWith('mc_recipe_v1:')) {
+    return {success: false, error: '❌ Format invalide. Le code doit commencer par "mc_recipe_v1:"'};
+  }
+  
+  var encoded = code.substring('mc_recipe_v1:'.length);
+  
+  try {
+    var decoded = atob(encoded);
+    var data = JSON.parse(decoded);
+    
+    // Valider les champs obligatoires
+    if (!data.title || !data.ingredients || !data.steps) {
+      return {success: false, error: '❌ Le code est corrompu. Données manquantes.'};
+    }
+    
+    // Gérer les conflits d'ID
+    var recipe = handleImportConflict(data);
+    
+    // Sauvegarder
+    var stored = lsGet(USER_COCKTAILS_KEY, []);
+    stored.push(recipe);
+    saveUserCocktailsList(stored);
+    loadUserCocktails();
+    
+    // Sauvegarder les notes et étoiles si présentes
+    if (data.userNote) {
+      saveNote(recipe.id, data.userNote);
+    }
+    if (data.userStars && data.userStars > 0) {
+      setRating(recipe.id, data.userStars);
+    }
+    
+    // Mettre à jour les onglets du catalogue
+    if (document.getElementById('page-catalogue').classList.contains('active')) {
+      loadCatalogueTabs();
+    }
+    
+    return {success: true, recipe: recipe};
+  } catch(e) {
+    console.error('Erreur import:', e);
+    return {success: false, error: '❌ Erreur de décodage. Le code est peut-être corrompu.'};
+  }
+}
+
+function handleImportConflict(importedData) {
+  // Créer une copie pour éviter les conflits
+  var newId = 10000 + (Date.now() % 9000000);
+  
+  // Garder toutes les données mais avec un nouvel ID
+  importedData.id = newId;
+  
+  return importedData;
+}
+
+function showImportSuccess(recipe) {
+  var html = '<div style="padding:15px;background:#d4edda;border:1px solid #c3e6cb;border-radius:6px;margin-top:20px">'
+    + '<div style="color:#155724;font-weight:500;margin-bottom:10px">✅ Recette importée avec succès !</div>'
+    + '<div style="color:#155724;font-size:13px;margin-bottom:10px">'
+    + '📝 <strong>' + recipe.title + '</strong> a été ajoutée à votre collection.'
+    + '</div>'
+    + '<button class="entry-choice-btn" style="width:100%;padding:10px;background:#155724;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500" onclick="showRecipe(' + recipe.id + ');navTo(\'recipe\')">'
+    + '👁️ Voir la recette'
+    + '</button>'
+    + '</div>';
+  
+  document.getElementById('import-result').innerHTML = html;
+  document.getElementById('import-code-input').value = '';
+}
+
+function showImportError(msg) {
+  var html = '<div style="padding:15px;background:#f8d7da;border:1px solid #f5c6cb;border-radius:6px;margin-top:20px">'
+    + '<div style="color:#721c24;font-weight:500">' + msg + '</div>'
+    + '</div>';
+  
+  document.getElementById('import-result').innerHTML = html;
 }
 
 function deleteUserCocktail(id) {
