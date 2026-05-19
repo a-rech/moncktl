@@ -1371,7 +1371,7 @@ function loadCatalogueTabs() {
   if (userCount > 0) {
     html += '<div class="cat-tab cat-tab-mycktls" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);display:flex;align-items:center;gap:8px;padding:6px 10px;">'
       + '<span style="flex:1;white-space:nowrap;">✦ Mes cocktails (' + userCount + ')</span>'
-      + '<button class="cat-tab-add-btn" onclick="event.stopPropagation();startFromScratch();" title="Créer un nouveau cocktail" style="flex:0 0 auto;width:24px;height:24px;border:none;border-radius:50%;background:var(--accent);color:#0C0F1D;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;margin:0;transition:all .15s;font-weight:bold;">+</button>'
+      + '<button class="cat-tab-add-btn" onclick="event.stopPropagation();navTo(\'add-entry\');" title="Créer un nouveau cocktail" style="flex:0 0 auto;width:24px;height:24px;border:none;border-radius:50%;background:var(--accent);color:#0C0F1D;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;margin:0;transition:all .15s;font-weight:bold;">+</button>'
       + '</div>';
   }
   
@@ -2285,9 +2285,17 @@ var USER_COCKTAILS_KEY = 'mc_user_cocktails';
 // Charge les cocktails utilisateur et les fusionne avec COCKTAILS
 function loadUserCocktails() {
   var stored = lsGet(USER_COCKTAILS_KEY, []);
-  // Retirer d'éventuels doublons (IDs utilisateur commencent à 10000)
-  COCKTAILS = COCKTAILS.filter(function(c) { return c.id < 10000; });
-  stored.forEach(function(c) { COCKTAILS.push(c); });
+  // Retirer d'éventuels doublons (IDs utilisateur commencent à 10000) - muter l'array au lieu de réassigner
+  for (var i = COCKTAILS.length - 1; i >= 0; i--) {
+    if (COCKTAILS[i].id >= 10000) {
+      COCKTAILS.splice(i, 1);
+    }
+  }
+  // Assurer que chaque recette personnalisée a la propriété userCreated
+  stored.forEach(function(c) { 
+    c.userCreated = true; // Force la propriété pour les recettes anciennes aussi
+    COCKTAILS.push(c); 
+  });
 }
 
 function saveUserCocktailsList(list) {
@@ -2595,6 +2603,15 @@ function saveUserCocktail() {
   editingId = null;
   // Rembobiner la pile : on veut que le ← Retour depuis la fiche aille au catalogue
   pageHistory = ['home', 'catalogue'];
+  
+  // Vérifier que la recette est bien dans COCKTAILS avant d'afficher
+  var found = COCKTAILS.filter(function(r) { return r.id === id; })[0];
+  if (!found) {
+    console.error('Erreur : recette non trouvée dans COCKTAILS après sauvegarde. ID:', id);
+    alert('Erreur : La recette n\'a pas pu être sauvegardée correctement.');
+    return;
+  }
+  
   showRecipe(id);
 }
 
