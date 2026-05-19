@@ -1353,8 +1353,19 @@ function loadCatalogueTabs() {
   uniqueVals.sort(); // Ordre alphabétique
   var tabsContainer = document.getElementById('cat-tabs');
   var favCount = FAVORITES.length;
+  
+  // Compter les recettes personnalisées
+  var userCocktails = lsGet(USER_COCKTAILS_KEY, []);
+  var userCount = userCocktails.length;
+  
   var html = '<div class="cat-tab active" data-val="all">Tous (' + COCKTAILS.length + ')</div>';
   html += '<div class="cat-tab cat-tab-fav" data-val="__favs__">❤️ Favoris' + (favCount > 0 ? ' (' + favCount + ')' : '') + '</div>';
+  
+  // Ajouter l'onglet "Mes cocktails" s'il y en a au moins un
+  if (userCount > 0) {
+    html += '<div class="cat-tab" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);">✦ Mes cocktails (' + userCount + ')</div>';
+  }
+  
   uniqueVals.forEach(function(v) {
     var count = COCKTAILS.filter(function(r) { return r[field] === v; }).length;
     html += '<div class="cat-tab" data-val="' + v + '">' + v + ' (' + count + ')</div>';
@@ -1371,9 +1382,11 @@ function loadCatalogueTabs() {
 
 // Filtre la grille selon la valeur de l'onglet sélectionné.
 // '__favs__' est une valeur spéciale qui déclenche le mode favoris.
+// '__mycocktails__' est une valeur spéciale qui déclenche le mode "Mes cocktails".
 function filterCatalogue(value, tabEl) {
   document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
   tabEl.classList.add('active');
+  
   if (value === '__favs__') {
     var favCocktails = COCKTAILS.filter(function(c) { return isFav(c.id); });
     if (favCocktails.length === 0) {
@@ -1384,6 +1397,18 @@ function filterCatalogue(value, tabEl) {
     document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
+  
+  if (value === '__mycocktails__') {
+    var myCocktails = COCKTAILS.filter(function(c) { return c.userCreated === true; });
+    if (myCocktails.length === 0) {
+      document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">✦</div><p>Vous n&#39;avez pas encore créé de cocktail.<br>Cliquez sur "Créer" pour en ajouter un !</p></div>';
+    } else {
+      renderCatalogueGrid(shuffle(myCocktails));
+    }
+    document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  
   var field = catMode === 'cat' ? 'cat' : 'baseAlcool';
   var filtered = value === 'all' ? COCKTAILS.slice() : COCKTAILS.filter(function(r) { return r[field] === value; });
   renderCatalogueGrid(shuffle(filtered)); // Mélange pour varier l'ordre à chaque clic
@@ -2547,9 +2572,14 @@ function saveUserCocktail() {
   }
   lsSet(USER_COCKTAILS_KEY, stored);
   loadUserCocktails();
-
+  
   // Ajouter le profil dans PROFILES pour qu'il s'affiche dans la fiche
   PROFILES[id] = { s: sweet, b: bitter, a: alco };
+  
+  // Mettre à jour les onglets du catalogue pour afficher "Mes cocktails"
+  if (document.getElementById('page-catalogue').classList.contains('active')) {
+    loadCatalogueTabs();
+  }
 
   // Succès : afficher la fiche du cocktail créé
   showFormError(''); // Effacer erreurs
@@ -2591,6 +2621,12 @@ function deleteUserCocktail(id) {
   var stored = lsGet(USER_COCKTAILS_KEY, []).filter(function(c) { return c.id !== id; });
   saveUserCocktailsList(stored);
   loadUserCocktails();
+  
+  // Mettre à jour les onglets du catalogue
+  if (document.getElementById('page-catalogue').classList.contains('active')) {
+    loadCatalogueTabs();
+  }
+  
   goBack();
 }
 
