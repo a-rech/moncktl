@@ -114,6 +114,12 @@
     .cat-tab:hover,.cat-tab.active{background:var(--accent);color:#0C0F1D;border-color:var(--accent);font-weight:500;}
     .cat-tab-fav{border-color:#E05C5C;color:#E05C5C;}
     .cat-tab-fav:hover,.cat-tab-fav.active{background:#E05C5C;color:#fff;border-color:#E05C5C;}
+    .cat-tab-mycktls{cursor:auto !important;}
+    .cat-tab-mycktls:hover{background:var(--surface) !important;color:var(--accent) !important;border-color:var(--accent) !important;}
+    .cat-tab-add-btn{box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+    .cat-tab-add-btn:hover{background:#c99c3a !important;transform:scale(1.1);}
+    .cat-tab-add-btn:active{transform:scale(0.95);}
+    @media(max-width:600px){.cat-tab-add-btn{width:22px;height:22px;font-size:12px;}}
     .cat-mode-bar{display:flex;gap:8px;margin-bottom:14px;}
     .cat-mode-btn{flex:1;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
     .cat-mode-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -1363,7 +1369,10 @@ function loadCatalogueTabs() {
   
   // Ajouter l'onglet "Mes cocktails" s'il y en a au moins un
   if (userCount > 0) {
-    html += '<div class="cat-tab" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);">✦ Mes cocktails (' + userCount + ')</div>';
+    html += '<div class="cat-tab cat-tab-mycktls" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);display:flex;align-items:center;gap:8px;padding:6px 10px;">'
+      + '<span style="flex:1;white-space:nowrap;">✦ Mes cocktails (' + userCount + ')</span>'
+      + '<button class="cat-tab-add-btn" onclick="event.stopPropagation();startFromScratch();" title="Créer un nouveau cocktail" style="flex:0 0 auto;width:24px;height:24px;border:none;border-radius:50%;background:var(--accent);color:#0C0F1D;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;margin:0;transition:all .15s;font-weight:bold;">+</button>'
+      + '</div>';
   }
   
   uniqueVals.forEach(function(v) {
