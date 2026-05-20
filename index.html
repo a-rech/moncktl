@@ -2712,11 +2712,40 @@ function buildAdaptButton(id) {
 }
 
 function buildShareButton(id) {
+  // Version simplifiée et directe
   return '<div style="margin-top:24px;margin-bottom:12px;">'
-    + '<button class="entry-choice-btn" style="width:100%;text-align:center;padding:12px 20px;background:linear-gradient(135deg,#4A90E2,#357ABD);color:#fff;border:none;border-radius:8px;font-weight:500;cursor:pointer;transition:all .2s;font-size:14px;" onclick="shareRecipe(' + id + ')" onmouseover="this.style.transform=\'scale(1.02)\';" onmouseout="this.style.transform=\'scale(1)\'">'
+    + '<button style="width:100%;padding:12px 20px;background:linear-gradient(135deg,#4A90E2,#357ABD);color:#fff;border:none;border-radius:8px;font-weight:500;cursor:pointer;font-size:14px;" onclick="shareRecipe(' + id + ')">'
     + '🔗 Partager cette recette'
     + '</button>'
     + '</div>';
+}
+
+// Fonction de partage de recette - simple et robuste
+// Fonctionne sur mobile (Web Share API) et desktop (modal)
+function shareRecipe(id) {
+  console.log('Partage déclenché pour ID:', id);
+  var share = generateRecipeShare(id);
+  
+  if (!share) {
+    alert('Erreur : recette non trouvée');
+    return;
+  }
+  
+  console.log('Share data:', share);
+  
+  // Sur mobile avec Web Share API
+  if (navigator.share) {
+    navigator.share({
+      title: share.recipe.title,
+      text: share.readable
+    }).catch(function(e) {
+      console.log('Web Share API annulée ou non disponible');
+      showShareModal(id, share);
+    });
+  } else {
+    // Sur desktop : afficher le modal
+    showShareModal(id, share);
+  }
 }
 
 // ── PARTAGE DE RECETTES ─────────────────────────────────────────────
@@ -2826,61 +2855,83 @@ function generateRecipeShare(id) {
   };
 }
 
-function shareRecipe(id) {
-  var share = generateRecipeShare(id);
-  if (!share) return;
-  
-  // Essayer Web Share API (mobile)
-  if (navigator.share) {
-    navigator.share({
-      title: share.recipe.title,
-      text: share.readable
-    }).catch(function(e) {
-      // Fallback si l'utilisateur annule
-    });
-  } else {
-    // Fallback : afficher modal avec options
-    showShareModal(id, share);
-  }
-}
+// Wrapper pour passer le bouton en argument (comme copyInstallLink)
+// DEPRECATED - Utiliser shareRecipe directement
+
 
 function showShareModal(id, share) {
+  if (!share) {
+    console.error('Erreur : share data vide');
+    return;
+  }
+  
   var modalId = 'share-modal-' + Date.now();
   
+  // HTML du modal - simple et robuste
   var html = '<div id="' + modalId + '" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000">'
     + '<div style="background:var(--surface);border-radius:12px;padding:20px;max-width:90%;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3)">'
+    
+    // Header
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
-    + '<h2 style="margin:0">Partager ' + share.recipe.title + '</h2>'
-    + '<button onclick="document.getElementById(\'' + modalId + '\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0">×</button>'
+    + '<h2 style="margin:0;font-size:18px">Partager ' + (share.recipe.title || 'la recette') + '</h2>'
+    + '<button onclick="document.getElementById(\'' + modalId + '\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px">×</button>'
     + '</div>'
     
+    // Section texte
     + '<div style="margin-bottom:20px">'
-    + '<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">TEXTE À PARTAGER</div>'
-    + '<textarea readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none" id="share-text-' + modalId + '">' + share.readable + '</textarea>'
-    + '<button onclick="var btn=this;copyToClipboard(document.getElementById(\'share-text-' + modalId + '\').value);btn.textContent=\'✓ Copié!\';setTimeout(function(){btn.textContent=\'📋 Copier le texte\'},2000)" style="margin-top:8px;width:100%;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier le texte</button>'
+    + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">TEXTE À PARTAGER</label>'
+    + '<textarea id="share-text-' + modalId + '" readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none">' + share.readable + '</textarea>'
+    + '<button onclick="copyShareText(\'' + modalId + '\', this)" style="margin-top:8px;width:100%;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier le texte</button>'
     + '</div>'
     
+    // Section code
     + '<div style="margin-bottom:20px;border-top:1px solid var(--border);padding-top:20px">'
-    + '<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">CODE D\'IMPORT (pour réutiliser la recette)</div>'
-    + '<textarea readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all" id="share-code-' + modalId + '">' + share.code + '</textarea>'
-    + '<button onclick="var btn=this;copyToClipboard(document.getElementById(\'share-code-' + modalId + '\').value);btn.textContent=\'✓ Copié!\';setTimeout(function(){btn.textContent=\'🔐 Copier le code\'},2000)" style="margin-top:8px;width:100%;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier le code</button>'
+    + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">CODE D\'IMPORT (pour réutiliser)</label>'
+    + '<textarea id="share-code-' + modalId + '" readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all">' + share.code + '</textarea>'
+    + '<button onclick="copyShareCode(\'' + modalId + '\', this)" style="margin-top:8px;width:100%;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier le code</button>'
     + '</div>'
     
+    // Info
     + '<div style="text-align:center;font-size:12px;color:var(--text3)">'
-    + '💡 Partagez le texte par SMS/Mail/Chat<br>'
-    + 'Collez le code dans MonCocktail pour importer'
+    + '💡 Partagez le texte par SMS/Mail/Chat<br>Collez le code dans MonCocktail pour importer'
     + '</div>'
     + '</div>'
     + '</div>';
   
-  var modal = document.createElement('div');
-  modal.innerHTML = html;
-  modal.onclick = function(e) {
-    if (e.target === modal) {
-      modal.remove();
+  var modalDiv = document.createElement('div');
+  modalDiv.innerHTML = html;
+  modalDiv.id = modalId + '-wrapper';
+  
+  // Fermer au clic sur le fond
+  modalDiv.firstChild.addEventListener('click', function(e) {
+    if (e.target === this) {
+      modalDiv.remove();
     }
-  };
-  document.body.appendChild(modal);
+  });
+  
+  document.body.appendChild(modalDiv);
+}
+
+function copyShareText(modalId, btn) {
+  var textArea = document.getElementById('share-text-' + modalId);
+  if (!textArea) return;
+  
+  copyToClipboard(textArea.value);
+  btn.textContent = '✓ Copié !';
+  setTimeout(function() {
+    btn.textContent = '📋 Copier le texte';
+  }, 2000);
+}
+
+function copyShareCode(modalId, btn) {
+  var codeArea = document.getElementById('share-code-' + modalId);
+  if (!codeArea) return;
+  
+  copyToClipboard(codeArea.value);
+  btn.textContent = '✓ Copié !';
+  setTimeout(function() {
+    btn.textContent = '🔐 Copier le code';
+  }, 2000);
 }
 
 function copyToClipboard(text) {
