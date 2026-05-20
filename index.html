@@ -629,7 +629,6 @@
     <button class="nav-btn" onclick="navTo('search')">🍸<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
-    <button class="nav-btn" onclick="navTo('import')">📥<span class="nav-label"> Importer</span></button>
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
@@ -644,6 +643,10 @@
       <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos alcools et sirops préférés</p></div>
       <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés</p></div>
       <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Aléatoire</h3><p>Laissez le hasard remplir votre verre</p></div>
+    </div>
+    <div class="hero-btns" style="gap:12px;margin-top:16px">
+      <div class="hero-card" onclick="navTo('add-entry')" style="padding:16px 12px;min-height:auto"><div class="icon" style="font-size:28px">➕</div><h3 style="font-size:14px;margin:8px 0 4px">Créer</h3><p style="font-size:12px">Créer un nouveau cocktail</p></div>
+      <div class="hero-card" onclick="navTo('import')" style="padding:16px 12px;min-height:auto"><div class="icon" style="font-size:28px">📥</div><h3 style="font-size:14px;margin:8px 0 4px">Importer</h3><p style="font-size:12px">Importer une recette reçue</p></div>
     </div>
     <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Préférences</button>
   </div>
@@ -2842,23 +2845,25 @@ function shareRecipe(id) {
 }
 
 function showShareModal(id, share) {
-  var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000" onclick="if(event.target===this) document.querySelector(\'.share-modal-content\').parentElement.remove()">'
-    + '<div class="share-modal-content" style="background:var(--surface);border-radius:12px;padding:20px;max-width:90%;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3)">'
+  var modalId = 'share-modal-' + Date.now();
+  
+  var html = '<div id="' + modalId + '" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000">'
+    + '<div style="background:var(--surface);border-radius:12px;padding:20px;max-width:90%;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3)">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
     + '<h2 style="margin:0">Partager ' + share.recipe.title + '</h2>'
-    + '<button onclick="this.closest(\'.share-modal-content\').parentElement.remove()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>'
+    + '<button onclick="document.getElementById(\'' + modalId + '\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0">×</button>'
     + '</div>'
     
     + '<div style="margin-bottom:20px">'
     + '<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">TEXTE À PARTAGER</div>'
-    + '<textarea readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none" id="share-text-area">' + share.readable + '</textarea>'
-    + '<button onclick="copyToClipboard(document.getElementById(\'share-text-area\').value);this.textContent=\'✓ Copié!\';setTimeout(()=>this.textContent=\'📋 Copier le texte\',2000)" style="margin-top:8px;width:100%;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier le texte</button>'
+    + '<textarea readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none" id="share-text-' + modalId + '">' + share.readable + '</textarea>'
+    + '<button onclick="var btn=this;copyToClipboard(document.getElementById(\'share-text-' + modalId + '\').value);btn.textContent=\'✓ Copié!\';setTimeout(function(){btn.textContent=\'📋 Copier le texte\'},2000)" style="margin-top:8px;width:100%;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier le texte</button>'
     + '</div>'
     
     + '<div style="margin-bottom:20px;border-top:1px solid var(--border);padding-top:20px">'
     + '<div style="font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">CODE D\'IMPORT (pour réutiliser la recette)</div>'
-    + '<textarea readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all" id="share-code-area">' + share.code + '</textarea>'
-    + '<button onclick="copyToClipboard(document.getElementById(\'share-code-area\').value);this.textContent=\'✓ Copié!\';setTimeout(()=>this.textContent=\'🔐 Copier le code\',2000)" style="margin-top:8px;width:100%;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier le code</button>'
+    + '<textarea readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all" id="share-code-' + modalId + '">' + share.code + '</textarea>'
+    + '<button onclick="var btn=this;copyToClipboard(document.getElementById(\'share-code-' + modalId + '\').value);btn.textContent=\'✓ Copié!\';setTimeout(function(){btn.textContent=\'🔐 Copier le code\'},2000)" style="margin-top:8px;width:100%;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier le code</button>'
     + '</div>'
     
     + '<div style="text-align:center;font-size:12px;color:var(--text3)">'
@@ -2870,12 +2875,19 @@ function showShareModal(id, share) {
   
   var modal = document.createElement('div');
   modal.innerHTML = html;
+  modal.onclick = function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
   document.body.appendChild(modal);
 }
 
 function copyToClipboard(text) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).catch(function(e) {
+    navigator.clipboard.writeText(text).then(function() {
+      // Succès
+    }).catch(function(e) {
       console.error('Erreur copie:', e);
     });
   } else {
