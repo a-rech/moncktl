@@ -1619,6 +1619,15 @@ function showRecipe(id) {
     + '<div id="notes-saved-' + id + '" class="notes-saved">✓ Note sauvegardée</div>'
     + '</div>';
   document.getElementById('recipe-content').innerHTML = html;
+  
+  // Attacher l'event listener du bouton partage APRÈS l'insertion du HTML
+  var shareBtn = document.getElementById('share-btn-' + id);
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function() {
+      console.log('Bouton partage cliqué pour ID:', id);
+      shareRecipe(id);
+    });
+  }
 }
 
 // Recalcule toutes les quantités d'ingrédients selon le nombre de portions choisi.
@@ -2712,39 +2721,69 @@ function buildAdaptButton(id) {
 }
 
 function buildShareButton(id) {
-  // Version simplifiée et directe
+  // Retourner le HTML SANS onclick - on l'attachera en JS
   return '<div style="margin-top:24px;margin-bottom:12px;">'
-    + '<button style="width:100%;padding:12px 20px;background:linear-gradient(135deg,#4A90E2,#357ABD);color:#fff;border:none;border-radius:8px;font-weight:500;cursor:pointer;font-size:14px;" onclick="shareRecipe(' + id + ')">'
+    + '<button id="share-btn-' + id + '" class="share-recipe-btn" style="width:100%;padding:12px 20px;background:linear-gradient(135deg,#4A90E2,#357ABD);color:#fff;border:none;border-radius:8px;font-weight:500;cursor:pointer;font-size:14px;">'
     + '🔗 Partager cette recette'
     + '</button>'
     + '</div>';
 }
 
-// Fonction de partage de recette - simple et robuste
+// Encode en base64 de manière UTF-8 compatible (supporte emojis et accents)
+function btoa_utf8(str) {
+  try {
+    return btoa(unescape(encodeURIComponent(str)));
+  } catch(e) {
+    console.error('Erreur encodage UTF-8:', e);
+    return null;
+  }
+}
+
+// Decode depuis base64 UTF-8
+function atob_utf8(str) {
+  try {
+    return decodeURIComponent(escape(atob(str)));
+  } catch(e) {
+    console.error('Erreur décodage UTF-8:', e);
+    return null;
+  }
+}
 // Fonctionne sur mobile (Web Share API) et desktop (modal)
 function shareRecipe(id) {
-  console.log('Partage déclenché pour ID:', id);
-  var share = generateRecipeShare(id);
+  console.log('=== PARTAGE RECETTE ===');
+  console.log('ID reçu:', id);
   
-  if (!share) {
-    alert('Erreur : recette non trouvée');
-    return;
-  }
-  
-  console.log('Share data:', share);
-  
-  // Sur mobile avec Web Share API
-  if (navigator.share) {
-    navigator.share({
-      title: share.recipe.title,
-      text: share.readable
-    }).catch(function(e) {
-      console.log('Web Share API annulée ou non disponible');
+  try {
+    var share = generateRecipeShare(id);
+    
+    if (!share) {
+      console.error('ERREUR: share est null/undefined');
+      alert('Erreur : recette non trouvée');
+      return;
+    }
+    
+    console.log('Share data généré:', share);
+    console.log('Recette:', share.recipe.title);
+    console.log('Code d\'import disponible:', share.code.substring(0, 30) + '...');
+    
+    // Sur mobile avec Web Share API
+    if (navigator.share) {
+      console.log('Web Share API détectée - affichage du menu natif');
+      navigator.share({
+        title: share.recipe.title,
+        text: share.readable
+      }).catch(function(e) {
+        console.log('Web Share API annulée:', e.message);
+        showShareModal(id, share);
+      });
+    } else {
+      console.log('Pas de Web Share API - affichage du modal');
       showShareModal(id, share);
-    });
-  } else {
-    // Sur desktop : afficher le modal
-    showShareModal(id, share);
+    }
+  } catch(e) {
+    console.error('ERREUR DANS SHARERECIPE:', e.message);
+    console.error(e);
+    alert('Erreur lors du partage: ' + e.message);
   }
 }
 
@@ -2753,7 +2792,14 @@ function shareRecipe(id) {
 function buildReadableRecipeText(c, note, userStars) {
   // Construire le texte lisible en Markdown
   var profile = c.profile || PROFILES[c.id] || {s:2, b:1, a:3};
-  var starsText = userStars > 0 ? '⭐'.repeat(userStars) : '';
+  
+  // Générer les étoiles (ES5 compatible au lieu de .repeat())
+  var starsText = '';
+  if (userStars > 0) {
+    for (var st = 0; st < userStars; st++) {
+      starsText += '⭐';
+    }
+  }
   
   var text = c.emoji + ' ' + c.title + '\n';
   text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
@@ -2844,7 +2890,11 @@ function generateRecipeShare(id) {
   
   var readable = buildReadableRecipeText(c, note, userStars);
   var data = exportRecipeData(c, note, userStars);
-  var encoded = btoa(JSON.stringify(data));
+  var encoded = btoa_utf8(JSON.stringify(data));
+  if (!encoded) {
+    console.error('Erreur : impossible d\'encoder les données');
+    return null;
+  }
   
   return {
     recipe: c,
@@ -2978,7 +3028,10 @@ function importRecipeFromCode(code) {
   var encoded = code.substring('mc_recipe_v1:'.length);
   
   try {
-    var decoded = atob(encoded);
+    var decoded = atob_utf8(encoded);
+    if (!decoded) {
+      return {success: false, error: '❌ Erreur de décodage. Le code est corrompu.'};
+    }
     var data = JSON.parse(decoded);
     
     // Valider les champs obligatoires
