@@ -2766,25 +2766,45 @@ function shareRecipe(id) {
     console.log('Recette:', share.recipe.title);
     console.log('Code d\'import disponible:', share.code.substring(0, 30) + '...');
     
-    // Sur mobile avec Web Share API
-    if (navigator.share) {
-      console.log('Web Share API détectée - affichage du menu natif');
-      navigator.share({
-        title: share.recipe.title,
-        text: share.readable
-      }).catch(function(e) {
-        console.log('Web Share API annulée:', e.message);
-        showShareModal(id, share);
-      });
-    } else {
-      console.log('Pas de Web Share API - affichage du modal');
-      showShareModal(id, share);
-    }
+    // TOUJOURS afficher le modal (même sur mobile)
+    // Les boutons de partage dans le modal utiliseront Web Share API si disponible
+    console.log('Affichage du modal de partage');
+    showShareModal(id, share);
   } catch(e) {
     console.error('ERREUR DANS SHARERECIPE:', e.message);
     console.error(e);
     alert('Erreur lors du partage: ' + e.message);
   }
+}
+
+// Partager le texte lisible via Web Share API
+function shareText(modalId, text, title) {
+  if (!navigator.share) {
+    alert('Partage non disponible sur ce navigateur. Copiez le texte à la place.');
+    return;
+  }
+  
+  navigator.share({
+    title: title,
+    text: text
+  }).catch(function(e) {
+    console.log('Partage annulé:', e.message);
+  });
+}
+
+// Partager le code d'import via Web Share API
+function shareCode(modalId, code, title) {
+  if (!navigator.share) {
+    alert('Partage non disponible sur ce navigateur. Copiez le code à la place.');
+    return;
+  }
+  
+  navigator.share({
+    title: 'Code d\'import - ' + title,
+    text: code
+  }).catch(function(e) {
+    console.log('Partage annulé:', e.message);
+  });
 }
 
 // ── PARTAGE DE RECETTES ─────────────────────────────────────────────
@@ -2931,14 +2951,20 @@ function showShareModal(id, share) {
     + '<div style="margin-bottom:20px">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">TEXTE À PARTAGER</label>'
     + '<textarea id="share-text-' + modalId + '" readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none">' + share.readable + '</textarea>'
-    + '<button onclick="copyShareText(\'' + modalId + '\', this)" style="margin-top:8px;width:100%;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier le texte</button>'
+    + '<div style="display:flex;gap:10px;margin-top:8px">'
+    + '<button onclick="copyShareText(\'' + modalId + '\', this)" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier</button>'
+    + '<button onclick="shareText(\'' + modalId + '\', document.getElementById(\'share-text-' + modalId + '\').value, \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Partager</button>'
+    + '</div>'
     + '</div>'
     
     // Section code
     + '<div style="margin-bottom:20px;border-top:1px solid var(--border);padding-top:20px">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">CODE D\'IMPORT (pour réutiliser)</label>'
     + '<textarea id="share-code-' + modalId + '" readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all">' + share.code + '</textarea>'
-    + '<button onclick="copyShareCode(\'' + modalId + '\', this)" style="margin-top:8px;width:100%;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier le code</button>'
+    + '<div style="display:flex;gap:10px;margin-top:8px">'
+    + '<button onclick="copyShareCode(\'' + modalId + '\', this)" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier</button>'
+    + '<button onclick="shareCode(\'' + modalId + '\', document.getElementById(\'share-code-' + modalId + '\').value, \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Partager</button>'
+    + '</div>'
     + '</div>'
     
     // Info
