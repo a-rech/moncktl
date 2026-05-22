@@ -70,11 +70,11 @@
     .hero h1 em{color:var(--accent);font-style:italic;}
     .hero p{color:var(--text2);font-size:16px;max-width:480px;margin:0 auto 36px;}
     .hero-btns{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
-    .hero-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px 28px;cursor:pointer;transition:all .25s;text-align:left;min-width:180px;flex:1;max-width:260px;box-shadow:var(--shadow);}
+    .hero-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px 16px;cursor:pointer;transition:all .25s;text-align:left;min-width:180px;flex:1;max-width:260px;box-shadow:var(--shadow);}
     .hero-card:hover{transform:translateY(-3px);box-shadow:0 8px 36px rgba(0,0,0,0.6);border-color:var(--accent);}
-    .hero-card .icon{font-size:28px;margin-bottom:10px;}
-    .hero-card h3{font-size:15px;font-weight:500;margin-bottom:5px;color:var(--text);}
-    .hero-card p{font-size:12px;color:var(--text2);}
+    .hero-card .icon{font-size:32px;margin-bottom:12px;}
+    .hero-card h3{font-size:15px;font-weight:500;margin-bottom:6px;color:var(--text);}
+    .hero-card p{font-size:12px;color:var(--text2);line-height:1.4;}
     /* TITRES */
     .section-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:6px;color:var(--text);}
     .section-sub{color:var(--text2);margin-bottom:24px;font-size:14px;}
@@ -629,6 +629,7 @@
     <button class="nav-btn" onclick="navTo('search')">🍸<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
+    <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créer</span></button>
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
@@ -645,8 +646,7 @@
       <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Aléatoire</h3><p>Laissez le hasard remplir votre verre</p></div>
     </div>
     <div class="hero-btns" style="gap:12px;margin-top:16px">
-      <div class="hero-card" onclick="navTo('add-entry')" style="padding:16px 12px;min-height:auto"><div class="icon" style="font-size:28px">➕</div><h3 style="font-size:14px;margin:8px 0 4px">Créer</h3><p style="font-size:12px">Créer un nouveau cocktail</p></div>
-      <div class="hero-card" onclick="navTo('import')" style="padding:16px 12px;min-height:auto"><div class="icon" style="font-size:28px">📥</div><h3 style="font-size:14px;margin:8px 0 4px">Importer</h3><p style="font-size:12px">Importer une recette reçue</p></div>
+      <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créer</h3><p>Créer un nouveau cocktail</p></div>
     </div>
     <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Préférences</button>
   </div>
@@ -860,6 +860,13 @@
         <div class="entry-choice-sub">Partez d'un cocktail du catalogue pour le personnaliser</div>
       </div>
     </button>
+    <button class="entry-choice-btn" onclick="navTo('import')">
+      <span class="entry-choice-icon">📥</span>
+      <div>
+        <div class="entry-choice-title">Importer une recette</div>
+        <div class="entry-choice-sub">Importez un code reçu pour ajouter une recette</div>
+      </div>
+    </button>
   </div>
   <div id="clone-picker" style="display:none;margin-top:24px;">
     <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;">Choisissez une recette à adapter</div>
@@ -1066,7 +1073,7 @@
   
   <div style="margin-bottom:20px">
     <label style="display:block;font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text2)">Code d'import</label>
-    <textarea id="import-code-input" style="width:100%;height:120px;padding:12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none" placeholder="Collez le code ici (commence par mc_recipe_v1:...)"></textarea>
+    <textarea id="import-code-input" style="width:100%;height:120px;padding:12px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#000;font-family:monospace;font-size:12px;resize:none" placeholder="Collez le code ici (commence par mc_recipe_v1:...)"></textarea>
   </div>
   
   <div style="display:flex;gap:10px;margin-bottom:20px">
@@ -1406,13 +1413,11 @@ function loadCatalogueTabs() {
   var html = '<div class="cat-tab active" data-val="all">Tous (' + COCKTAILS.length + ')</div>';
   html += '<div class="cat-tab cat-tab-fav" data-val="__favs__">❤️ Favoris' + (favCount > 0 ? ' (' + favCount + ')' : '') + '</div>';
   
-  // Ajouter l'onglet "Mes cocktails" s'il y en a au moins un
-  if (userCount > 0) {
-    html += '<div class="cat-tab cat-tab-mycktls" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);display:flex;align-items:center;gap:8px;padding:6px 10px;">'
-      + '<span style="flex:1;white-space:nowrap;">✦ Mes cocktails (' + userCount + ')</span>'
-      + '<button class="cat-tab-add-btn" onclick="event.stopPropagation();navTo(\'add-entry\');" title="Créer un nouveau cocktail" style="flex:0 0 auto;width:24px;height:24px;border:none;border-radius:50%;background:var(--accent);color:#0C0F1D;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;margin:0;transition:all .15s;font-weight:bold;">+</button>'
-      + '</div>';
-  }
+  // Afficher l'onglet "Mes cocktails" en permanence (même si 0 création)
+  html += '<div class="cat-tab cat-tab-mycktls" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);display:flex;align-items:center;gap:8px;padding:6px 10px;">'
+    + '<span style="flex:1;white-space:nowrap;">✦ Mes cocktails' + (userCount > 0 ? ' (' + userCount + ')' : ' (0)') + '</span>'
+    + '<button class="cat-tab-add-btn" onclick="event.stopPropagation();navTo(\'add-entry\');" title="Créer un nouveau cocktail" style="flex:0 0 auto;width:24px;height:24px;border:none;border-radius:50%;background:var(--accent);color:#0C0F1D;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;padding:0;margin:0;transition:all .15s;font-weight:bold;">+</button>'
+    + '</div>';
   
   uniqueVals.forEach(function(v) {
     var count = COCKTAILS.filter(function(r) { return r[field] === v; }).length;
@@ -2950,7 +2955,7 @@ function showShareModal(id, share) {
     // Section texte
     + '<div style="margin-bottom:20px">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">TEXTE À PARTAGER</label>'
-    + '<textarea id="share-text-' + modalId + '" readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:12px;resize:none">' + share.readable + '</textarea>'
+    + '<textarea id="share-text-' + modalId + '" readonly style="width:100%;height:150px;padding:10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#000;font-family:monospace;font-size:12px;resize:none">' + share.readable + '</textarea>'
     + '<div style="display:flex;gap:10px;margin-top:8px">'
     + '<button onclick="copyShareText(\'' + modalId + '\', this)" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Copier</button>'
     + '<button onclick="shareText(\'' + modalId + '\', document.getElementById(\'share-text-' + modalId + '\').value, \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">📋 Partager</button>'
@@ -2960,7 +2965,7 @@ function showShareModal(id, share) {
     // Section code
     + '<div style="margin-bottom:20px;border-top:1px solid var(--border);padding-top:20px">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:8px;color:var(--text2)">CODE D\'IMPORT (pour réutiliser)</label>'
-    + '<textarea id="share-code-' + modalId + '" readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:monospace;font-size:11px;resize:none;word-break:break-all">' + share.code + '</textarea>'
+    + '<textarea id="share-code-' + modalId + '" readonly style="width:100%;height:80px;padding:10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#000;font-family:monospace;font-size:11px;resize:none;word-break:break-all">' + share.code + '</textarea>'
     + '<div style="display:flex;gap:10px;margin-top:8px">'
     + '<button onclick="copyShareCode(\'' + modalId + '\', this)" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Copier</button>'
     + '<button onclick="shareCode(\'' + modalId + '\', document.getElementById(\'share-code-' + modalId + '\').value, \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">🔐 Partager</button>'
