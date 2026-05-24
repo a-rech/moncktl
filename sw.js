@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════
-   MonCocktail — Service Worker v2.14
+   MonCocktail — Service Worker
    ────────────────────────────────────────────────────────────────────────
    Stratégie : Cache First + notification de mise à jour.
 
@@ -8,7 +8,7 @@
      les fichiers sur GitHub. L'app affichera le bouton "🔄 Mettre à jour".
    ════════════════════════════════════════════════════════════════════════ */
 
-const CACHE_VERSION = 'moncktl-v2.14';
+const CACHE_VERSION = 'moncktl-v2.15';
 
 // Les chemins sont résolus dynamiquement depuis le scope du SW,
 // indépendamment du nom du dépôt GitHub.
