@@ -1083,7 +1083,7 @@
     
     <!-- Caméra video (cachée par défaut) -->
     <div id="camera-container" style="display:none;margin-bottom:12px">
-      <video id="camera-video" style="width:100%;border-radius:6px;background:#000;max-height:300px"></video>
+      <video id="camera-video" autoplay playsinline muted style="width:100%;border-radius:6px;background:#000;max-height:300px"></video>
       <div style="display:flex;gap:10px;margin-top:10px">
         <button onclick="stopQRScanner()" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">
           ⏹️ Arrêter
@@ -3328,19 +3328,44 @@ function startQRScanner() {
   cameraContainer.style.display = 'block';
   qrScannerActive = true;
   
+  var statusDiv = document.getElementById('scanner-status');
+  statusDiv.innerHTML = '⏳ Initialisation caméra...';
+  
   navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment' }
+    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
   }).then(function(stream) {
+    console.log('✅ Flux caméra obtenu');
     qrScannerStream = stream;
+    
     var video = document.getElementById('camera-video');
     video.srcObject = stream;
-    video.play();
     
-    // Démarrer le scan
-    scanQRCodeLoop();
+    // Attendre que la vidéo soit vraiment prête
+    var onLoadedMetadata = function() {
+      console.log('✅ Vidéo prête, dimensions:', video.videoWidth, 'x', video.videoHeight);
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      
+      // Laisser un peu de temps pour que la vidéo soit stable
+      setTimeout(function() {
+        statusDiv.innerHTML = '✅ Caméra prête. Scannez un QR code...';
+        console.log('✅ Démarrage du scan QR');
+        scanQRCodeLoop();
+      }, 500);
+    };
+    
+    video.addEventListener('loadedmetadata', onLoadedMetadata);
+    
+    // Fallback si loadedmetadata n'est pas déclenché
+    setTimeout(function() {
+      if (qrScannerActive && !video.videoWidth) {
+        console.warn('⚠️ loadedmetadata pas déclenché, démarrage du scan par fallback');
+        statusDiv.innerHTML = '✅ Caméra prête. Scannez un QR code...';
+        scanQRCodeLoop();
+      }
+    }, 2000);
     
   }).catch(function(err) {
-    console.error('Erreur caméra:', err);
+    console.error('❌ Erreur caméra:', err);
     var statusDiv = document.getElementById('scanner-status');
     
     if (err.name === 'NotAllowedError') {
@@ -3382,33 +3407,63 @@ function scanQRCodeLoop() {
   if (!qrScannerActive) return;
   
   var video = document.getElementById('camera-video');
-  var canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  var statusDiv = document.getElementById('scanner-status');
   
-  var ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
-  
-  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  var code = jsQR(imageData.data, imageData.width, imageData.height);
-  
-  if (code) {
-    // QR code détecté !
-    console.log('QR Code détecté:', code.data);
-    
-    var data = code.data;
-    if (data.startsWith('mc_recipe_v1:')) {
-      // C'est un code MonCocktail valide !
-      handleQRScanResult(data);
-    } else {
-      // Code QR valide mais pas pour MonCocktail
-      console.log('QR code valide mais format inconnu:', data);
+  // Vérifier que la vidéo a des dimensions valides
+  if (!video || !video.videoWidth || !video.videoHeight) {
+    console.warn('⚠️ Vidéo pas prête encore:', video.videoWidth, 'x', video.videoHeight);
+    if (qrScannerActive) {
+      qrScannerAnimationId = requestAnimationFrame(scanQRCodeLoop);
     }
+    return;
   }
   
-  var statusDiv = document.getElementById('scanner-status');
-  if (statusDiv && qrScannerActive) {
-    statusDiv.innerHTML = '⏳ Scanning... ' + Math.floor(Math.random() * 100) + '%';
+  try {
+    var canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    var ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('❌ Impossible de créer le contexte canvas');
+      return;
+    }
+    
+    ctx.drawImage(video, 0, 0);
+    
+    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    
+    // Vérifier que jsQR est disponible
+    if (typeof jsQR === 'undefined') {
+      console.error('❌ jsQR library non disponible');
+      statusDiv.innerHTML = '❌ Libraire QR non disponible. Rafraîchissez la page.';
+      return;
+    }
+    
+    var code = jsQR(imageData.data, imageData.width, imageData.height);
+    
+    if (code) {
+      // QR code détecté !
+      console.log('✅ QR Code détecté:', code.data);
+      
+      var data = code.data;
+      if (data.startsWith('mc_recipe_v1:')) {
+        // C'est un code MonCocktail valide !
+        handleQRScanResult(data);
+        return; // Arrêter le scan
+      } else {
+        // Code QR valide mais pas pour MonCocktail
+        console.log('⚠️ QR code valide mais format inconnu:', data);
+        statusDiv.innerHTML = '⚠️ QR code valide mais format inconnu (pas MonCocktail)';
+      }
+    } else {
+      // Pas de QR code détecté, continuer le scan
+      statusDiv.innerHTML = '⏳ Scanning... ' + Math.floor(Math.random() * 100) + '%';
+    }
+    
+  } catch (e) {
+    console.error('❌ Erreur scan:', e);
+    statusDiv.innerHTML = '❌ Erreur scan: ' + e.message;
   }
   
   if (qrScannerActive) {
@@ -3417,20 +3472,24 @@ function scanQRCodeLoop() {
 }
 
 function handleQRScanResult(code) {
+  console.log('✅ Résultat QR reçu:', code.substring(0, 50) + '...');
   stopQRScanner();
   
   // Remplir le textarea avec le code
   document.getElementById('import-code-input').value = code;
   
-  // Afficher un message
+  // Afficher un message de succès
   var statusDiv = document.getElementById('scanner-status');
   statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
   statusDiv.style.background = '#d4edda';
   statusDiv.style.color = '#155724';
   
-  // Auto-import (optionnel - décommenter si tu veux)
-  // Sinon, laisser l'utilisateur cliquer sur "Importer"
-  // attemptImport();
+  console.log('✅ Code d\'import inséré dans le textarea');
+  
+  // Optional: Auto-import (décommenter si tu veux)
+  // setTimeout(function() {
+  //   attemptImport();
+  // }, 500);
 }
 
 function toggleCameraFlash() {
