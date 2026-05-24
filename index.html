@@ -26,11 +26,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   
-  <!-- ── QR Code Library ── -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- ── QR Code Generation Library ── -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   
   <!-- ── QR Code Scanner Library ── -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <style>
     /* ══════════════════════════════════════════════════
        VARIABLES DE THÈME
@@ -1734,6 +1734,24 @@ window.addEventListener('DOMContentLoaded', function() {
       window.location.reload();
     });
   }
+  
+  // ── Vérification des libraires QR au démarrage ────────────────
+  setTimeout(function() {
+    console.log('🔍 Vérification libraires QR...');
+    console.log('QRCode disponible?', typeof QRCode !== 'undefined' ? '✅ OUI' : '❌ NON');
+    console.log('jsQR disponible?', typeof jsQR !== 'undefined' ? '✅ OUI' : '❌ NON');
+    
+    if (typeof QRCode === 'undefined') {
+      console.warn('⚠️ QRCode library non disponible');
+    }
+    if (typeof jsQR === 'undefined') {
+      console.warn('⚠️ jsQR library non disponible');
+    }
+    
+    if (typeof QRCode !== 'undefined' && typeof jsQR !== 'undefined') {
+      console.log('✅ Toutes les libraires QR sont chargées !');
+    }
+  }, 1000);
 });
 
 // Affiche le bouton flottant de mise à jour
@@ -3104,7 +3122,14 @@ function copyShareCode(modalId, btn) {
 function generateQRCodeInModal(text, containerId, modalId) {
   var container = document.getElementById(containerId);
   if (!container) {
-    console.error('Container QR not found:', containerId);
+    console.error('❌ Container QR not found:', containerId);
+    return;
+  }
+  
+  // Vérifier que QRCode est disponible
+  if (typeof QRCode === 'undefined') {
+    console.error('❌ QRCode library non disponible');
+    container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Libraire QR non disponible. Rafraîchissez la page.</div>';
     return;
   }
   
@@ -3112,6 +3137,7 @@ function generateQRCodeInModal(text, containerId, modalId) {
   container.innerHTML = '';
   
   try {
+    console.log('📱 Génération QR code...');
     // Utiliser la libraire QRCode pour générer un QR code
     var qr = new QRCode(container, {
       text: text,
@@ -3122,13 +3148,15 @@ function generateQRCodeInModal(text, containerId, modalId) {
       correctLevel: QRCode.CorrectLevel.H
     });
     
+    console.log('✅ QR code généré avec succès');
+    
     // Ajouter un data-modalid au container pour le retrouver plus tard
     container.setAttribute('data-modalid', modalId);
     container.setAttribute('data-qrtext', text);
     
   } catch (e) {
-    console.error('Erreur génération QR:', e);
-    container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur génération QR</div>';
+    console.error('❌ Erreur génération QR:', e);
+    container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur génération QR: ' + e.message + '</div>';
   }
 }
 
@@ -3345,12 +3373,12 @@ function startQRScanner() {
       console.log('✅ Vidéo prête, dimensions:', video.videoWidth, 'x', video.videoHeight);
       video.removeEventListener('loadedmetadata', onLoadedMetadata);
       
-      // Laisser un peu de temps pour que la vidéo soit stable
+      // Laisser un peu de temps pour que la vidéo soit stable ET que jsQR soit chargée
       setTimeout(function() {
         statusDiv.innerHTML = '✅ Caméra prête. Scannez un QR code...';
         console.log('✅ Démarrage du scan QR');
         scanQRCodeLoop();
-      }, 500);
+      }, 1500);
     };
     
     video.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -3362,7 +3390,7 @@ function startQRScanner() {
         statusDiv.innerHTML = '✅ Caméra prête. Scannez un QR code...';
         scanQRCodeLoop();
       }
-    }, 2000);
+    }, 3000);
     
   }).catch(function(err) {
     console.error('❌ Erreur caméra:', err);
@@ -3435,8 +3463,9 @@ function scanQRCodeLoop() {
     
     // Vérifier que jsQR est disponible
     if (typeof jsQR === 'undefined') {
-      console.error('❌ jsQR library non disponible');
-      statusDiv.innerHTML = '❌ Libraire QR non disponible. Rafraîchissez la page.';
+      console.error('❌ jsQR library non disponible. CDN n\'a pas chargé.');
+      statusDiv.innerHTML = '❌ Libraire QR non disponible. Rafraîchissez la page.<br>(Si le problème persiste, vérifiez votre connexion Internet)';
+      stopQRScanner();
       return;
     }
     
