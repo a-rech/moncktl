@@ -25,6 +25,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- ── QR Code Library ── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     /* ══════════════════════════════════════════════════
        VARIABLES DE THÈME
@@ -2941,6 +2944,7 @@ function showShareModal(id, share) {
   }
   
   var modalId = 'share-modal-' + Date.now();
+  var qrContainerId = 'qr-container-' + modalId;
   
   // HTML du modal - simple et robuste
   var html = '<div id="' + modalId + '" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000">'
@@ -2950,6 +2954,16 @@ function showShareModal(id, share) {
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
     + '<h2 style="margin:0;font-size:18px">Partager ' + (share.recipe.title || 'la recette') + '</h2>'
     + '<button onclick="document.getElementById(\'' + modalId + '\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px">×</button>'
+    + '</div>'
+    
+    // Section QR Code
+    + '<div style="margin-bottom:20px;background:var(--surface2);padding:15px;border-radius:8px;text-align:center">'
+    + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2)">QR CODE</label>'
+    + '<div id="' + qrContainerId + '" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:210px"></div>'
+    + '<div style="display:flex;gap:10px">'
+    + '<button onclick="downloadQRCode(\'' + modalId + '\')" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">⬇️ Télécharger</button>'
+    + '<button onclick="shareQRCode(\'' + modalId + '\', \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">📤 Partager</button>'
+    + '</div>'
     + '</div>'
     
     // Section texte
@@ -2974,7 +2988,7 @@ function showShareModal(id, share) {
     
     // Info
     + '<div style="text-align:center;font-size:12px;color:var(--text3)">'
-    + '💡 Partagez le texte par SMS/Mail/Chat<br>Collez le code dans MonCocktail pour importer'
+    + '💡 Scannez le QR | Partagez le texte par SMS/Mail | Collez le code pour importer'
     + '</div>'
     + '</div>'
     + '</div>';
@@ -2991,6 +3005,11 @@ function showShareModal(id, share) {
   });
   
   document.body.appendChild(modalDiv);
+  
+  // Générer le QR code après l'insertion du DOM
+  setTimeout(function() {
+    generateQRCodeInModal(share.code, qrContainerId, modalId);
+  }, 100);
 }
 
 function copyShareText(modalId, btn) {
@@ -3013,6 +3032,107 @@ function copyShareCode(modalId, btn) {
   setTimeout(function() {
     btn.textContent = '🔐 Copier le code';
   }, 2000);
+}
+
+// ── FONCTIONS QR CODE ──────────────────────────────────────────────
+
+function generateQRCodeInModal(text, containerId, modalId) {
+  var container = document.getElementById(containerId);
+  if (!container) {
+    console.error('Container QR not found:', containerId);
+    return;
+  }
+  
+  // Vider le container d'abord
+  container.innerHTML = '';
+  
+  try {
+    // Utiliser la libraire QRCode pour générer un QR code
+    var qr = new QRCode(container, {
+      text: text,
+      width: 200,
+      height: 200,
+      colorDark: "#0C0F1D",
+      colorLight: "#fff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    // Ajouter un data-modalid au container pour le retrouver plus tard
+    container.setAttribute('data-modalid', modalId);
+    container.setAttribute('data-qrtext', text);
+    
+  } catch (e) {
+    console.error('Erreur génération QR:', e);
+    container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur génération QR</div>';
+  }
+}
+
+function downloadQRCode(modalId) {
+  var container = document.getElementById('qr-container-' + modalId);
+  if (!container) return;
+  
+  var canvas = container.querySelector('canvas');
+  if (!canvas) {
+    console.error('Canvas QR not found');
+    return;
+  }
+  
+  // Créer un lien de téléchargement
+  var link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = 'monckcktail-qr-' + Date.now() + '.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function shareQRCode(modalId, recipeName) {
+  var container = document.getElementById('qr-container-' + modalId);
+  if (!container) return;
+  
+  var canvas = container.querySelector('canvas');
+  if (!canvas) {
+    console.error('Canvas QR not found');
+    return;
+  }
+  
+  // Convertir le canvas en blob pour partager
+  canvas.toBlob(function(blob) {
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'qr.png', { type: 'image/png' })] })) {
+      // Utiliser Web Share API si disponible
+      navigator.share({
+        title: 'MonCocktail - ' + recipeName,
+        text: 'Scannez le QR code pour importer cette recette dans MonCocktail!',
+        files: [new File([blob], 'qr.png', { type: 'image/png' })]
+      }).catch(function(err) {
+        console.log('Erreur partage:', err);
+        fallbackQRShare(canvas, recipeName);
+      });
+    } else {
+      // Fallback: copier comme image
+      fallbackQRShare(canvas, recipeName);
+    }
+  });
+}
+
+function fallbackQRShare(canvas, recipeName) {
+  // Fallback si Web Share API ne supporte pas les fichiers
+  try {
+    canvas.toBlob(function(blob) {
+      // Copier l'image dans le presse-papiers (moderne browsers)
+      navigator.clipboard.write([
+        new ClipboardItem({
+          'image/png': blob
+        })
+      ]).then(function() {
+        alert('QR code copié ! Vous pouvez le coller dans vos messages.');
+      }).catch(function(err) {
+        alert('Pour partager le QR: téléchargez l\'image et attachez-la à votre message.');
+      });
+    });
+  } catch (e) {
+    alert('Pour partager le QR: téléchargez l\'image et attachez-la à votre message.');
+  }
 }
 
 function copyToClipboard(text) {
