@@ -2766,7 +2766,11 @@ function shareRecipe(id) {
     
     if (!share) {
       console.error('ERREUR: share est null/undefined');
-      alert('Erreur : recette non trouvée');
+      var msg = 'Erreur : recette non trouvée';
+      if (id >= 10000) {
+        msg = 'Erreur : Impossible de partager cette création personnalisée.\nEssayez de rafraîchir la page.';
+      }
+      alert(msg);
       return;
     }
     
@@ -2910,8 +2914,35 @@ function exportRecipeData(c, note, userStars) {
 }
 
 function generateRecipeShare(id) {
+  // D'abord, chercher dans COCKTAILS (incluant les custom qui y ont été fusionnés)
   var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
-  if (!c) return null;
+  
+  // Si non trouvé dans COCKTAILS, chercher directement dans localStorage (cocktails custom)
+  if (!c && id >= 10000) {
+    var userCocktails = lsGet(USER_COCKTAILS_KEY, []);
+    c = userCocktails.filter(function(r) { return r.id === id; })[0];
+    
+    // Si trouvé en localStorage mais pas dans COCKTAILS, le récharger
+    if (c) {
+      console.log('Cocktail custom détecté en localStorage, rechargement...');
+      loadUserCocktails(); // Récharger les cocktails custom dans COCKTAILS
+      c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
+    }
+  }
+  
+  // Sécurité : afficher un message d'erreur clair si non trouvé
+  if (!c) {
+    console.error('ERREUR PARTAGE: Recette ID ' + id + ' non trouvée dans COCKTAILS ni localStorage');
+    alert('Erreur : Cette recette n\'a pas pu être trouvée.\nEssayez de rafraîchir la page.');
+    return null;
+  }
+  
+  // Vérification que la recette a les champs obligatoires
+  if (!c.title || !c.ingredients || !c.steps) {
+    console.error('ERREUR PARTAGE: Recette incomplète. Champs manquants.');
+    alert('Erreur : Les données de cette recette sont incomplètes.');
+    return null;
+  }
   
   var note = getNote(id);
   var userStars = getRating(id) || 0;
