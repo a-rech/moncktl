@@ -29,8 +29,8 @@
   <!-- ── QR Code Generation Library ── -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   
-  <!-- ── QR Code Scanner Library ── -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <!-- ── QR Code Scanner Library (ZXing - plus robuste) ── -->
+  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
   <style>
     /* ══════════════════════════════════════════════════
        VARIABLES DE THÈME
@@ -1739,16 +1739,16 @@ window.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     console.log('🔍 Vérification libraires QR...');
     console.log('QRCode disponible?', typeof QRCode !== 'undefined' ? '✅ OUI' : '❌ NON');
-    console.log('jsQR disponible?', typeof jsQR !== 'undefined' ? '✅ OUI' : '❌ NON');
+    console.log('ZXing disponible?', typeof ZXing !== 'undefined' ? '✅ OUI' : '❌ NON');
     
     if (typeof QRCode === 'undefined') {
       console.warn('⚠️ QRCode library non disponible');
     }
-    if (typeof jsQR === 'undefined') {
-      console.warn('⚠️ jsQR library non disponible');
+    if (typeof ZXing === 'undefined') {
+      console.warn('⚠️ ZXing library non disponible');
     }
     
-    if (typeof QRCode !== 'undefined' && typeof jsQR !== 'undefined') {
+    if (typeof QRCode !== 'undefined' && typeof ZXing !== 'undefined') {
       console.log('✅ Toutes les libraires QR sont chargées !');
     }
   }, 1000);
@@ -3459,34 +3459,52 @@ function scanQRCodeLoop() {
     
     ctx.drawImage(video, 0, 0);
     
-    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    // Vérifier que jsQR est disponible
-    if (typeof jsQR === 'undefined') {
-      console.error('❌ jsQR library non disponible. CDN n\'a pas chargé.');
+    // Vérifier que ZXing est disponible
+    if (typeof ZXing === 'undefined' || !ZXing.MultiFormatReader) {
+      console.error('❌ ZXing library non disponible. CDN n\'a pas chargé.');
       statusDiv.innerHTML = '❌ Libraire QR non disponible. Rafraîchissez la page.<br>(Si le problème persiste, vérifiez votre connexion Internet)';
       stopQRScanner();
       return;
     }
     
-    var code = jsQR(imageData.data, imageData.width, imageData.height);
-    
-    if (code) {
-      // QR code détecté !
-      console.log('✅ QR Code détecté:', code.data);
+    try {
+      // Utiliser ZXing pour décoder le QR code
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       
-      var data = code.data;
-      if (data.startsWith('mc_recipe_v1:')) {
-        // C'est un code MonCocktail valide !
-        handleQRScanResult(data);
-        return; // Arrêter le scan
+      // Créer une binary bitmap à partir des données de l'image
+      var luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+      var binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+      
+      // Configurer le lecteur pour QR codes
+      var hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
+      var reader = new ZXing.MultiFormatReader();
+      reader.setHints(hints);
+      
+      // Essayer de décoder
+      var result = reader.decode(binaryBitmap);
+      
+      if (result) {
+        // QR code détecté !
+        var decodedText = result.getText();
+        console.log('✅ QR Code détecté:', decodedText);
+        
+        if (decodedText.startsWith('mc_recipe_v1:')) {
+          // C'est un code MonCocktail valide !
+          handleQRScanResult(decodedText);
+          return; // Arrêter le scan
+        } else {
+          // Code QR valide mais pas pour MonCocktail
+          console.log('⚠️ QR code valide mais format inconnu:', decodedText);
+          statusDiv.innerHTML = '⚠️ QR code valide mais format inconnu (pas MonCocktail)';
+        }
       } else {
-        // Code QR valide mais pas pour MonCocktail
-        console.log('⚠️ QR code valide mais format inconnu:', data);
-        statusDiv.innerHTML = '⚠️ QR code valide mais format inconnu (pas MonCocktail)';
+        // Pas de QR code détecté, continuer le scan
+        statusDiv.innerHTML = '⏳ Scanning... ' + Math.floor(Math.random() * 100) + '%';
       }
-    } else {
-      // Pas de QR code détecté, continuer le scan
+      
+    } catch (e) {
+      // Pas de QR code trouvé ou erreur de décodage (normal)
       statusDiv.innerHTML = '⏳ Scanning... ' + Math.floor(Math.random() * 100) + '%';
     }
     
