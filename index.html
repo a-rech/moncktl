@@ -3647,25 +3647,65 @@ function scanQRFromImage(img) {
   var statusDiv = document.getElementById('scanner-status') || document.getElementById('import-result');
   
   try {
-    // Créer un canvas à partir de l'image
+    console.log('📸 Scan image QR - dimensions originales:', img.width, 'x', img.height);
+    
+    // Étape 1 : Créer un canvas à partir de l'image
     var canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
+    var scale = 1;
+    
+    // Si l'image est très petite, l'agrandir pour améliorer la détection
+    if (img.width < 200 || img.height < 200) {
+      scale = Math.ceil(300 / Math.max(img.width, img.height));
+      console.log('📸 Image petite, agrandissement x' + scale);
+    }
+    
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
     
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     
     console.log('📸 Canvas créé:', canvas.width, 'x', canvas.height);
     
-    // Utiliser ZXing pour décoder
+    // Étape 2 : Améliorer le contraste de l'image
+    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var data = imageData.data;
+    
+    // Appliquer une amélioration de contraste
+    for (var i = 0; i < data.length; i += 4) {
+      var r = data[i];
+      var g = data[i + 1];
+      var b = data[i + 2];
+      
+      // Convertir en niveaux de gris
+      var gray = r * 0.299 + g * 0.587 + b * 0.114;
+      
+      // Augmenter le contraste
+      var contrast = 1.5;
+      var adjusted = (gray - 128) * contrast + 128;
+      adjusted = Math.max(0, Math.min(255, adjusted));
+      
+      // Appliquer à tous les canaux
+      data[i] = adjusted;
+      data[i + 1] = adjusted;
+      data[i + 2] = adjusted;
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+    console.log('📸 Contraste amélioré');
+    
+    // Étape 3 : Décoder avec ZXing
     var luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
     var binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
     
     var hints = new Map();
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);  // Mode "essayer plus dur"
+    
     var reader = new ZXing.MultiFormatReader();
     reader.setHints(hints);
     
+    console.log('📸 Tentative de décodage...');
     var result = reader.decode(binaryBitmap);
     
     if (result) {
@@ -3684,12 +3724,41 @@ function scanQRFromImage(img) {
         alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)');
       }
     } else {
+      // Aucun QR code trouvé avec la binarisation normal
+      console.warn('⚠️ Décodage échoué avec configuration standard');
+      
+      // Essayer avec une binarisation différente
+      try {
+        console.log('📸 Tentative avec GlobalHistogramBinarizer...');
+        binaryBitmap = new ZXing.BinaryBitmap(new ZXing.GlobalHistogramBinarizer(luminanceSource));
+        result = reader.decode(binaryBitmap);
+        
+        if (result) {
+          var decodedText = result.getText();
+          console.log('✅ QR Code détecté avec GlobalHistogramBinarizer:', decodedText.substring(0, 30) + '...');
+          
+          if (decodedText.startsWith('mc_recipe_v1:')) {
+            document.getElementById('import-code-input').value = decodedText;
+            if (statusDiv) {
+              statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
+              statusDiv.style.background = '#d4edda';
+              statusDiv.style.color = '#155724';
+            }
+          } else {
+            alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)');
+          }
+          return;
+        }
+      } catch (e2) {
+        console.log('📸 GlobalHistogramBinarizer aussi échoué');
+      }
+      
       console.warn('⚠️ Aucun QR code trouvé dans l\'image');
-      alert('❌ Aucun QR code détecté dans l\'image.\nVérifiez que l\'image contient bien un QR code lisible.');
+      alert('❌ Aucun QR code détecté dans l\'image.\n\nConseil:\n- Vérifiez que l\'image contient bien un QR code\n- Le QR doit être bien contrasté (noir sur blanc)\n- L\'image ne doit pas être floue\n- Essayez une meilleure photo du QR code');
     }
   } catch (e) {
     console.error('❌ Erreur scan image:', e);
-    alert('❌ Erreur lors du scan de l\'image: ' + e.message);
+    alert('❌ Erreur lors du scan de l\'image: ' + e.message + '\n\nConseil: Essayez avec une image plus claire du QR code.');
   }
 }
 
