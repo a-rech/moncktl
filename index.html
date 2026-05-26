@@ -1079,11 +1079,11 @@
   
   <!-- ── SECTION SCANNER QR ── -->
   <div id="qr-scanner-section" style="margin-bottom:20px;padding:15px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
-    <div style="font-weight:500;margin-bottom:12px;color:var(--text)">📱 Scanner un QR code (test en cours)</div>
+    <div style="font-weight:500;margin-bottom:12px;color:var(--text)">📱 Scanner un QR code</div>
     
     <!-- Caméra video (cachée par défaut) -->
     <div id="camera-container" style="display:none;margin-bottom:12px">
-      <video id="camera-video" autoplay playsinline muted style="width:100%;border-radius:6px;background:#000;max-height:300px"></video>
+      <video id="camera-video" autoplay playsinline muted style="width:100%;aspect-ratio:1/1;border-radius:6px;background:#000;max-width:400px;margin:0 auto;display:block"></video>
       <div style="display:flex;gap:10px;margin-top:10px">
         <button onclick="stopQRScanner()" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">
           ⏹️ Arrêter
@@ -3091,6 +3091,8 @@ function showShareModal(id, share) {
   
   // Générer le QR code après l'insertion du DOM
   setTimeout(function() {
+    // Utiliser le code complet base64 (compatible avec tous les destinataires)
+    console.log('📱 Génération QR code (format complet base64)');
     generateQRCodeInModal(share.code, qrContainerId, modalId);
   }, 100);
 }
@@ -3126,18 +3128,34 @@ function generateQRCodeInModal(text, containerId, modalId) {
     return;
   }
   
-  // Vérifier que QRCode est disponible
-  if (typeof QRCode === 'undefined') {
-    console.error('❌ QRCode library non disponible');
-    container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Libraire QR non disponible. Rafraîchissez la page.</div>';
-    return;
-  }
+  // Attendre que QRCode soit disponible (timeout de 5 sec)
+  var waitForQRCode = function(attempt) {
+    if (typeof QRCode !== 'undefined') {
+      doGenerateQRCode(text, container, modalId);
+      return;
+    }
+    
+    if (attempt > 50) {  // 5 sec = 50 * 100ms
+      console.error('❌ QRCode library n\'a pas pu être chargée après 5 secondes');
+      container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Libraire QR non disponible. Rafraîchissez la page.</div>';
+      return;
+    }
+    
+    console.log('⏳ QRCode pas encore dispo, attente... (' + attempt + '/50)');
+    setTimeout(function() {
+      waitForQRCode(attempt + 1);
+    }, 100);
+  };
   
+  waitForQRCode(0);
+}
+
+function doGenerateQRCode(text, container, modalId) {
   // Vider le container d'abord
   container.innerHTML = '';
   
   try {
-    console.log('📱 Génération QR code...');
+    console.log('📱 Génération QR code avec QRCode.js...');
     // Utiliser la libraire QRCode pour générer un QR code
     var qr = new QRCode(container, {
       text: text,
@@ -3150,7 +3168,7 @@ function generateQRCodeInModal(text, containerId, modalId) {
     
     console.log('✅ QR code généré avec succès');
     
-    // Ajouter un data-modalid au container pour le retrouver plus tard
+    // Ajouter des attributs au container pour le retrouver plus tard
     container.setAttribute('data-modalid', modalId);
     container.setAttribute('data-qrtext', text);
     
