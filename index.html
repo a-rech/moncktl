@@ -1098,9 +1098,15 @@
     </div>
     
     <!-- Bouton pour démarrer scanner -->
-    <button id="scanner-btn" onclick="startQRScanner()" style="width:100%;padding:12px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;display:block">
+    <button id="scanner-btn" onclick="startQRScanner()" style="width:100%;padding:12px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-bottom:10px;display:block">
       🎥 Ouvrir la caméra
     </button>
+    
+    <!-- Bouton pour charger une image QR -->
+    <button onclick="document.getElementById('qr-image-input').click()" style="width:100%;padding:12px;background:#7B68EE;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">
+      🖼️ Charger une image QR
+    </button>
+    <input id="qr-image-input" type="file" accept="image/*" style="display:none" onchange="handleQRImageUpload(event)">
   </div>
   
   <!-- ── SECTION CODE MANUEL ── -->
@@ -2941,27 +2947,27 @@ function buildReadableRecipeText(c, note, userStars) {
 }
 
 function exportRecipeData(c, note, userStars) {
-  // Exporter les données structurées
+  // Exporter les données structurées SIMPLIFIÉES (noms de clés courts pour base64 plus petit)
   var profile = c.profile || PROFILES[c.id] || {s:2, b:1, a:3};
   
   return {
-    v: "1",
+    v: "1",        // version
     id: c.id,
-    title: c.title,
-    emoji: c.emoji,
-    cat: c.cat,
-    baseAlcool: c.baseAlcool,
-    diff: c.diff,
-    prep: c.prep,
-    glass: c.glass,
-    portions: c.portions,
-    ingredients: c.ingredients,
-    steps: c.steps,
-    tags: c.tags || [],
-    profile: profile,
-    userNote: note || '',
-    userStars: userStars || 0,
-    userCreated: c.userCreated || false
+    t: c.title,    // title
+    e: c.emoji,    // emoji
+    c: c.cat,      // cat (category)
+    ba: c.baseAlcool,  // baseAlcool
+    df: c.diff,    // diff
+    pr: c.prep,    // prep
+    gl: c.glass,   // glass
+    po: c.portions,  // portions
+    ig: c.ingredients,  // ingredients
+    st: c.steps,   // steps
+    tg: c.tags || [],  // tags
+    pf: profile,   // profile
+    nt: note || '', // note
+    sr: userStars || 0,  // stars rating
+    uc: c.userCreated || false  // user created
   };
 }
 
@@ -3296,6 +3302,9 @@ function importRecipeFromCode(code) {
     }
     var data = JSON.parse(decoded);
     
+    // Normaliser les données (support anciennes et nouvelles clés)
+    data = normalizeImportedData(data);
+    
     // Valider les champs obligatoires
     if (!data.title || !data.ingredients || !data.steps) {
       return {success: false, error: '❌ Le code est corrompu. Données manquantes.'};
@@ -3328,6 +3337,32 @@ function importRecipeFromCode(code) {
     console.error('Erreur import:', e);
     return {success: false, error: '❌ Erreur de décodage. Le code est peut-être corrompu.'};
   }
+}
+
+function normalizeImportedData(data) {
+  // Normaliser les anciennes clés longues vers la structure attendue
+  // Support backward compatibility
+  
+  var normalized = {
+    id: data.id,
+    title: data.t || data.title || 'Recette importée',
+    emoji: data.e || data.emoji || '🍹',
+    cat: data.c || data.cat || 'Autre',
+    baseAlcool: data.ba || data.baseAlcool || 'Alcool',
+    diff: data.df || data.diff || 'moyen',
+    prep: data.pr || data.prep || 10,
+    glass: data.gl || data.glass || 'Verre',
+    portions: data.po || data.portions || 1,
+    ingredients: data.ig || data.ingredients || [],
+    steps: data.st || data.steps || [],
+    tags: data.tg || data.tags || [],
+    profile: data.pf || data.profile || {s:2, b:1, a:3},
+    userNote: data.nt || data.userNote || '',
+    userStars: data.sr || data.userStars || 0,
+    userCreated: data.uc !== undefined ? data.uc : (data.userCreated || false)
+  };
+  
+  return normalized;
 }
 
 function handleImportConflict(importedData) {
@@ -3571,6 +3606,90 @@ function toggleCameraFlash() {
       track.applyConstraints({ advanced: [{torch: true}] });
   } else {
     alert('❌ Le flash n\'est pas disponible sur votre appareil.');
+  }
+}
+
+function handleQRImageUpload(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  
+  console.log('📸 Traitement image QR:', file.name);
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      console.log('📸 Image chargée, dimensions:', img.width, 'x', img.height);
+      scanQRFromImage(img);
+    };
+    img.onerror = function() {
+      alert('❌ Impossible de charger l\'image. Assurez-vous que c\'est un fichier image valide.');
+    };
+    img.src = e.target.result;
+  };
+  reader.onerror = function() {
+    alert('❌ Erreur de lecture du fichier.');
+  };
+  reader.readAsDataURL(file);
+  
+  // Réinitialiser l'input
+  event.target.value = '';
+}
+
+function scanQRFromImage(img) {
+  // Vérifier que ZXing est disponible
+  if (typeof ZXing === 'undefined' || !ZXing.MultiFormatReader) {
+    console.error('❌ ZXing library non disponible');
+    alert('❌ Libraire QR non disponible. Rafraîchissez la page.');
+    return;
+  }
+  
+  var statusDiv = document.getElementById('scanner-status') || document.getElementById('import-result');
+  
+  try {
+    // Créer un canvas à partir de l'image
+    var canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    
+    console.log('📸 Canvas créé:', canvas.width, 'x', canvas.height);
+    
+    // Utiliser ZXing pour décoder
+    var luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+    var binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+    
+    var hints = new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
+    var reader = new ZXing.MultiFormatReader();
+    reader.setHints(hints);
+    
+    var result = reader.decode(binaryBitmap);
+    
+    if (result) {
+      var decodedText = result.getText();
+      console.log('✅ QR Code détecté:', decodedText.substring(0, 30) + '...');
+      
+      if (decodedText.startsWith('mc_recipe_v1:')) {
+        // Code MonCocktail détecté
+        document.getElementById('import-code-input').value = decodedText;
+        if (statusDiv) {
+          statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
+          statusDiv.style.background = '#d4edda';
+          statusDiv.style.color = '#155724';
+        }
+      } else {
+        alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)');
+      }
+    } else {
+      console.warn('⚠️ Aucun QR code trouvé dans l\'image');
+      alert('❌ Aucun QR code détecté dans l\'image.\nVérifiez que l\'image contient bien un QR code lisible.');
+    }
+  } catch (e) {
+    console.error('❌ Erreur scan image:', e);
+    alert('❌ Erreur lors du scan de l\'image: ' + e.message);
   }
 }
 
