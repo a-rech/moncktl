@@ -29,8 +29,8 @@
   <!-- ── QR Code Generation Library ── -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   
-  <!-- ── QR Code Scanner Library (ZXing - plus robuste) ── -->
-  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+  <!-- ── QR Code Scanner Library (jsQR pour les images) ── -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <style>
     /* ══════════════════════════════════════════════════
        VARIABLES DE THÈME
@@ -1077,36 +1077,18 @@
   <div class="section-title" style="margin-bottom:4px">Importer une recette</div>
   <p style="color:var(--text2);font-size:14px;margin-bottom:18px">Scannez un QR code ou collez un code d'import pour ajouter une recette.</p>
   
-  <!-- ── SECTION SCANNER QR ── -->
+  <!-- ── SECTION SCANNER QR IMAGE UNIQUEMENT ── -->
   <div id="qr-scanner-section" style="margin-bottom:20px;padding:15px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
-    <div style="font-weight:500;margin-bottom:12px;color:var(--text)">📱 Scanner un QR code</div>
+    <div style="font-weight:500;margin-bottom:12px;color:var(--text)">📸 Scanner un QR code depuis une image</div>
     
-    <!-- Caméra video (cachée par défaut) -->
-    <div id="camera-container" style="display:none;margin-bottom:12px">
-      <video id="camera-video" autoplay playsinline muted style="width:100%;aspect-ratio:1/1;border-radius:6px;background:#000;max-width:400px;margin:0 auto;display:block"></video>
-      <div style="display:flex;gap:10px;margin-top:10px">
-        <button onclick="stopQRScanner()" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">
-          ⏹️ Arrêter
-        </button>
-        <button onclick="toggleCameraFlash()" style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:6px;cursor:pointer;font-weight:500;font-size:13px" title="Allumer/éteindre le flash">
-          💡 Flash
-        </button>
-      </div>
-      <div id="scanner-status" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;color:var(--text2);font-size:12px;text-align:center">
-        En attente de QR code...
-      </div>
-    </div>
-    
-    <!-- Bouton pour démarrer scanner -->
-    <button id="scanner-btn" onclick="startQRScanner()" style="width:100%;padding:12px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-bottom:10px;display:block">
-      🎥 Ouvrir la caméra
-    </button>
-    
-    <!-- Bouton pour charger une image QR -->
-    <button onclick="document.getElementById('qr-image-input').click()" style="width:100%;padding:12px;background:#7B68EE;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">
+    <button onclick="document.getElementById('qr-image-input').click()" style="width:100%;padding:12px;background:#7B68EE;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-bottom:10px">
       🖼️ Charger une image QR
     </button>
     <input id="qr-image-input" type="file" accept="image/*" style="display:none" onchange="handleQRImageUpload(event)">
+    
+    <div id="scanner-status" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;color:var(--text2);font-size:12px;text-align:center">
+      Sélectionnez une image avec un QR code
+    </div>
   </div>
   
   <!-- ── SECTION CODE MANUEL ── -->
@@ -1309,11 +1291,6 @@ window.addEventListener('popstate', function(e) {
 // Affiche une page en masquant toutes les autres.
 // Gère aussi le FAB de recherche (visible uniquement sur la page ingrédients).
 function showPage(pageId) {
-  // Arrêter le scanner QR si active quand on quitte la page import
-  if (typeof qrScannerActive !== 'undefined' && qrScannerActive) {
-    stopQRScanner();
-  }
-  
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   var target = document.getElementById('page-' + pageId);
   if (!target) return;
@@ -1745,16 +1722,16 @@ window.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     console.log('🔍 Vérification libraires QR...');
     console.log('QRCode disponible?', typeof QRCode !== 'undefined' ? '✅ OUI' : '❌ NON');
-    console.log('ZXing disponible?', typeof ZXing !== 'undefined' ? '✅ OUI' : '❌ NON');
+    console.log('jsQR disponible?', typeof jsQR !== 'undefined' ? '✅ OUI' : '❌ NON');
     
     if (typeof QRCode === 'undefined') {
       console.warn('⚠️ QRCode library non disponible');
     }
-    if (typeof ZXing === 'undefined') {
-      console.warn('⚠️ ZXing library non disponible');
+    if (typeof jsQR === 'undefined') {
+      console.warn('⚠️ jsQR library non disponible');
     }
     
-    if (typeof QRCode !== 'undefined' && typeof ZXing !== 'undefined') {
+    if (typeof QRCode !== 'undefined' && typeof jsQR !== 'undefined') {
       console.log('✅ Toutes les libraires QR sont chargées !');
     }
   }, 1000);
@@ -3396,219 +3373,6 @@ var qrScannerActive = false;
 var qrScannerStream = null;
 var qrScannerAnimationId = null;
 
-function startQRScanner() {
-  var scannerBtn = document.getElementById('scanner-btn');
-  var cameraContainer = document.getElementById('camera-container');
-  
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('❌ Votre navigateur ne supporte pas l\'accès caméra.\nUtilisez la saisie manuelle du code.');
-    return;
-  }
-  
-  scannerBtn.style.display = 'none';
-  cameraContainer.style.display = 'block';
-  qrScannerActive = true;
-  
-  var statusDiv = document.getElementById('scanner-status');
-  statusDiv.innerHTML = '⏳ Initialisation caméra...';
-  
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-  }).then(function(stream) {
-    console.log('✅ Flux caméra obtenu');
-    qrScannerStream = stream;
-    
-    var video = document.getElementById('camera-video');
-    video.srcObject = stream;
-    
-    // Attendre que la vidéo soit vraiment prête
-    var onLoadedMetadata = function() {
-      console.log('✅ Vidéo prête, dimensions:', video.videoWidth, 'x', video.videoHeight);
-      video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      
-      // Laisser un peu de temps pour que la vidéo soit stable ET que jsQR soit chargée
-      setTimeout(function() {
-        statusDiv.innerHTML = '✅ Caméra prête. Scannez un QR code...';
-        console.log('✅ Démarrage du scan QR');
-        scanQRCodeLoop();
-      }, 1500);
-    };
-    
-    video.addEventListener('loadedmetadata', onLoadedMetadata);
-    
-    // Fallback si loadedmetadata n'est pas déclenché
-    setTimeout(function() {
-      if (qrScannerActive && !video.videoWidth) {
-        console.warn('⚠️ loadedmetadata pas déclenché, démarrage du scan par fallback');
-        statusDiv.innerHTML = '✅ Caméra prête. Scannez un QR code...';
-        scanQRCodeLoop();
-      }
-    }, 3000);
-    
-  }).catch(function(err) {
-    console.error('❌ Erreur caméra:', err);
-    var statusDiv = document.getElementById('scanner-status');
-    
-    if (err.name === 'NotAllowedError') {
-      statusDiv.innerHTML = '❌ Permission caméra refusée.<br>Allez dans les paramètres pour l\'autoriser.';
-    } else if (err.name === 'NotFoundError') {
-      statusDiv.innerHTML = '❌ Aucune caméra trouvée.';
-    } else {
-      statusDiv.innerHTML = '❌ Erreur caméra: ' + err.message;
-    }
-    
-    stopQRScanner();
-  });
-}
-
-function stopQRScanner() {
-  qrScannerActive = false;
-  
-  if (qrScannerStream) {
-    qrScannerStream.getTracks().forEach(function(track) {
-      track.stop();
-    });
-    qrScannerStream = null;
-  }
-  
-  if (qrScannerAnimationId) {
-    cancelAnimationFrame(qrScannerAnimationId);
-  }
-  
-  var video = document.getElementById('camera-video');
-  if (video) video.srcObject = null;
-  
-  var cameraContainer = document.getElementById('camera-container');
-  var scannerBtn = document.getElementById('scanner-btn');
-  cameraContainer.style.display = 'none';
-  scannerBtn.style.display = 'block';
-}
-
-function scanQRCodeLoop() {
-  if (!qrScannerActive) return;
-  
-  var video = document.getElementById('camera-video');
-  var statusDiv = document.getElementById('scanner-status');
-  
-  // Vérifier que la vidéo a des dimensions valides
-  if (!video || !video.videoWidth || !video.videoHeight) {
-    console.warn('⚠️ Vidéo pas prête encore:', video.videoWidth, 'x', video.videoHeight);
-    if (qrScannerActive) {
-      qrScannerAnimationId = requestAnimationFrame(scanQRCodeLoop);
-    }
-    return;
-  }
-  
-  try {
-    var canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    var ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error('❌ Impossible de créer le contexte canvas');
-      return;
-    }
-    
-    ctx.drawImage(video, 0, 0);
-    
-    // Vérifier que ZXing est disponible
-    if (typeof ZXing === 'undefined' || !ZXing.MultiFormatReader) {
-      console.error('❌ ZXing library non disponible. CDN n\'a pas chargé.');
-      statusDiv.innerHTML = '❌ Libraire QR non disponible. Rafraîchissez la page.<br>(Si le problème persiste, vérifiez votre connexion Internet)';
-      stopQRScanner();
-      return;
-    }
-    
-    try {
-      // Utiliser ZXing pour décoder le QR code
-      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      
-      // Créer une binary bitmap à partir des données de l'image
-      var luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
-      var binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
-      
-      // Configurer le lecteur pour QR codes
-      var hints = new Map();
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
-      var reader = new ZXing.MultiFormatReader();
-      reader.setHints(hints);
-      
-      // Essayer de décoder
-      var result = reader.decode(binaryBitmap);
-      
-      if (result) {
-        // QR code détecté !
-        var decodedText = result.getText();
-        console.log('✅ QR Code détecté:', decodedText);
-        
-        if (decodedText.startsWith('mc_recipe_v1:')) {
-          // C'est un code MonCocktail valide !
-          handleQRScanResult(decodedText);
-          return; // Arrêter le scan
-        } else {
-          // Code QR valide mais pas pour MonCocktail
-          console.log('⚠️ QR code valide mais format inconnu:', decodedText);
-          statusDiv.innerHTML = '⚠️ QR code valide mais format inconnu (pas MonCocktail)';
-        }
-      } else {
-        // Pas de QR code détecté, continuer le scan
-        statusDiv.innerHTML = '⏳ Scanning... ' + Math.floor(Math.random() * 100) + '%';
-      }
-      
-    } catch (e) {
-      // Pas de QR code trouvé ou erreur de décodage (normal)
-      statusDiv.innerHTML = '⏳ Scanning... ' + Math.floor(Math.random() * 100) + '%';
-    }
-    
-  } catch (e) {
-    console.error('❌ Erreur scan:', e);
-    statusDiv.innerHTML = '❌ Erreur scan: ' + e.message;
-  }
-  
-  if (qrScannerActive) {
-    qrScannerAnimationId = requestAnimationFrame(scanQRCodeLoop);
-  }
-}
-
-function handleQRScanResult(code) {
-  console.log('✅ Résultat QR reçu:', code.substring(0, 50) + '...');
-  stopQRScanner();
-  
-  // Remplir le textarea avec le code
-  document.getElementById('import-code-input').value = code;
-  
-  // Afficher un message de succès
-  var statusDiv = document.getElementById('scanner-status');
-  statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
-  statusDiv.style.background = '#d4edda';
-  statusDiv.style.color = '#155724';
-  
-  console.log('✅ Code d\'import inséré dans le textarea');
-  
-  // Optional: Auto-import (décommenter si tu veux)
-  // setTimeout(function() {
-  //   attemptImport();
-  // }, 500);
-}
-
-function toggleCameraFlash() {
-  if (!qrScannerStream) return;
-  
-  var video = document.getElementById('camera-video');
-  
-  // Essayer d'utiliser l'API torch (flash)
-  var track = qrScannerStream.getVideoTracks()[0];
-  
-  if (track && track.getCapabilities && 'torch' in track.getCapabilities()) {
-    track.getSettings().torch ? 
-      track.applyConstraints({ advanced: [{torch: false}] }) :
-      track.applyConstraints({ advanced: [{torch: true}] });
-  } else {
-    alert('❌ Le flash n\'est pas disponible sur votre appareil.');
-  }
-}
-
 function handleQRImageUpload(event) {
   var file = event.target.files[0];
   if (!file) return;
@@ -3636,81 +3400,42 @@ function handleQRImageUpload(event) {
   event.target.value = '';
 }
 
+
+
 function scanQRFromImage(img) {
-  // Vérifier que ZXing est disponible
-  if (typeof ZXing === 'undefined' || !ZXing.MultiFormatReader) {
-    console.error('❌ ZXing library non disponible');
+  // Vérifier que jsQR est disponible
+  if (typeof jsQR === 'undefined') {
+    console.error('❌ jsQR library non disponible');
     alert('❌ Libraire QR non disponible. Rafraîchissez la page.');
     return;
   }
   
-  var statusDiv = document.getElementById('scanner-status') || document.getElementById('import-result');
+  var statusDiv = document.getElementById('scanner-status');
   
   try {
-    console.log('📸 Scan image QR - dimensions originales:', img.width, 'x', img.height);
+    console.log('📸 Scan image QR avec jsQR - dimensions:', img.width, 'x', img.height);
     
-    // Étape 1 : Créer un canvas à partir de l'image
+    // Créer un canvas à partir de l'image
     var canvas = document.createElement('canvas');
-    var scale = 1;
-    
-    // Si l'image est très petite, l'agrandir pour améliorer la détection
-    if (img.width < 200 || img.height < 200) {
-      scale = Math.ceil(300 / Math.max(img.width, img.height));
-      console.log('📸 Image petite, agrandissement x' + scale);
-    }
-    
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
+    canvas.width = img.width;
+    canvas.height = img.height;
     
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
     
     console.log('📸 Canvas créé:', canvas.width, 'x', canvas.height);
     
-    // Étape 2 : Améliorer le contraste de l'image
+    // Obtenir les données de l'image
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var data = imageData.data;
     
-    // Appliquer une amélioration de contraste
-    for (var i = 0; i < data.length; i += 4) {
-      var r = data[i];
-      var g = data[i + 1];
-      var b = data[i + 2];
-      
-      // Convertir en niveaux de gris
-      var gray = r * 0.299 + g * 0.587 + b * 0.114;
-      
-      // Augmenter le contraste
-      var contrast = 1.5;
-      var adjusted = (gray - 128) * contrast + 128;
-      adjusted = Math.max(0, Math.min(255, adjusted));
-      
-      // Appliquer à tous les canaux
-      data[i] = adjusted;
-      data[i + 1] = adjusted;
-      data[i + 2] = adjusted;
-    }
+    // Utiliser jsQR pour décoder
+    console.log('📸 Tentative de décodage avec jsQR...');
+    var code = jsQR(imageData.data, imageData.width, imageData.height);
     
-    ctx.putImageData(imageData, 0, 0);
-    console.log('📸 Contraste amélioré');
-    
-    // Étape 3 : Décoder avec ZXing
-    var luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
-    var binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
-    
-    var hints = new Map();
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.QR_CODE]);
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);  // Mode "essayer plus dur"
-    
-    var reader = new ZXing.MultiFormatReader();
-    reader.setHints(hints);
-    
-    console.log('📸 Tentative de décodage...');
-    var result = reader.decode(binaryBitmap);
-    
-    if (result) {
-      var decodedText = result.getText();
-      console.log('✅ QR Code détecté:', decodedText.substring(0, 30) + '...');
+    if (code) {
+      // QR code détecté !
+      var decodedText = code.data;
+      console.log('✅ QR Code détecté:', decodedText.substring(0, 50) + '...');
       
       if (decodedText.startsWith('mc_recipe_v1:')) {
         // Code MonCocktail détecté
@@ -3724,41 +3449,12 @@ function scanQRFromImage(img) {
         alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)');
       }
     } else {
-      // Aucun QR code trouvé avec la binarisation normal
-      console.warn('⚠️ Décodage échoué avec configuration standard');
-      
-      // Essayer avec une binarisation différente
-      try {
-        console.log('📸 Tentative avec GlobalHistogramBinarizer...');
-        binaryBitmap = new ZXing.BinaryBitmap(new ZXing.GlobalHistogramBinarizer(luminanceSource));
-        result = reader.decode(binaryBitmap);
-        
-        if (result) {
-          var decodedText = result.getText();
-          console.log('✅ QR Code détecté avec GlobalHistogramBinarizer:', decodedText.substring(0, 30) + '...');
-          
-          if (decodedText.startsWith('mc_recipe_v1:')) {
-            document.getElementById('import-code-input').value = decodedText;
-            if (statusDiv) {
-              statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
-              statusDiv.style.background = '#d4edda';
-              statusDiv.style.color = '#155724';
-            }
-          } else {
-            alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)');
-          }
-          return;
-        }
-      } catch (e2) {
-        console.log('📸 GlobalHistogramBinarizer aussi échoué');
-      }
-      
       console.warn('⚠️ Aucun QR code trouvé dans l\'image');
       alert('❌ Aucun QR code détecté dans l\'image.\n\nConseil:\n- Vérifiez que l\'image contient bien un QR code\n- Le QR doit être bien contrasté (noir sur blanc)\n- L\'image ne doit pas être floue\n- Essayez une meilleure photo du QR code');
     }
   } catch (e) {
     console.error('❌ Erreur scan image:', e);
-    alert('❌ Erreur lors du scan de l\'image: ' + e.message + '\n\nConseil: Essayez avec une image plus claire du QR code.');
+    alert('❌ Erreur lors du scan de l\'image: ' + e.message);
   }
 }
 
