@@ -3413,48 +3413,143 @@ function scanQRFromImage(img) {
   var statusDiv = document.getElementById('scanner-status');
   
   try {
-    console.log('📸 Scan image QR avec jsQR - dimensions:', img.width, 'x', img.height);
+    console.log('📸 Scan image QR avec jsQR');
+    console.log('📸 Dimensions image:', img.width, 'x', img.height);
     
-    // Créer un canvas à partir de l'image
+    // ✅ Créer un canvas à partir de l'image
     var canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
     
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
+    
+    // Important: drawImage peut avoir des problèmes de CORS avec certaines images
+    // On force le contexte à utiliser willReadFrequently
+    try {
+      ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+    } catch(e) {
+      console.warn('⚠️ willReadFrequently pas supporté, essai fallback');
+      ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+    }
     
     console.log('📸 Canvas créé:', canvas.width, 'x', canvas.height);
     
-    // Obtenir les données de l'image
+    // ✅ Obtenir les données de l'image
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    console.log('📸 ImageData obtenue:', imageData.data.length, 'bytes');
+    console.log('📸 ImageData.width:', imageData.width, 'ImageData.height:', imageData.height);
     
-    // Utiliser jsQR pour décoder
-    console.log('📸 Tentative de décodage avec jsQR...');
+    // 🔥 DEBUG: Vérifier que les données ne sont pas vides
+    var pixelCount = 0;
+    var nonZeroPixels = 0;
+    for (var i = 0; i < imageData.data.length; i += 4) {
+      pixelCount++;
+      if (imageData.data[i] > 0 || imageData.data[i+1] > 0 || imageData.data[i+2] > 0) {
+        nonZeroPixels++;
+      }
+    }
+    console.log('📸 Pixels: ' + pixelCount + ' total, ' + nonZeroPixels + ' non-noirs');
+    
+    // ✅ APPROCHE 1 : jsQR directe (comme c'était)
+    console.log('📸 [Approche 1] Tentative jsQR directe...');
     var code = jsQR(imageData.data, imageData.width, imageData.height);
     
     if (code) {
-      // QR code détecté !
-      var decodedText = code.data;
-      console.log('✅ QR Code détecté:', decodedText.substring(0, 50) + '...');
-      
-      if (decodedText.startsWith('mc_recipe_v1:')) {
-        // Code MonCocktail détecté
-        document.getElementById('import-code-input').value = decodedText;
-        if (statusDiv) {
-          statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
-          statusDiv.style.background = '#d4edda';
-          statusDiv.style.color = '#155724';
-        }
-      } else {
-        alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)');
-      }
+      console.log('✅ [Approche 1] QR détecté !');
+      handleQRDetected(code.data, statusDiv);
+      return;
     } else {
-      console.warn('⚠️ Aucun QR code trouvé dans l\'image');
-      alert('❌ Aucun QR code détecté dans l\'image.\n\nConseil:\n- Vérifiez que l\'image contient bien un QR code\n- Le QR doit être bien contrasté (noir sur blanc)\n- L\'image ne doit pas être floue\n- Essayez une meilleure photo du QR code');
+      console.warn('⚠️ [Approche 1] Aucun QR détecté');
     }
+    
+    // ✅ APPROCHE 2 : Inverser les couleurs (au cas où le QR serait blanc sur noir)
+    console.log('📸 [Approche 2] Tentative avec couleurs inversées...');
+    var invertedData = new Uint8ClampedArray(imageData.data);
+    for (var i = 0; i < invertedData.length; i += 4) {
+      // Inverser R, G, B mais pas Alpha
+      invertedData[i] = 255 - invertedData[i];
+      invertedData[i + 1] = 255 - invertedData[i + 1];
+      invertedData[i + 2] = 255 - invertedData[i + 2];
+      // Garder Alpha intact
+    }
+    code = jsQR(invertedData, imageData.width, imageData.height);
+    if (code) {
+      console.log('✅ [Approche 2] QR détecté avec couleurs inversées !');
+      handleQRDetected(code.data, statusDiv);
+      return;
+    } else {
+      console.warn('⚠️ [Approche 2] Aucun QR détecté');
+    }
+    
+    // ✅ APPROCHE 3 : Augmenter le contraste
+    console.log('📸 [Approche 3] Tentative avec contraste augmenté...');
+    var contrastedData = new Uint8ClampedArray(imageData.data);
+    for (var i = 0; i < contrastedData.length; i += 4) {
+      var r = contrastedData[i];
+      var g = contrastedData[i + 1];
+      var b = contrastedData[i + 2];
+      
+      // Augmenter le contraste
+      var avg = (r + g + b) / 3;
+      var factor = 2; // Doubler le contraste
+      r = Math.max(0, Math.min(255, r + (r - avg) * factor));
+      g = Math.max(0, Math.min(255, g + (g - avg) * factor));
+      b = Math.max(0, Math.min(255, b + (b - avg) * factor));
+      
+      contrastedData[i] = r;
+      contrastedData[i + 1] = g;
+      contrastedData[i + 2] = b;
+    }
+    code = jsQR(contrastedData, imageData.width, imageData.height);
+    if (code) {
+      console.log('✅ [Approche 3] QR détecté avec contraste augmenté !');
+      handleQRDetected(code.data, statusDiv);
+      return;
+    } else {
+      console.warn('⚠️ [Approche 3] Aucun QR détecté');
+    }
+    
+    // ✅ APPROCHE 4 : Réduire la résolution (parfois ça aide)
+    console.log('📸 [Approche 4] Tentative avec résolution réduite...');
+    var scale = 0.5;
+    var smallCanvas = document.createElement('canvas');
+    smallCanvas.width = canvas.width * scale;
+    smallCanvas.height = canvas.height * scale;
+    var smallCtx = smallCanvas.getContext('2d');
+    smallCtx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+    var smallImageData = smallCtx.getImageData(0, 0, smallCanvas.width, smallCanvas.height);
+    code = jsQR(smallImageData.data, smallImageData.width, smallImageData.height);
+    if (code) {
+      console.log('✅ [Approche 4] QR détecté avec résolution réduite !');
+      handleQRDetected(code.data, statusDiv);
+      return;
+    } else {
+      console.warn('⚠️ [Approche 4] Aucun QR détecté');
+    }
+    
+    // ❌ Aucune approche n'a fonctionné
+    console.warn('❌ Toutes les approches ont échoué - jsQR ne peut pas lire ce QR code');
+    alert('❌ jsQR ne peut pas lire ce QR code.\n\nAlternatives:\n1. Essayez une meilleure photo du QR\n2. Utilisez l\'option "Copier le code" à la place');
+    
   } catch (e) {
     console.error('❌ Erreur scan image:', e);
-    alert('❌ Erreur lors du scan de l\'image: ' + e.message);
+    console.error('Stack:', e.stack);
+    alert('❌ Erreur: ' + e.message);
+  }
+}
+
+function handleQRDetected(decodedText, statusDiv) {
+  if (decodedText.startsWith('mc_recipe_v1:')) {
+    document.getElementById('import-code-input').value = decodedText;
+    if (statusDiv) {
+      statusDiv.innerHTML = '✅ QR code détecté ! Cliquez [✓ Importer]';
+      statusDiv.style.background = '#d4edda';
+      statusDiv.style.color = '#155724';
+    }
+  } else {
+    alert('⚠️ QR code valide mais format inconnu (pas MonCocktail)\n\nCode trouvé: ' + decodedText.substring(0, 50));
   }
 }
 
