@@ -2878,17 +2878,34 @@ function buildReadableRecipeText(c, note, userStars) {
   text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
   text += 'INGRÉDIENTS\n';
   text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-  c.ingredients.forEach(function(ing) {
-    text += '• ' + ing[0] + ' - ' + ing[1] + ' ' + ing[2] + '\n';
-  });
+  
+  // Valider et formatter les ingrédients
+  if (c.ingredients && Array.isArray(c.ingredients)) {
+    c.ingredients.forEach(function(ing) {
+      // Vérifier que ing est un array avec au moins le nom
+      if (Array.isArray(ing) && ing.length >= 1) {
+        var name = ing[0] || '';
+        var qty = ing[1] || '';
+        var unit = ing[2] || '';
+        text += '• ' + name + (qty || unit ? ' - ' + qty + ' ' + unit : '') + '\n';
+      } else if (typeof ing === 'string') {
+        // Si c'est une string, on l'ajoute directement
+        text += '• ' + ing + '\n';
+      }
+    });
+  }
   text += '\n';
   
   text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
   text += 'PRÉPARATION\n';
   text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
-  c.steps.forEach(function(step, i) {
-    text += (i+1) + '. ' + step + '\n';
-  });
+  
+  // Valider et formatter les étapes
+  if (c.steps && Array.isArray(c.steps)) {
+    c.steps.forEach(function(step, i) {
+      text += (i+1) + '. ' + (step || '') + '\n';
+    });
+  }
   text += '\n';
   
   // Profil gustatif
@@ -2927,6 +2944,10 @@ function exportRecipeData(c, note, userStars) {
   // Exporter les données structurées SIMPLIFIÉES (noms de clés courts pour base64 plus petit)
   var profile = c.profile || PROFILES[c.id] || {s:2, b:1, a:3};
   
+  // Valider les ingrédients et étapes
+  var ingredients = (Array.isArray(c.ingredients) ? c.ingredients : []) || [];
+  var steps = (Array.isArray(c.steps) ? c.steps : []) || [];
+  
   return {
     v: "1",        // version
     id: c.id,
@@ -2938,8 +2959,8 @@ function exportRecipeData(c, note, userStars) {
     pr: c.prep,    // prep
     gl: c.glass,   // glass
     po: c.portions,  // portions
-    ig: c.ingredients,  // ingredients
-    st: c.steps,   // steps
+    ig: ingredients,  // ingredients
+    st: steps,   // steps
     tg: c.tags || [],  // tags
     pf: profile,   // profile
     nt: note || '', // note
@@ -3019,7 +3040,7 @@ function showShareModal(id, share) {
     // Header
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
     + '<h2 style="margin:0;font-size:18px">Partager ' + (share.recipe.title || 'la recette') + '</h2>'
-    + '<button onclick="document.getElementById(\'' + modalId + '\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px;"><span style="color:red;">↵</span>' 
+    + '<button onclick="document.getElementById(\'' + modalId + '\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px;"><span style="color:red;">↵</span></button>'
     + '</div>'
     
     // Section QR Code
@@ -3137,8 +3158,17 @@ function doGenerateQRCode(text, container, modalId) {
   // Vider le container d'abord
   container.innerHTML = '';
   
+  // Valider l'entrée
+  if (!text || text.length === 0) {
+    console.error('❌ Erreur génération QR: texte vide');
+    container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur: données vides</div>';
+    return;
+  }
+  
   try {
     console.log('📱 Génération QR code avec QRCode.js...');
+    console.log('Text length:', text.length);
+    
     // Utiliser la libraire QRCode pour générer un QR code
     var qr = new QRCode(container, {
       text: text,
@@ -3149,11 +3179,13 @@ function doGenerateQRCode(text, container, modalId) {
       correctLevel: QRCode.CorrectLevel.H
     });
 
-    Array.prototype.forEach.call(container.querySelectorAll('canvas, img'), function(qrElement) {
-      qrElement.style.width = '160px';
-      qrElement.style.height = '160px';
-      qrElement.style.maxWidth = '100%';
-    });
+    // Redimensionner le canvas s'il existe
+    var canvas = container.querySelector('canvas');
+    if (canvas) {
+      // Garder une bonne taille affichage
+      canvas.style.maxWidth = '100%';
+      canvas.style.height = 'auto';
+    }
     
     console.log('✅ QR code généré avec succès');
     
@@ -3163,6 +3195,8 @@ function doGenerateQRCode(text, container, modalId) {
     
   } catch (e) {
     console.error('❌ Erreur génération QR:', e);
+    console.error('Message:', e.message);
+    console.error('Stack:', e.stack);
     container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur génération QR: ' + e.message + '</div>';
   }
 }
