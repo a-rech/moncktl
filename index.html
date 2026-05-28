@@ -3025,7 +3025,7 @@ function showShareModal(id, share) {
     // Section QR Code
     + '<div style="margin-bottom:20px;background:var(--surface2);padding:15px;border-radius:8px;text-align:center">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2)">QR CODE</label>'
-    + '<div id="' + qrContainerId + '" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:210px"></div>'
+    + '<div id="' + qrContainerId + '" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:820px;overflow:auto"></div>'
     + '<div style="display:flex;gap:10px">'
     + '<button onclick="downloadQRCode(\'' + modalId + '\')" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">⬇️ Télécharger</button>'
     + '<button onclick="shareQRCode(\'' + modalId + '\', \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">📤 Partager</button>'
@@ -3142,8 +3142,8 @@ function doGenerateQRCode(text, container, modalId) {
     // Utiliser la libraire QRCode pour générer un QR code
     var qr = new QRCode(container, {
       text: text,
-      width: 200,
-      height: 200,
+      width: 800,
+      height: 800,
       colorDark: "#0C0F1D",
       colorLight: "#fff",
       correctLevel: QRCode.CorrectLevel.H
@@ -3171,13 +3171,27 @@ function downloadQRCode(modalId) {
     return;
   }
   
-  // Créer un lien de téléchargement
-  var link = document.createElement('a');
-  link.href = canvas.toDataURL('image/png');
-  link.download = 'monckcktail-qr-' + Date.now() + '.png';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // Utiliser toBlob pour une meilleure qualité et gestion du PNG
+  canvas.toBlob(function(blob) {
+    if (!blob) {
+      console.error('Erreur création blob QR');
+      return;
+    }
+    
+    // Créer un URL objet pour le téléchargement
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = 'moncktail-qr-' + Date.now() + '.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Libérer la ressource
+    setTimeout(function() {
+      URL.revokeObjectURL(url);
+    }, 100);
+  }, 'image/png');
 }
 
 function shareQRCode(modalId, recipeName) {
