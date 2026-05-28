@@ -185,6 +185,8 @@
     .btn-scroll-top{position:fixed;top:66px;right:14px;z-index:200;width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text2);box-shadow:var(--shadow);transition:opacity .25s,transform .25s;opacity:0;pointer-events:none;transform:translateY(-8px);}
     .btn-scroll-top.visible{opacity:1;pointer-events:auto;transform:translateY(0);}
     .btn-scroll-top:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent);}
+    .share-modal-close{background:var(--surface);border:1px solid var(--border);color:var(--text2);border-radius:10px;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow);}
+    .share-modal-close:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent);}
     /* TIP */
     .tip-block{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin-top:20px;font-size:13px;color:var(--text2);}
     .tip-block strong{color:var(--accent);}
@@ -3040,7 +3042,7 @@ function showShareModal(id, share) {
     // Header
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
     + '<h2 style="margin:0;font-size:18px">Partager ' + (share.recipe.title || 'la recette') + '</h2>'
-    + '<button onclick="document.getElementById(\\'' + modalId + '\\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px">x</button>'
+    + '<button class="share-modal-close" onclick="document.getElementById(\\'' + modalId + '\\').remove()">X</button>'
     + '</div>'
     
     // Section QR Code
