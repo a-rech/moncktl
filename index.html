@@ -3387,7 +3387,7 @@ function attemptImport() {
   
   var result = importRecipeFromCode(code);
   if (result.success) {
-    showImportSuccess(result.recipe);
+    showImportSuccess(result.recipe, result.baseOnly, result.appliedSomething);
   } else {
     showImportError(result.error);
   }
@@ -3414,6 +3414,26 @@ function importRecipeFromCode(code) {
     // Valider les champs obligatoires
     if (!data.title || !data.ingredients || !data.steps) {
       return {success: false, error: '❌ Le code est corrompu. Données manquantes.'};
+    }
+    
+    // ── Détection recette de base (id < 10000) ──────────────────────
+    // Si le code provient d'une recette du catalogue, on n'en crée pas
+    // un doublon : on applique seulement la note et les étoiles sur
+    // la recette existante.
+    if (data.id && data.id < 10000) {
+      var baseRecipe = COCKTAILS.filter(function(r) { return r.id === data.id; })[0];
+      if (baseRecipe) {
+        var appliedSomething = false;
+        if (data.userNote) {
+          saveNote(baseRecipe.id, data.userNote);
+          appliedSomething = true;
+        }
+        if (data.userStars && data.userStars > 0) {
+          setRating(baseRecipe.id, data.userStars);
+          appliedSomething = true;
+        }
+        return {success: true, recipe: baseRecipe, baseOnly: true, appliedSomething: appliedSomething};
+      }
     }
     
     // Gérer les conflits d'ID
@@ -3481,17 +3501,33 @@ function handleImportConflict(importedData) {
   return importedData;
 }
 
-function showImportSuccess(recipe) {
-  var html = '<div style="padding:15px;background:#d4edda;border:1px solid #c3e6cb;border-radius:6px;margin-top:20px">'
-    + '<div style="color:#155724;font-weight:500;margin-bottom:10px">✅ Recette importée avec succès !</div>'
-    + '<div style="color:#155724;font-size:13px;margin-bottom:10px">'
-    + '📝 <strong>' + recipe.title + '</strong> a été ajoutée à votre collection.'
-    + '</div>'
-    + '<button class="entry-choice-btn" style="width:100%;padding:10px;background:#155724;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500" onclick="showRecipe(' + recipe.id + ');navTo(\'recipe\')">'
-    + '👁️ Voir la recette'
-    + '</button>'
-    + '</div>';
-  
+function showImportSuccess(recipe, baseOnly, appliedSomething) {
+  var html;
+  if (baseOnly) {
+    var what = appliedSomething
+      ? 'La note et/ou les étoiles ont été importées sur cette recette.'
+      : 'Aucune note ni évaluation à importer — le catalogue est déjà à jour.';
+    html = '<div style="padding:15px;background:#d4edda;border:1px solid #c3e6cb;border-radius:6px;margin-top:20px">'
+      + '<div style="color:#155724;font-weight:500;margin-bottom:10px">✅ Recette du catalogue reconnue</div>'
+      + '<div style="color:#155724;font-size:13px;margin-bottom:10px">'
+      + '🍸 <strong>' + recipe.title + '</strong> fait déjà partie du catalogue — aucun doublon créé.<br>'
+      + what
+      + '</div>'
+      + '<button class="entry-choice-btn" style="width:100%;padding:10px;background:#155724;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500" onclick="showRecipe(' + recipe.id + ');navTo(\'recipe\')">'
+      + '👁️ Voir la recette'
+      + '</button>'
+      + '</div>';
+  } else {
+    html = '<div style="padding:15px;background:#d4edda;border:1px solid #c3e6cb;border-radius:6px;margin-top:20px">'
+      + '<div style="color:#155724;font-weight:500;margin-bottom:10px">✅ Recette importée avec succès !</div>'
+      + '<div style="color:#155724;font-size:13px;margin-bottom:10px">'
+      + '📝 <strong>' + recipe.title + '</strong> a été ajoutée à votre collection.'
+      + '</div>'
+      + '<button class="entry-choice-btn" style="width:100%;padding:10px;background:#155724;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500" onclick="showRecipe(' + recipe.id + ');navTo(\'recipe\')">'
+      + '👁️ Voir la recette'
+      + '</button>'
+      + '</div>';
+  }
   document.getElementById('import-result').innerHTML = html;
   document.getElementById('import-code-input').value = '';
 }
