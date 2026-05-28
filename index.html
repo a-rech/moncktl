@@ -197,6 +197,10 @@
     .like-btn.liked{background:rgba(224,92,92,0.25);border-color:#E05C5C;}
     @keyframes heartpop{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
     .like-btn.pop{animation:heartpop .25s ease;}
+    /* Badge ✨ création utilisateur - haut gauche miniature */
+    .creation-badge{position:absolute;top:8px;left:8px;z-index:2;width:28px;height:28px;border-radius:50%;background:rgba(12,15,29,0.75);border:1px solid rgba(255,255,255,0.15);font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+    /* Badge texte "✦ Votre création" dans le titre de carte */
+    .user-badge{font-size:10px;color:var(--accent);font-weight:500;vertical-align:middle;margin-left:5px;white-space:nowrap;}
     /* Badge compteur nav */
     .fav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border-radius:8px;background:#E05C5C;color:#fff;font-size:10px;font-weight:700;padding:0 4px;margin-left:3px;vertical-align:middle;}
     .fav-badge.hidden{display:none;}
@@ -875,6 +879,13 @@
         <div class="entry-choice-sub">Importez un code reçu pour ajouter une recette</div>
       </div>
     </button>
+    <button class="entry-choice-btn" onclick="showMyCreationsPanel()">
+      <span class="entry-choice-icon">✦</span>
+      <div>
+        <div class="entry-choice-title">Mes créations</div>
+        <div class="entry-choice-sub">Retrouvez et consultez vos recettes personnelles</div>
+      </div>
+    </button>
   </div>
   <div id="clone-picker" style="display:none;margin-top:24px;">
     <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;">Choisissez une recette à adapter</div>
@@ -885,6 +896,16 @@
         oninput="filterCloneResults(this.value)" autocomplete="off">
     </div>
     <div class="clone-results" id="clone-results"></div>
+  </div>
+  <div id="my-creations-panel" style="display:none;margin-top:24px;">
+    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;">Vos créations</div>
+    <div class="clone-search-wrap">
+      <span class="clone-search-icon">🔍</span>
+      <input class="clone-search-input" id="my-creations-search" type="text"
+        placeholder="Rechercher parmi vos créations…"
+        oninput="filterMyCreationsPanel(this.value)" autocomplete="off">
+    </div>
+    <div id="my-creations-grid" style="margin-top:12px;"></div>
   </div>
 </div>
 
@@ -1503,8 +1524,9 @@ function renderCatalogueGrid(cocktails) {
     var stars = miniStarsHtml(c.id); // Mini étoiles si noté (vide sinon)
     var gico = '<span class="glass-card" title="' + c.glass + '">' + glassIcon(c.glass, 20, 28) + '</span>';
     var userBadge = c.userCreated ? '<span class="user-badge" title="Votre création">✦ Votre création</span>' : '';
+    var creationBadge = c.userCreated ? '<span class="creation-badge">✨</span>' : '';
     html += '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
-      + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
+      + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + creationBadge + '</div>'
       + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + userBadge + '</div>'
       + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + gico + (stars ? stars : '') + '</div>'
       + '<div class="recipe-card-tags"><span class="tag diff-' + c.diff + '">' + c.diff + '</span><span class="tag">' + c.cat + '</span></div>'
@@ -1549,9 +1571,11 @@ function execCatSearch() {
     results.forEach(function(c) {
       var stars = miniStarsHtml(c.id);
       var gico = '<span class="glass-card" title="' + c.glass + '">' + glassIcon(c.glass, 20, 28) + '</span>';
+      var userBadge = c.userCreated ? '<span class="user-badge" title="Votre création">✦ Votre création</span>' : '';
+      var creationBadge = c.userCreated ? '<span class="creation-badge">✨</span>' : '';
       html += '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
-        + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
-        + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + '</div>'
+        + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + creationBadge + '</div>'
+        + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + userBadge + '</div>'
         + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + gico + (stars || '') + '</div>'
         + '<div class="recipe-card-tags"><span class="tag diff-' + c.diff + '">' + c.diff + '</span><span class="tag">' + c.cat + '</span></div>'
         + '</div></div>';
@@ -2416,6 +2440,7 @@ function startFromScratch() {
 
 function startFromCatalogue() {
   var picker = document.getElementById('clone-picker');
+  document.getElementById('my-creations-panel').style.display = 'none';
   picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
   if (picker.style.display === 'block') {
     renderCloneResults(COCKTAILS);
@@ -2433,6 +2458,54 @@ function filterCloneResults(q) {
         );
       });
   renderCloneResults(filtered);
+}
+
+function showMyCreationsPanel() {
+  var panel = document.getElementById('my-creations-panel');
+  document.getElementById('clone-picker').style.display = 'none';
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') {
+    document.getElementById('my-creations-search').value = '';
+    renderMyCreationsPanel(COCKTAILS.filter(function(c) { return c.userCreated === true; }));
+    document.getElementById('my-creations-search').focus();
+  }
+}
+
+function filterMyCreationsPanel(q) {
+  var all = COCKTAILS.filter(function(c) { return c.userCreated === true; });
+  var filtered = q.trim().length === 0 ? all : all.filter(function(c) {
+    var lq = q.toLowerCase();
+    return c.title.toLowerCase().indexOf(lq) !== -1
+      || c.baseAlcool.toLowerCase().indexOf(lq) !== -1
+      || c.cat.toLowerCase().indexOf(lq) !== -1;
+  });
+  renderMyCreationsPanel(filtered);
+}
+
+function renderMyCreationsPanel(list) {
+  var container = document.getElementById('my-creations-grid');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:20px 0"><div class="big">✦</div><p>'
+      + (COCKTAILS.filter(function(c){return c.userCreated===true;}).length === 0
+          ? 'Vous n\'avez pas encore créé de cocktail.'
+          : 'Aucune création trouvée.')
+      + '</p></div>';
+    return;
+  }
+  var html = '<div class="results-grid">';
+  list.forEach(function(c) {
+    var stars = miniStarsHtml(c.id);
+    var gico = '<span class="glass-card" title="' + c.glass + '">' + glassIcon(c.glass, 20, 28) + '</span>';
+    html += '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
+      + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '<span class="creation-badge">✨</span></div>'
+      + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title
+      + '<span class="user-badge" title="Votre création">✦ Votre création</span></div>'
+      + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + gico + (stars || '') + '</div>'
+      + '<div class="recipe-card-tags"><span class="tag diff-' + c.diff + '">' + c.diff + '</span><span class="tag">' + c.cat + '</span></div>'
+      + '</div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 function renderCloneResults(list) {
