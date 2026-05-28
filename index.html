@@ -3025,7 +3025,7 @@ function showShareModal(id, share) {
     // Section QR Code
     + '<div style="margin-bottom:20px;background:var(--surface2);padding:15px;border-radius:8px;text-align:center">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2)">QR CODE</label>'
-    + '<div id="' + qrContainerId + '" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:820px;overflow:auto"></div>'
+    + '<div id="' + qrContainerId + '" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:180px;overflow:hidden"></div>'
     + '<div style="display:flex;gap:10px">'
     + '<button onclick="downloadQRCode(\'' + modalId + '\')" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">⬇️ Télécharger</button>'
     + '<button onclick="shareQRCode(\'' + modalId + '\', \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">📤 Partager</button>'
@@ -3147,6 +3147,12 @@ function doGenerateQRCode(text, container, modalId) {
       colorDark: "#0C0F1D",
       colorLight: "#fff",
       correctLevel: QRCode.CorrectLevel.H
+    });
+
+    Array.prototype.forEach.call(container.querySelectorAll('canvas, img'), function(qrElement) {
+      qrElement.style.width = '160px';
+      qrElement.style.height = '160px';
+      qrElement.style.maxWidth = '100%';
     });
     
     console.log('✅ QR code généré avec succès');
