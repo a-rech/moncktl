@@ -3339,8 +3339,8 @@ function showShareModal(id, share) {
     // Section QR Code
     + '<div style="margin-bottom:20px;background:var(--surface2);padding:15px;border-radius:8px;text-align:center">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2)">QR CODE</label>'
-    + '<div id="' + qrContainerId + '" onclick="expandQR(\'' + qrContainerId + '\')" title="Appuyer pour agrandir" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:180px;overflow:hidden;cursor:zoom-in"></div>'
-    + '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">🔍 Appuyez sur le QR pour l\'agrandir</div>'
+    + '<div id="' + qrContainerId + '" onclick="expandQR(\'' + qrContainerId + '\')" title="Agrandir" style="display:flex;justify-content:center;align-items:center;margin-bottom:8px;background:#fff;padding:10px;border-radius:6px;min-height:180px;overflow:hidden;cursor:pointer"></div>'
+    + '<button onclick="expandQR(\'' + qrContainerId + '\')" style="display:inline-flex;align-items:center;gap:5px;margin-bottom:10px;padding:6px 14px;background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer">🔍 Agrandir</button>'
     + '<div style="display:flex;gap:10px">'
     + '<button onclick="downloadQRCode(\'' + modalId + '\')" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">⬇️ Télécharger</button>'
     + '<button onclick="shareQRCode(\'' + modalId + '\', \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">📤 Partager</button>'
@@ -3508,25 +3508,47 @@ function expandQR(containerId) {
   var canvas = src.querySelector('canvas');
   if (!canvas) return;
 
-  // Fond blanc plein écran
+  // Convertir le canvas en dataURL → <img> zoomable nativement partout
+  var dataUrl = canvas.toDataURL('image/png');
+
   var overlay = document.createElement('div');
   overlay.id = 'qr-fullscreen-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+  overlay.style.cssText = [
+    'position:fixed;inset:0;background:#fff;z-index:99999',
+    'display:flex;flex-direction:column;align-items:center;justify-content:center',
+    'overflow:auto' // scroll si l'image est zoomée plus grand que l'écran
+  ].join(';');
 
-  // Bouton retour — petit, discret, bien au-dessus du QR
+  // Bouton retour — pill sombre, coin haut gauche, jamais sur le QR
   var btn = document.createElement('button');
   btn.textContent = '← Retour';
-  btn.style.cssText = 'position:absolute;top:16px;left:16px;padding:8px 16px;background:#222;color:#fff;border:none;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;z-index:2;opacity:.85';
+  btn.style.cssText = [
+    'position:fixed;top:16px;left:16px',
+    'padding:8px 16px;background:#222;color:#fff',
+    'border:none;border-radius:20px;font-size:14px;font-weight:500',
+    'cursor:pointer;z-index:100001;opacity:.88',
+    'box-shadow:0 2px 8px rgba(0,0,0,.3)'
+  ].join(';');
   btn.onclick = function() { closeExpandQR(); };
   overlay.appendChild(btn);
 
-  // Cloner le canvas (évite de déplacer l'original)
-  var clone = document.createElement('canvas');
-  clone.width  = canvas.width;
-  clone.height = canvas.height;
-  clone.getContext('2d').drawImage(canvas, 0, 0);
-  clone.style.cssText = 'max-width:min(90vw,90vh);max-height:min(90vw,90vh);width:auto;height:auto;display:block;border-radius:8px';
-  overlay.appendChild(clone);
+  // <img> : zoomable au pinch nativement sur iOS/Android/desktop partout
+  var img = document.createElement('img');
+  img.src = dataUrl;
+  img.style.cssText = [
+    'display:block',
+    'width:min(92vw,92vh);height:min(92vw,92vh)',  // carré, max de l'écran
+    'object-fit:contain',
+    'border-radius:6px',
+    'touch-action:pinch-zoom',  // active le pinch natif mobile
+    'margin-top:56px'           // dégager le bouton retour
+  ].join(';');
+  overlay.appendChild(img);
+
+  // Tap sur le fond (hors image) = fermer
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeExpandQR();
+  });
 
   document.body.appendChild(overlay);
 
@@ -3537,7 +3559,7 @@ function expandQR(containerId) {
     }).catch(function(){});
   }
 
-  // Luminosité max via Screen Brightness API (Chrome Android expérimental)
+  // Screen Brightness API (Chrome Android expérimental)
   if (navigator.screen && navigator.screen.brightness !== undefined) {
     _qrPrevBrightness = navigator.screen.brightness;
     try { navigator.screen.brightness = 1.0; } catch(e) {}
