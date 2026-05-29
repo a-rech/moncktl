@@ -2633,7 +2633,7 @@ function showMyCreationsPanel() {
   if (panel.style.display === 'block') {
     document.getElementById('my-creations-search').value = '';
     renderMyCreationsPanel(COCKTAILS.filter(function(c) { return c.userCreated === true; }));
-    document.getElementById('my-creations-search').focus();
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
