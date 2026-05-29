@@ -130,6 +130,22 @@
     .cat-mode-btn{flex:1;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
     .cat-mode-btn:hover{border-color:var(--accent);color:var(--accent);}
     .cat-mode-btn.active{background:var(--surface2);border-color:var(--accent);color:var(--accent);}
+    /* ── Filtres profil gustatif ── */
+    #profile-filters-bar{display:flex;gap:8px;margin:12px 0 14px;}
+    .pf-btn{position:relative;flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap;user-select:none;}
+    .pf-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .pf-btn.active{border-color:var(--accent);background:var(--surface2);color:var(--accent);}
+    .pf-btn-count{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;border-radius:8px;background:var(--accent);color:#0C0F1D;font-size:10px;font-weight:700;padding:0 3px;}
+    .pf-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:150;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:160px;box-shadow:0 6px 24px rgba(0,0,0,.35);}
+    .pf-dropdown.open{display:block;}
+    .pf-level{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:background .1s;-webkit-tap-highlight-color:transparent;}
+    .pf-level:hover{background:var(--surface2);color:var(--text);}
+    .pf-level.checked{color:var(--text);font-weight:500;}
+    .pf-level input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+    /* Bouton réinitialiser flottant */
+    #btn-reset-filters{position:fixed;bottom:76px;right:14px;z-index:180;padding:10px 15px;border-radius:24px;background:var(--surface2);border:1px solid var(--accent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.4);transition:opacity .2s,transform .2s;display:none;align-items:center;gap:6px;}
+    #btn-reset-filters.visible{display:flex;}
+    #btn-reset-filters:hover{background:var(--accent);color:#0C0F1D;}
     /* FICHE RECETTE */
     #page-recipe{max-width:800px;}
     .recipe-header{margin-bottom:24px;}
@@ -834,12 +850,28 @@
     <button class="search-bar-clear" id="cat-search-clear" onclick="clearCatSearch()" title="Vider">✕</button>
     <button class="search-bar-go" onclick="execCatSearch()" title="Rechercher">→</button>
   </div>
+  <!-- Filtres profil gustatif -->
+  <div id="profile-filters-bar">
+    <button class="pf-btn" id="pf-btn-s" onclick="togglePfDropdown('s',event)">
+      🍬 Sucré<span class="pf-btn-count" id="pf-count-s" style="display:none">0</span>
+      <div class="pf-dropdown" id="pf-drop-s" onclick="event.stopPropagation()"></div>
+    </button>
+    <button class="pf-btn" id="pf-btn-b" onclick="togglePfDropdown('b',event)">
+      🍋 Amer<span class="pf-btn-count" id="pf-count-b" style="display:none">0</span>
+      <div class="pf-dropdown" id="pf-drop-b" onclick="event.stopPropagation()"></div>
+    </button>
+    <button class="pf-btn" id="pf-btn-a" onclick="togglePfDropdown('a',event)">
+      🍾 Alcool<span class="pf-btn-count" id="pf-count-a" style="display:none">0</span>
+      <div class="pf-dropdown" id="pf-drop-a" onclick="event.stopPropagation()"></div>
+    </button>
+  </div>
   <div class="cat-mode-bar">
     <button class="cat-mode-btn active" id="mode-btn-cat" onclick="setCatMode('cat')">🍸 Type</button>
     <button class="cat-mode-btn" id="mode-btn-base" onclick="setCatMode('base')">🥃 Alcool de base</button>
   </div>
   <div id="cat-tabs"></div>
   <div id="catalogue-results"></div>
+  <button id="btn-reset-filters" onclick="resetAllCatalogueFilters()">↺ Réinitialiser</button>
 </div>
 
 <div id="page-random" class="page">
@@ -859,7 +891,7 @@
   <p class="section-sub">Par où voulez-vous commencer ?</p>
   <div class="entry-choices">
     <button class="entry-choice-btn" onclick="startFromScratch()">
-      <span class="entry-choice-icon">✨</span>
+      <span class="entry-choice-icon">🪄</span>
       <div>
         <div class="entry-choice-title">Créer de zéro</div>
         <div class="entry-choice-sub">Formulaire vierge — donnez libre cours à votre créativité</div>
@@ -880,7 +912,7 @@
       </div>
     </button>
     <button class="entry-choice-btn" onclick="showMyCreationsPanel()">
-      <span class="entry-choice-icon">✦</span>
+      <span class="entry-choice-icon">✨</span>
       <div>
         <div class="entry-choice-title">Mes créations</div>
         <div class="entry-choice-sub">Retrouvez et consultez vos recettes personnelles</div>
@@ -1447,13 +1479,14 @@ function loadCatalogueTabs() {
   COCKTAILS.forEach(function(r) { if (uniqueVals.indexOf(r[field]) === -1) uniqueVals.push(r[field]); });
   uniqueVals.sort(); // Ordre alphabétique
   var tabsContainer = document.getElementById('cat-tabs');
-  var favCount = FAVORITES.length;
+  var pfBase = applyProfileFilters(COCKTAILS); // base filtrée par profil
+  var favCount = pfBase.filter(function(c) { return isFav(c.id); }).length;
   
   // Compter les recettes personnalisées
   var userCocktails = lsGet(USER_COCKTAILS_KEY, []);
-  var userCount = userCocktails.length;
+  var userCount = applyProfileFilters(userCocktails).length;
   
-  var html = '<div class="cat-tab active" data-val="all">Tous (' + COCKTAILS.length + ')</div>';
+  var html = '<div class="cat-tab active" data-val="all">Tous (' + pfBase.length + ')</div>';
   html += '<div class="cat-tab cat-tab-fav" data-val="__favs__">❤️ Favoris' + (favCount > 0 ? ' (' + favCount + ')' : '') + '</div>';
   
   // Afficher l'onglet "Mes cocktails" en permanence (même si 0 création)
@@ -1463,7 +1496,7 @@ function loadCatalogueTabs() {
     + '</div>';
   
   uniqueVals.forEach(function(v) {
-    var count = COCKTAILS.filter(function(r) { return r[field] === v; }).length;
+    var count = pfBase.filter(function(r) { return r[field] === v; }).length;
     html += '<div class="cat-tab" data-val="' + v + '">' + v + ' (' + count + ')</div>';
   });
   tabsContainer.innerHTML = html;
@@ -1474,14 +1507,18 @@ function loadCatalogueTabs() {
     filterCatalogue(tab.getAttribute('data-val'), tab);
   });
   renderCatalogueGrid(shuffle(COCKTAILS.slice())); // Affichage initial mélangé
+  updateResetBtnVisibility();
 }
 
 // Filtre la grille selon la valeur de l'onglet sélectionné.
 // '__favs__' est une valeur spéciale qui déclenche le mode favoris.
 // '__mycocktails__' est une valeur spéciale qui déclenche le mode "Mes cocktails".
-function filterCatalogue(value, tabEl) {
+function filterCatalogue(value, tabEl, skipScroll) {
   document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
   tabEl.classList.add('active');
+  // Fermer les dropdowns profil
+  ['s','b','a'].forEach(function(k) { document.getElementById('pf-drop-' + k).classList.remove('open'); });
+  PF_OPEN = null;
   
   if (value === '__favs__') {
     var favCocktails = COCKTAILS.filter(function(c) { return isFav(c.id); });
@@ -1490,7 +1527,8 @@ function filterCatalogue(value, tabEl) {
     } else {
       renderCatalogueGrid(favCocktails);
     }
-    document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateResetBtnVisibility();
     return;
   }
   
@@ -1501,20 +1539,23 @@ function filterCatalogue(value, tabEl) {
     } else {
       renderCatalogueGrid(shuffle(myCocktails));
     }
-    document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateResetBtnVisibility();
     return;
   }
   
   var field = catMode === 'cat' ? 'cat' : 'baseAlcool';
   var filtered = value === 'all' ? COCKTAILS.slice() : COCKTAILS.filter(function(r) { return r[field] === value; });
   renderCatalogueGrid(shuffle(filtered)); // Mélange pour varier l'ordre à chaque clic
-  document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateResetBtnVisibility();
 }
 
 // Construit la grille HTML de cartes cocktails.
-// Le filtre de difficulté (currentDiff) est appliqué ici, en aval du filtre de catégorie.
+// Les filtres profil gustatif puis difficulté sont appliqués ici.
 function renderCatalogueGrid(cocktails) {
-  var list = currentDiff === 'all' ? cocktails : cocktails.filter(function(c) { return c.diff === currentDiff; });
+  var list = applyProfileFilters(cocktails);
+  list = currentDiff === 'all' ? list : list.filter(function(c) { return c.diff === currentDiff; });
   if (list.length === 0) {
     document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">🍸</div><p>Aucun cocktail pour ce filtre.</p></div>';
     return;
@@ -1703,6 +1744,16 @@ function updateQuantities(id) {
 window.addEventListener('DOMContentLoaded', function() {
   applyPrefs();
   loadUserCocktails(); // Fusionner les recettes utilisateur avec COCKTAILS // Appliquer les préférences sauvegardées
+  // Fermer les dropdowns profil sur clic extérieur
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.pf-btn')) {
+      ['s','b','a'].forEach(function(k) {
+        var d = document.getElementById('pf-drop-' + k);
+        if (d) d.classList.remove('open');
+      });
+      PF_OPEN = null;
+    }
+  });
   // Bouton retour en haut
   window.addEventListener('scroll', function() {
     var st = document.getElementById('btn-scroll-top');
@@ -1911,6 +1962,121 @@ function setDiffFilter(diff, el) {
   // Réapplique le filtre de catégorie en cours pour mettre à jour la grille
   var activeTab = document.querySelector('#cat-tabs .cat-tab.active');
   if (activeTab) filterCatalogue(activeTab.getAttribute('data-val'), activeTab);
+}
+
+// ── 11. FILTRES PROFIL GUSTATIF ─────────────────────────────────────────────
+var profileFilters = { s: [], b: [], a: [] };
+var PF_LABELS = ['Absent', 'Léger', 'Modéré', 'Marqué', 'Fort', 'Intense'];
+var PF_OPEN = null; // clé du dropdown actuellement ouvert
+
+function applyProfileFilters(list) {
+  return list.filter(function(c) {
+    var p = c.profile || PROFILES[c.id] || { s:2, b:1, a:3 };
+    if (profileFilters.s.length > 0 && profileFilters.s.indexOf(p.s) === -1) return false;
+    if (profileFilters.b.length > 0 && profileFilters.b.indexOf(p.b) === -1) return false;
+    if (profileFilters.a.length > 0 && profileFilters.a.indexOf(p.a) === -1) return false;
+    return true;
+  });
+}
+
+function togglePfDropdown(key, evt) {
+  evt.stopPropagation();
+  var drop = document.getElementById('pf-drop-' + key);
+  var wasOpen = drop.classList.contains('open');
+  // Ferme tous
+  ['s','b','a'].forEach(function(k) { document.getElementById('pf-drop-' + k).classList.remove('open'); });
+  if (!wasOpen) {
+    populatePfDropdown(key, drop);
+    drop.classList.add('open');
+    PF_OPEN = key;
+  } else {
+    PF_OPEN = null;
+  }
+}
+
+function populatePfDropdown(key, container) {
+  var vals = [];
+  COCKTAILS.forEach(function(c) {
+    var p = c.profile || PROFILES[c.id] || { s:2, b:1, a:3 };
+    if (vals.indexOf(p[key]) === -1) vals.push(p[key]);
+  });
+  vals.sort(function(a, b) { return a - b; });
+  container.innerHTML = vals.map(function(v) {
+    var checked = profileFilters[key].indexOf(v) !== -1;
+    var label = PF_LABELS[v] !== undefined ? PF_LABELS[v] : ('Niveau ' + v);
+    return '<label class="pf-level' + (checked ? ' checked' : '') + '">'
+      + '<input type="checkbox"' + (checked ? ' checked' : '') + ' onchange="togglePfLevel(\'' + key + '\',' + v + ',this)">'
+      + label + '</label>';
+  }).join('');
+}
+
+function togglePfLevel(key, val, cbEl) {
+  var idx = profileFilters[key].indexOf(val);
+  if (cbEl.checked && idx === -1) { profileFilters[key].push(val); }
+  else if (!cbEl.checked && idx !== -1) { profileFilters[key].splice(idx, 1); }
+  cbEl.parentElement.classList.toggle('checked', cbEl.checked);
+  updatePfButtonStates();
+  refreshTabCounts();
+  // Réapplique le filtre actif
+  var activeTab = document.querySelector('#cat-tabs .cat-tab.active');
+  if (activeTab) filterCatalogue(activeTab.getAttribute('data-val'), activeTab, true);
+  updateResetBtnVisibility();
+}
+
+function updatePfButtonStates() {
+  ['s','b','a'].forEach(function(k) {
+    var btn = document.getElementById('pf-btn-' + k);
+    var countEl = document.getElementById('pf-count-' + k);
+    var n = profileFilters[k].length;
+    if (!btn || !countEl) return;
+    btn.classList.toggle('active', n > 0);
+    countEl.textContent = n;
+    countEl.style.display = n > 0 ? 'inline-flex' : 'none';
+  });
+}
+
+function refreshTabCounts() {
+  var field = catMode === 'cat' ? 'cat' : 'baseAlcool';
+  var pfBase = applyProfileFilters(COCKTAILS);
+  document.querySelectorAll('#cat-tabs .cat-tab').forEach(function(tab) {
+    var val = tab.getAttribute('data-val');
+    if (!val) return;
+    if (val === 'all') {
+      tab.textContent = 'Tous (' + pfBase.length + ')';
+    } else if (val === '__favs__') {
+      var fc = pfBase.filter(function(c) { return isFav(c.id); }).length;
+      tab.textContent = '❤️ Favoris' + (fc > 0 ? ' (' + fc + ')' : '');
+    } else if (val === '__mycocktails__') {
+      var span = tab.querySelector('span');
+      if (span) {
+        var uc = pfBase.filter(function(c) { return c.userCreated === true; }).length;
+        span.textContent = '✦ Mes cocktails' + (uc > 0 ? ' (' + uc + ')' : ' (0)');
+      }
+    } else {
+      var cnt = pfBase.filter(function(r) { return r[field] === val; }).length;
+      tab.textContent = val + ' (' + cnt + ')';
+    }
+  });
+}
+
+function updateResetBtnVisibility() {
+  var hasPf = profileFilters.s.length > 0 || profileFilters.b.length > 0 || profileFilters.a.length > 0;
+  var activeTab = document.querySelector('#cat-tabs .cat-tab.active');
+  var hasTab = activeTab && activeTab.getAttribute('data-val') !== 'all';
+  var btn = document.getElementById('btn-reset-filters');
+  if (btn) btn.classList.toggle('visible', hasPf || hasTab);
+}
+
+function resetAllCatalogueFilters() {
+  profileFilters = { s: [], b: [], a: [] };
+  updatePfButtonStates();
+  ['s','b','a'].forEach(function(k) { document.getElementById('pf-drop-' + k).classList.remove('open'); });
+  PF_OPEN = null;
+  loadCatalogueTabs(); // remet "Tous" actif
+  document.getElementById('btn-reset-filters').classList.remove('visible');
+  var page = document.getElementById('page-catalogue');
+  if (page) page.scrollTop = 0;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── LEXIQUE ───────────────────────────────────────────────────────────────
