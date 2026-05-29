@@ -213,6 +213,7 @@
     .like-btn.liked{background:rgba(224,92,92,0.25);border-color:#E05C5C;}
     @keyframes heartpop{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
     .like-btn.pop{animation:heartpop .25s ease;}
+    @keyframes scanline{0%,100%{top:25%}50%{top:75%}}
     /* Badge ✨ création utilisateur - haut gauche miniature */
     .creation-badge{position:absolute;top:8px;left:8px;z-index:2;width:28px;height:28px;border-radius:50%;background:rgba(12,15,29,0.75);border:1px solid rgba(255,255,255,0.15);font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;}
     /* Badge texte "✦ Votre création" dans le titre de carte */
@@ -1132,17 +1133,55 @@
   <div class="section-title" style="margin-bottom:4px">Importer une recette</div>
   <p style="color:var(--text2);font-size:14px;margin-bottom:18px">Charger un QR code ou collez un code d'import pour ajouter une recette.</p>
   
-  <!-- ── SECTION SCANNER QR IMAGE UNIQUEMENT ── -->
+  <!-- ── SECTION SCANNER QR ── -->
   <div id="qr-scanner-section" style="margin-bottom:20px;padding:15px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
-    <div style="font-weight:500;margin-bottom:12px;color:var(--text)">📸 Scanner un QR code depuis une image</div>
-    
-    <button onclick="document.getElementById('qr-image-input').click()" style="width:100%;padding:12px;background:#7B68EE;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;margin-bottom:10px">
-      🖼️ Charger une image QR
-    </button>
+    <div style="font-weight:500;margin-bottom:12px;color:var(--text)">📷 Scanner un QR code</div>
+
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <button onclick="openCameraScanner()" style="flex:1;padding:12px;background:#7B68EE;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">
+        📷 Caméra
+      </button>
+      <button onclick="document.getElementById('qr-image-input').click()" style="flex:1;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:500">
+        🖼️ Image
+      </button>
+    </div>
     <input id="qr-image-input" type="file" accept="image/*" style="display:none" onchange="handleQRImageUpload(event)">
-    
-    <div id="scanner-status" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;color:var(--text2);font-size:12px;text-align:center">
-      Sélectionnez une image avec un QR code
+
+    <div id="scanner-status" style="padding:10px;background:var(--bg);border-radius:6px;color:var(--text2);font-size:12px;text-align:center">
+      Scanner via caméra ou charger une image QR
+    </div>
+  </div>
+
+  <!-- ── MODALE SCANNER CAMÉRA ── -->
+  <div id="camera-scanner-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center">
+    <div style="position:relative;width:min(90vw,380px)">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="color:#fff;font-weight:600;font-size:16px">Scanner un QR code</div>
+        <button onclick="closeCameraScanner()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1">✕</button>
+      </div>
+      <!-- Viewfinder -->
+      <div style="position:relative;border-radius:12px;overflow:hidden;background:#000">
+        <video id="camera-video" autoplay playsinline muted style="width:100%;display:block;max-height:60vh;object-fit:cover"></video>
+        <!-- Overlay visée -->
+        <div style="position:absolute;inset:0;pointer-events:none">
+          <svg width="100%" height="100%" viewBox="0 0 300 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><mask id="vm"><rect width="300" height="300" fill="white"/><rect x="60" y="60" width="180" height="180" rx="8" fill="black"/></mask></defs>
+            <rect width="300" height="300" fill="rgba(0,0,0,.45)" mask="url(#vm)"/>
+            <!-- coins -->
+            <g stroke="#7B68EE" stroke-width="4" fill="none" stroke-linecap="round">
+              <path d="M68,90 L68,68 L90,68"/><path d="M210,68 L232,68 L232,90"/>
+              <path d="M68,210 L68,232 L90,232"/><path d="M232,210 L232,232 L210,232"/>
+            </g>
+          </svg>
+        </div>
+        <!-- Ligne de scan animée -->
+        <div id="scan-line" style="position:absolute;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,#7B68EE,transparent);top:50%;animation:scanline 2s ease-in-out infinite"></div>
+      </div>
+      <!-- Status caméra -->
+      <div id="camera-status" style="margin-top:12px;padding:10px;background:rgba(255,255,255,.08);border-radius:8px;color:rgba(255,255,255,.7);font-size:13px;text-align:center">
+        Pointez le QR code dans le cadre…
+      </div>
     </div>
   </div>
   
@@ -1166,7 +1205,8 @@
   <div style="margin-top:30px;padding:15px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
     <div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--text2)">💡 Comment ça marche ?</div>
     <ul style="margin:0;padding-left:20px;font-size:12px;color:var(--text2);line-height:1.6">
-      <li><strong>Scanner</strong> : Charger un QR code</li>
+      <li><strong>Caméra</strong> : Scanner directement avec l'appareil photo</li>
+      <li><strong>Image</strong> : Charger une photo d'un QR code</li>
       <li><strong>Ou manuel</strong> : Collez un code d'import (commence par mc_recipe_v1:)</li>
       <li>Cliquez [✓ Importer]</li>
       <li>La recette s'ajoute avec ses notes et étoiles !</li>
@@ -1337,6 +1377,12 @@ function goBack() {
 
 // Intercepte le bouton retour natif du navigateur / mobile
 window.addEventListener('popstate', function(e) {
+  // Fermer la modale caméra si ouverte (bouton back Android)
+  var camModal = document.getElementById('camera-scanner-modal');
+  if (camModal && camModal.style.display !== 'none') {
+    closeCameraScanner();
+    return;
+  }
   pageHistory.pop();
   var prev = pageHistory.length > 0 ? pageHistory[pageHistory.length - 1] : 'home';
   showPage(prev);
@@ -3703,6 +3749,113 @@ function showImportSuccess(recipe, baseOnly, appliedSomething) {
 var qrScannerActive = false;
 var qrScannerStream = null;
 var qrScannerAnimationId = null;
+
+// ── SCANNER CAMÉRA ────────────────────────────────────────────────
+
+var _cameraStream = null;
+var _cameraLoop  = null;
+var _cameraCanvas = null;
+var _cameraCtx    = null;
+
+function openCameraScanner() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('❌ Caméra non disponible sur cet appareil ou ce navigateur.\nUtilisez l\'option Image à la place.');
+    return;
+  }
+  var modal = document.getElementById('camera-scanner-modal');
+  modal.style.display = 'flex';
+  document.getElementById('camera-status').textContent = 'Démarrage de la caméra…';
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    .then(function(stream) {
+      _cameraStream = stream;
+      var video = document.getElementById('camera-video');
+      video.srcObject = stream;
+      video.play();
+      video.addEventListener('loadedmetadata', function() {
+        _cameraCanvas = document.createElement('canvas');
+        _cameraCtx    = _cameraCanvas.getContext('2d', { willReadFrequently: true });
+        document.getElementById('camera-status').textContent = 'Pointez le QR code dans le cadre…';
+        _startDetectionLoop(video);
+      }, { once: true });
+    })
+    .catch(function(err) {
+      document.getElementById('camera-status').textContent = '❌ Accès caméra refusé : ' + err.message;
+      console.error('Camera error:', err);
+    });
+}
+
+function closeCameraScanner() {
+  _stopCameraResources();
+  var modal = document.getElementById('camera-scanner-modal');
+  modal.style.display = 'none';
+}
+
+function _stopCameraResources() {
+  if (_cameraLoop)   { cancelAnimationFrame(_cameraLoop); _cameraLoop = null; }
+  if (_cameraStream) { _cameraStream.getTracks().forEach(function(t){ t.stop(); }); _cameraStream = null; }
+  var video = document.getElementById('camera-video');
+  if (video) { video.srcObject = null; }
+}
+
+function _startDetectionLoop(video) {
+  // Préférer BarcodeDetector natif si dispo (Chrome Android, Safari iOS 17.4+)
+  if (typeof BarcodeDetector !== 'undefined') {
+    BarcodeDetector.getSupportedFormats().then(function(formats) {
+      if (formats.indexOf('qr_code') !== -1) {
+        console.log('✅ BarcodeDetector natif disponible');
+        _loopWithBarcodeDetector(video, new BarcodeDetector({ formats: ['qr_code'] }));
+        return;
+      }
+      _loopWithJsQR(video);
+    }).catch(function() { _loopWithJsQR(video); });
+  } else {
+    console.log('ℹ️ BarcodeDetector absent, fallback jsQR');
+    _loopWithJsQR(video);
+  }
+}
+
+function _loopWithBarcodeDetector(video, detector) {
+  if (!_cameraStream) return;
+  detector.detect(video).then(function(codes) {
+    if (codes.length > 0) {
+      var data = codes[0].rawValue;
+      console.log('✅ BarcodeDetector: QR détecté');
+      _onCameraQRFound(data);
+      return;
+    }
+    _cameraLoop = requestAnimationFrame(function() { _loopWithBarcodeDetector(video, detector); });
+  }).catch(function(e) {
+    console.warn('BarcodeDetector loop error, fallback jsQR:', e);
+    _loopWithJsQR(video);
+  });
+}
+
+function _loopWithJsQR(video) {
+  if (!_cameraStream) return;
+  if (typeof jsQR === 'undefined') {
+    document.getElementById('camera-status').textContent = '❌ jsQR non disponible.';
+    return;
+  }
+  _cameraCanvas.width  = video.videoWidth  || 320;
+  _cameraCanvas.height = video.videoHeight || 240;
+  _cameraCtx.drawImage(video, 0, 0, _cameraCanvas.width, _cameraCanvas.height);
+  var imageData = _cameraCtx.getImageData(0, 0, _cameraCanvas.width, _cameraCanvas.height);
+  var code = jsQR(imageData.data, imageData.width, imageData.height);
+  if (code) {
+    console.log('✅ jsQR caméra: QR détecté');
+    _onCameraQRFound(code.data);
+    return;
+  }
+  _cameraLoop = requestAnimationFrame(function() { _loopWithJsQR(video); });
+}
+
+function _onCameraQRFound(data) {
+  _stopCameraResources();
+  document.getElementById('camera-scanner-modal').style.display = 'none';
+  var statusDiv = document.getElementById('scanner-status');
+  handleQRDetected(data, statusDiv);
+}
 
 function handleQRImageUpload(event) {
   var file = event.target.files[0];
