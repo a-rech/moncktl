@@ -1383,6 +1383,12 @@ window.addEventListener('popstate', function(e) {
     closeCameraScanner();
     return;
   }
+  // Fermer le plein écran QR si ouvert
+  var qrOverlay = document.getElementById('qr-fullscreen-overlay');
+  if (qrOverlay) {
+    closeExpandQR();
+    return;
+  }
   pageHistory.pop();
   var prev = pageHistory.length > 0 ? pageHistory[pageHistory.length - 1] : 'home';
   showPage(prev);
@@ -3333,7 +3339,8 @@ function showShareModal(id, share) {
     // Section QR Code
     + '<div style="margin-bottom:20px;background:var(--surface2);padding:15px;border-radius:8px;text-align:center">'
     + '<label style="display:block;font-size:12px;font-weight:500;margin-bottom:12px;color:var(--text2)">QR CODE</label>'
-    + '<div id="' + qrContainerId + '" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:180px;overflow:hidden"></div>'
+    + '<div id="' + qrContainerId + '" onclick="expandQR(\'' + qrContainerId + '\')" title="Appuyer pour agrandir" style="display:flex;justify-content:center;align-items:center;margin-bottom:12px;background:#fff;padding:10px;border-radius:6px;min-height:180px;overflow:hidden;cursor:zoom-in"></div>'
+    + '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">🔍 Appuyez sur le QR pour l\'agrandir</div>'
     + '<div style="display:flex;gap:10px">'
     + '<button onclick="downloadQRCode(\'' + modalId + '\')" style="flex:1;padding:10px;background:var(--accent);color:#0C0F1D;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">⬇️ Télécharger</button>'
     + '<button onclick="shareQRCode(\'' + modalId + '\', \'' + (share.recipe.title || 'Recette').replace(/'/g, "\\'") + '\')" style="flex:1;padding:10px;background:#4A90E2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px">📤 Partager</button>'
@@ -3487,6 +3494,70 @@ function doGenerateQRCode(text, container, modalId) {
     console.error('Message:', e.message);
     console.error('Stack:', e.stack);
     container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur génération QR: ' + e.message + '</div>';
+  }
+}
+
+// ── PLEIN ÉCRAN QR ─────────────────────────────────────────────────
+
+var _qrExpandWakeLock = null;
+var _qrPrevBrightness = null;
+
+function expandQR(containerId) {
+  var src = document.getElementById(containerId);
+  if (!src) return;
+  var canvas = src.querySelector('canvas');
+  if (!canvas) return;
+
+  // Fond blanc plein écran
+  var overlay = document.createElement('div');
+  overlay.id = 'qr-fullscreen-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+
+  // Bouton retour — petit, discret, bien au-dessus du QR
+  var btn = document.createElement('button');
+  btn.textContent = '← Retour';
+  btn.style.cssText = 'position:absolute;top:16px;left:16px;padding:8px 16px;background:#222;color:#fff;border:none;border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;z-index:2;opacity:.85';
+  btn.onclick = function() { closeExpandQR(); };
+  overlay.appendChild(btn);
+
+  // Cloner le canvas (évite de déplacer l'original)
+  var clone = document.createElement('canvas');
+  clone.width  = canvas.width;
+  clone.height = canvas.height;
+  clone.getContext('2d').drawImage(canvas, 0, 0);
+  clone.style.cssText = 'max-width:min(90vw,90vh);max-height:min(90vw,90vh);width:auto;height:auto;display:block;border-radius:8px';
+  overlay.appendChild(clone);
+
+  document.body.appendChild(overlay);
+
+  // Wake lock : empêche l'écran de s'éteindre pendant le scan
+  if (navigator.wakeLock) {
+    navigator.wakeLock.request('screen').then(function(wl) {
+      _qrExpandWakeLock = wl;
+    }).catch(function(){});
+  }
+
+  // Luminosité max via Screen Brightness API (Chrome Android expérimental)
+  if (navigator.screen && navigator.screen.brightness !== undefined) {
+    _qrPrevBrightness = navigator.screen.brightness;
+    try { navigator.screen.brightness = 1.0; } catch(e) {}
+  }
+}
+
+function closeExpandQR() {
+  var overlay = document.getElementById('qr-fullscreen-overlay');
+  if (overlay) overlay.remove();
+
+  // Relâcher le wake lock
+  if (_qrExpandWakeLock) {
+    _qrExpandWakeLock.release().catch(function(){});
+    _qrExpandWakeLock = null;
+  }
+
+  // Restaurer la luminosité si on l'avait changée
+  if (_qrPrevBrightness !== null && navigator.screen && navigator.screen.brightness !== undefined) {
+    try { navigator.screen.brightness = _qrPrevBrightness; } catch(e) {}
+    _qrPrevBrightness = null;
   }
 }
 
