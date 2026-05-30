@@ -122,6 +122,8 @@
     .cat-tab-fav:hover,.cat-tab-fav.active{background:#E05C5C;color:#fff;border-color:#E05C5C;}
     .cat-tab-sa{border-color:#2ecc71;color:#2ecc71;}
     .cat-tab-sa:hover,.cat-tab-sa.active{background:#2ecc71;color:#0C0F1D;border-color:#2ecc71;}
+    .cat-tab-tested{border-color:#7B68EE;color:#7B68EE;}
+    .cat-tab-tested:hover,.cat-tab-tested.active{background:#7B68EE;color:#fff;border-color:#7B68EE;}
     .cat-tab-mycktls{cursor:auto !important;}
     .cat-tab-mycktls:hover{background:var(--surface) !important;color:var(--accent) !important;border-color:var(--accent) !important;}
     .cat-tab-add-btn{box-shadow:0 1px 4px rgba(0,0,0,0.2);}
@@ -232,6 +234,9 @@
     .recipe-like-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;margin-top:14px;font-family:'DM Sans',sans-serif;}
     .recipe-like-btn:hover{border-color:#E05C5C;color:#E05C5C;}
     .recipe-like-btn.liked{border-color:#E05C5C;color:#E05C5C;background:rgba(224,92,92,0.12);}
+    .recipe-tested-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;margin-top:14px;font-family:'DM Sans',sans-serif;}
+    .recipe-tested-btn:hover{border-color:#7B68EE;color:#7B68EE;}
+    .recipe-tested-btn.tested{border-color:#7B68EE;color:#7B68EE;background:rgba(123,104,238,0.12);}
     /* ============ NOTES ============ */
     .notes-block{margin-top:24px;}
     .notes-block .recipe-section-title{margin-bottom:10px;}
@@ -821,8 +826,9 @@
     <div class="prefs-section" id="prefs-about">
       <div class="prefs-about-line"><span>Application</span><span class="prefs-about-val">MonCocktail</span></div>
       <div class="prefs-about-line"><span>Version</span><span class="prefs-about-val" id="about-version">—</span></div>
-      <div class="prefs-about-line"><span>Cocktails</span><span class="prefs-about-val" id="about-recipe-count">—</span></div>
-      <div class="prefs-about-line"><span>Favoris</span><span class="prefs-about-val" id="about-fav-count">—</span></div>
+      <div class="prefs-about-line"><span>Cocktails</span><span class="prefs-about-val" id="about-recipe-count" onclick="closePrefs();navTo('catalogue')" style="cursor:pointer;text-decoration:underline dotted">—</span></div>
+      <div class="prefs-about-line"><span>Favoris</span><span class="prefs-about-val" id="about-fav-count" onclick="closePrefs();navTo('catalogue');setTimeout(function(){goToCatalogueTab('__favs__')},80)" style="cursor:pointer;text-decoration:underline dotted">—</span></div>
+      <div class="prefs-about-line"><span>Déjà testé</span><span class="prefs-about-val" id="about-tested-count" onclick="closePrefs();navTo('catalogue');setTimeout(function(){goToCatalogueTab('__tested__')},80)" style="cursor:pointer;text-decoration:underline dotted">—</span></div>
       <div class="prefs-about-line"><span>Notes</span><span class="prefs-about-val" id="about-notes-count">—</span></div>
       <div class="prefs-about-line"><span>Source</span><span class="prefs-about-val"><a href="https://github.com/a-rech/moncktl" target="_blank" style="color:var(--accent)">GitHub</a></span></div>
     </div>
@@ -1343,6 +1349,54 @@ function heartBtn(id) {
 }
 
 // Page favoris standalone (accessible depuis la topbar)
+
+// ── 2b. DÉJÀ TESTÉ (TESTED, toggleTested, refreshTestedUI) ───────────────
+var TESTED = lsGet('mc_tested', []);
+
+function isTested(id) { return TESTED.indexOf(id) !== -1; }
+
+function toggleTested(id) {
+  var idx = TESTED.indexOf(id);
+  if (idx === -1) { TESTED.push(id); } else { TESTED.splice(idx, 1); }
+  lsSet('mc_tested', TESTED);
+  refreshTestedUI(id);
+}
+
+function refreshTestedUI(id) {
+  var tested = isTested(id);
+
+  // Bouton sur la fiche recette
+  var tBtn = document.getElementById('recipe-tested-btn');
+  if (tBtn && parseInt(tBtn.getAttribute('data-id'), 10) === id) {
+    tBtn.classList.toggle('tested', tested);
+    var ico = tBtn.querySelector('.rt-ico');
+    var txt = tBtn.querySelector('.rt-txt');
+    if (ico) ico.textContent = tested ? '☑️' : '⬜';
+    if (txt) txt.textContent = tested ? 'Déjà testé' : 'Marquer comme testé';
+  }
+
+  // Onglet dans le catalogue
+  var pCat = document.getElementById('page-catalogue');
+  if (pCat && pCat.classList.contains('active')) {
+    var testedTab = document.querySelector('.cat-tab-tested');
+    if (testedTab) {
+      var tc = TESTED.length;
+      testedTab.textContent = tc > 0 ? '☑️ Déjà testé (' + tc + ')' : '☑️ Déjà testé';
+      if (testedTab.classList.contains('active')) {
+        var testedCocktails = COCKTAILS.filter(function(c) { return isTested(c.id); });
+        if (testedCocktails.length === 0) {
+          document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">⬜</div><p>Aucun cocktail marqué comme testé.</p></div>';
+        } else {
+          renderCatalogueGrid(testedCocktails);
+        }
+      }
+    }
+  }
+
+  // Mettre à jour le compteur dans À propos si ouvert
+  var aboutTested = document.getElementById('about-tested-count');
+  if (aboutTested) aboutTested.textContent = TESTED.length + ' testé' + (TESTED.length !== 1 ? 's' : '');
+}
 function loadFavoritesPage() {
   var container = document.getElementById('fav-results');
   if (!container) return;
@@ -1723,6 +1777,8 @@ function loadCatalogueTabs() {
   
   var html = '<div class="cat-tab active" data-val="all">Tous (' + pfBase.length + ')</div>';
   html += '<div class="cat-tab cat-tab-fav" data-val="__favs__">❤️ Favoris' + (favCount > 0 ? ' (' + favCount + ')' : '') + '</div>';
+  var testedCount = pfBase.filter(function(c) { return isTested(c.id); }).length;
+  html += '<div class="cat-tab cat-tab-tested" data-val="__tested__">☑️ Déjà testé' + (testedCount > 0 ? ' (' + testedCount + ')' : '') + '</div>';
   
   // Afficher l'onglet "Mes cocktails" en permanence (même si 0 création)
   html += '<div class="cat-tab cat-tab-mycktls" data-val="__mycocktails__" style="border-color:var(--accent);color:var(--accent);display:flex;align-items:center;gap:8px;padding:6px 10px;">'
@@ -1766,6 +1822,18 @@ function filterCatalogue(value, tabEl, skipScroll) {
       document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">🤍</div><p>Aucun favori pour l&#39;instant.<br>Cliquez sur 🤍 sur n&#39;importe quel cocktail !</p></div>';
     } else {
       renderCatalogueGrid(favCocktails);
+    }
+    if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateResetBtnVisibility();
+    return;
+  }
+
+  if (value === '__tested__') {
+    var testedCocktails = COCKTAILS.filter(function(c) { return isTested(c.id); });
+    if (testedCocktails.length === 0) {
+      document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">⬜</div><p>Aucun cocktail marqué comme testé.<br>Ouvrez une fiche et cliquez sur ☑️ !</p></div>';
+    } else {
+      renderCatalogueGrid(testedCocktails);
     }
     if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     updateResetBtnVisibility();
@@ -1936,6 +2004,10 @@ function showRecipe(id) {
     + '<button id="recipe-like-btn" class="recipe-like-btn' + (faved ? ' liked' : '') + '" data-id="' + id + '" onclick="onLikeCard(event,' + id + ')" style="flex:1">'
     + '<span class="rl-ico">' + (faved ? '❤️' : '🤍') + '</span>'
     + '<span class="rl-txt">' + (faved ? 'Retirer des favoris' : 'Ajouter aux favoris') + '</span>'
+    + '</button>'
+    + '<button id="recipe-tested-btn" class="recipe-tested-btn' + (isTested(id) ? ' tested' : '') + '" data-id="' + id + '" onclick="toggleTested(' + id + ')" style="flex:1">'
+    + '<span class="rt-ico">' + (isTested(id) ? '☑️' : '⬜') + '</span>'
+    + '<span class="rt-txt">' + (isTested(id) ? 'Déjà testé' : 'Marquer comme testé') + '</span>'
     + '</button>'
     + '</div>'
     + userCreatedBadgeHeader(id)
@@ -2732,6 +2804,7 @@ function openPrefs() {
   document.getElementById('about-recipe-count').textContent = COCKTAILS.length + ' cocktails';
   var favs = lsGet('mc_favs', []);
   document.getElementById('about-fav-count').textContent = favs.length + ' favori' + (favs.length !== 1 ? 's' : '');
+  document.getElementById('about-tested-count').textContent = TESTED.length + ' testé' + (TESTED.length !== 1 ? 's' : '');
   var notes = Object.keys(localStorage).filter(function(k){ return k.startsWith('mc_note_'); }).length;
   document.getElementById('about-notes-count').textContent = notes + ' note' + (notes !== 1 ? 's' : '');
   // Version depuis le SW
@@ -2750,6 +2823,12 @@ function openPrefs() {
       }
     });
   }
+}
+
+// Navigue vers un onglet spécifique du catalogue (utilisé depuis À propos)
+function goToCatalogueTab(val) {
+  var tab = document.querySelector('.cat-tab[data-val="' + val + '"]');
+  if (tab) filterCatalogue(val, tab);
 }
 
 function closePrefs() {
@@ -4455,11 +4534,13 @@ function collectUserData() {
     exportedAt: new Date().toISOString(),
     app: 'MonCocktail',
     favorites: [],
+    tested: [],
     notes: {},
     ratings: {},
     userCocktails: []
   };
   try { data.favorites = lsGet('mc_favs', []); } catch(e) {}
+  try { data.tested = lsGet('mc_tested', []); } catch(e) {}
   Object.keys(localStorage).forEach(function(key) {
     if (key.startsWith('mc_note_')) {
       data.notes[key.replace('mc_note_', '')] = localStorage.getItem(key);
@@ -4511,7 +4592,14 @@ function importData(input) {
       var existing = lsGet('mc_favs', []);
       var merged = Array.from(new Set(existing.concat(data.favorites || [])));
       lsSet('mc_favs', merged);
+      FAVORITES.length = 0; merged.forEach(function(id){ FAVORITES.push(id); });
       var favAdded = merged.length - existing.length;
+
+      // Déjà testé : fusion sans doublon
+      var existingTested = lsGet('mc_tested', []);
+      var mergedTested = Array.from(new Set(existingTested.concat(data.tested || [])));
+      lsSet('mc_tested', mergedTested);
+      TESTED.length = 0; mergedTested.forEach(function(id){ TESTED.push(id); });
 
       // Notes
       var noteCount = 0;
@@ -4560,6 +4648,8 @@ function resetAllData() {
     if (k && k.startsWith('mc_')) keys.push(k);
   }
   keys.forEach(function(k) { localStorage.removeItem(k); });
+  FAVORITES.length = 0;
+  TESTED.length = 0;
   showDataStatus('reset-status', '✓ Toutes les données ont été effacées.', true);
   applyPrefs();
 }
