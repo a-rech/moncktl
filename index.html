@@ -18,9 +18,9 @@
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <!-- ── SEO & partage ── -->
-  <meta name="description" content="130 recettes de cocktails — par ingrédients, catalogue, aléatoire">
+  <meta name="description" content="200 recettes de cocktails — par ingrédients, catalogue, aléatoire">
   <meta property="og:title" content="MonCocktail">
-  <meta property="og:description" content="Votre bar à la maison — 130 recettes de cocktails">
+  <meta property="og:description" content="Votre bar à la maison — 200 recettes de cocktails">
   <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2699,6 +2699,21 @@ var PROFILES = {
   130:{s:3,b:0,a:3}, // Midori Sour
   131:{s:2,b:0,a:3}, // Pink Lady
   132:{s:3,b:0,a:3}, // Moscow Mule framboise
+  500:{s:2,b:0,a:0}, // Virgin Mojito
+  501:{s:1,b:1,a:0}, // Virgin Mary
+  502:{s:4,b:0,a:0}, // Shirley Temple
+  503:{s:2,b:0,a:0}, // Arnold Palmer
+  504:{s:2,b:1,a:0}, // Limonade Gingembre
+  505:{s:4,b:0,a:0}, // Sunrise Tropical
+  506:{s:4,b:0,a:0}, // Virgin Piña Colada
+  507:{s:1,b:0,a:0}, // Cucumber Cooler
+  508:{s:4,b:0,a:0}, // Virgin Colada Mangue
+  509:{s:2,b:0,a:0}, // Citrus Spritz
+  510:{s:3,b:0,a:0}, // Mocktail Fraise-Basilic
+  511:{s:2,b:1,a:0}, // Ginger Beer Fizz
+  512:{s:3,b:0,a:0}, // Lemonade à la Rose
+  513:{s:3,b:0,a:0}, // Limonade Lavande
+  514:{s:2,b:1,a:0}, // Mocktail Pamplemousse Romarin
 };
 
 // Construit le bloc HTML "Profil gustatif" inséré dans chaque fiche recette.
@@ -2889,7 +2904,7 @@ function copyInstallLink(btn) {
 function shareInstallLink() {
   var url   = 'https://a-rech.github.io/moncktl/';
   var title = 'MonCocktail — Votre bar à la maison';
-  var text  = '130 recettes de cocktails, par ingrédients, via le catalogue ou au hasard.';
+  var text  = '200 recettes de cocktails, par ingrédients, via le catalogue ou au hasard.';
   if (navigator.share) {
     navigator.share({ title: title, text: text, url: url })
       .catch(function(e) { if (e.name !== 'AbortError') window.open(url, '_blank'); });
@@ -5059,6 +5074,16 @@ const COCKTAILS = [
  ingredients:[["Champagne",10,"cl"],["Purée de melon",4,"cl"],["Miel",0.5,"cl"]],
  tags:["Champagne","Purée de melon","Miel"],
  steps:["Versez la purée de melon et le miel dans une flûte.","Complétez avec le champagne.","Mélangez délicatement.","Décorez d'une boule de melon."]},
+{id:113,title:"Angel Face",emoji:"👼",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",3,"cl"],["Eau-de-vie d'abricot",3,"cl"],["Calvados",3,"cl"]],
+   tags:["Gin","Eau-de-vie d'abricot","Calvados"],
+   steps:["Versez tous les ingrédients en parts égales dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Pas de décoration — laissez la robe dorée s'exprimer.","Classique IBA tiré du Savoy Cocktail Book de 1930 — le calvados apporte une note pomme distinctive."]},
+
+  {id:114,title:"Porto Flip",emoji:"🍷",cat:"Shortdrinks",baseAlcool:"Vin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Porto ruby",5,"cl"],["Cognac",1.5,"cl"],["Jaune d'œuf",1,""]],
+   tags:["Porto ruby","Cognac","Jaune d'œuf"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement 15–20 secondes pour bien émulsionner le jaune d'œuf.","Filtrez dans une coupe froide.","Râpez un peu de noix de muscade sur le dessus.","Cocktail 'Flip' classique — riche, onctueux, idéal en digestif."]},
+
 {id:119,title:"Champagne Cocktail",emoji:"🍒",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:3,glass:"Flûte",portions:1,
  ingredients:[["Champagne",12,"cl"],["Cognac",1.5,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Cerise au marasquin",1,""],["Citron frais",1,"zeste"]],
  tags:["Champagne","Cognac","Sirop de sucre de canne","Angostura bitters"],
@@ -5134,10 +5159,10 @@ const COCKTAILS = [
  ingredients:[["Amaretto",4,"cl"],["Liqueur de café",3,"cl"],["Crème fraîche",2,"cl"],["Cacao en poudre",1,"pincée"]],
  tags:["Amaretto","Liqueur de café","Crème fraîche","Cacao en poudre"],
  steps:["Shaker amaretto, liqueur de café et crème avec de la glace.","Filtrez dans un verre à martini froid.","Saupoudrez de cacao en poudre.","Décorez d'un grain de café."]},
-{id:117,title:"French Connection",emoji:"🎩",cat:"Shortdrinks",baseAlcool:"Cognac",diff:"facile",prep:2,glass:"Rocks",portions:1,
- ingredients:[["Cognac",4,"cl"],["Amaretto",2,"cl"]],
- tags:["Cognac","Amaretto"],
- steps:["Versez cognac et amaretto dans un verre rocks sur un gros glaçon.","Remuez doucement.","Décorez d'un zeste d'orange."]},
+{id:117,title:"Casino",emoji:"🎰",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",4.5,"cl"],["Marasquin",1.5,"cl"],["Orange bitters",1.5,"cl"],["Jus de citron",1.5,"cl"]],
+   tags:["Gin","Marasquin","Orange bitters","Jus de citron"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Décorez d'un zeste de citron et d'une cerise au marasquin.","Classique IBA des Unforgettables — proche de l'Aviation mais sans crème de violette."]},
 {id:118,title:"Almond Joy",emoji:"🍫",cat:"Shortdrinks",baseAlcool:"Amaretto",diff:"facile",prep:3,glass:"Rocks",portions:1,
  ingredients:[["Amaretto",3,"cl"],["Crème de coco",3,"cl"],["Crème fraîche",3,"cl"],["Cacao en poudre",1,"pincée"]],
  tags:["Amaretto","Crème de coco","Crème fraîche","Cacao en poudre"],
@@ -5308,6 +5333,353 @@ const COCKTAILS = [
    ingredients:[["Vodka",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de framboise",2,"cl"],["Ginger beer",12,"cl"],["Framboise fraîche",3,"pièces"]],
    tags:["Vodka","Jus de citron vert","Sirop de framboise","Ginger beer","Framboise fraîche"],
    steps:["Remplissez un mug en cuivre de glaçons.","Versez la vodka, le jus de citron vert et le sirop de framboise.","Complétez avec le ginger beer.","Décorez de framboises fraîches."]},
+  // === CLASSIQUES IBA MANQUANTS ===
+  {id:133,title:"Americano",emoji:"🍊",cat:"Apéritifs",baseAlcool:"Autre",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Campari",3,"cl"],["Vermouth rouge",3,"cl"],["Eau gazeuse",7,"cl"],["Orange",0.5,""]],
+   tags:["Campari","Vermouth rouge","Eau gazeuse","Orange"],
+   steps:["Remplissez un highball de glaçons.","Versez le Campari et le vermouth rouge.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle d'orange."]},
+
+  {id:134,title:"Vesper",emoji:"🍸",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",6,"cl"],["Vodka",2,"cl"],["Lillet Blanc",1,"cl"]],
+   tags:["Gin","Vodka","Lillet Blanc"],
+   steps:["Versez tous les ingrédients dans un shaker avec beaucoup de glace.","Secouez vigoureusement (contrairement au Martini classique).","Filtrez dans une coupe bien froide.","Décorez d'un large zeste de citron.","Ce cocktail est celui de James Bond dans Casino Royale."]},
+
+  {id:135,title:"Martinez",emoji:"🍷",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",4.5,"cl"],["Vermouth rouge",4.5,"cl"],["Marasquin",0.75,"cl"],["Angostura bitters",2,"traits"]],
+   tags:["Gin","Vermouth rouge","Marasquin","Angostura bitters"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30–40 secondes) pour diluer et refroidir.","Filtrez dans une coupe bien froide.","Décorez d'un zeste de citron ou d'une cerise au marasquin.","Précurseur historique du Martini."]},
+
+  {id:136,title:"Vieux Carré",emoji:"🥃",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:5,glass:"Rocks",portions:1,
+   ingredients:[["Rye whiskey",3,"cl"],["Cognac",3,"cl"],["Vermouth rouge",3,"cl"],["Bénédictine",1,"cl"],["Angostura bitters",2,"traits"],["Peychaud's bitters",2,"traits"]],
+   tags:["Rye whiskey","Cognac","Vermouth rouge","Bénédictine","Angostura bitters","Peychaud's bitters"],
+   steps:["Mettez des glaçons dans un verre rocks.","Versez tous les ingrédients directement.","Remuez doucement pour mélanger.","Décorez d'un zeste d'orange et d'une cerise.","Né dans le quartier français de La Nouvelle-Orléans dans les années 1930."]},
+
+  {id:137,title:"Hanky Panky",emoji:"✨",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",4.5,"cl"],["Vermouth rouge",4.5,"cl"],["Fernet-Branca",0.75,"cl"]],
+   tags:["Gin","Vermouth rouge","Fernet-Branca"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'un large zeste d'orange.","Créé par Ada Coleman, première bar manager du Savoy Hotel à Londres."]},
+
+  {id:138,title:"Corpse Reviver #2",emoji:"👻",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",2.25,"cl"],["Cointreau",2.25,"cl"],["Lillet Blanc",2.25,"cl"],["Jus de citron",2.25,"cl"],["Absinthe",1,"trait"]],
+   tags:["Gin","Cointreau","Lillet Blanc","Jus de citron","Absinthe"],
+   steps:["Rincez une coupe froide avec l'absinthe, jetez l'excès.","Versez les autres ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans la coupe parfumée à l'absinthe.","Cocktail de brunch dit 'ressusciteur des morts'."]},
+
+  {id:139,title:"French Martini",emoji:"💜",cat:"Shortdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Vodka",4.5,"cl"],["Chambord",1.5,"cl"],["Jus d'ananas",3,"cl"]],
+   tags:["Vodka","Chambord","Jus d'ananas"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement pour créer une belle mousse.","Filtrez dans une coupe froide.","Décorez d'un zeste de citron ou d'une framboise."]},
+
+  {id:140,title:"Bramble",emoji:"🫐",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:4,glass:"Rocks",portions:1,
+   ingredients:[["Gin",4,"cl"],["Jus de citron",2,"cl"],["Sirop de sucre de canne",1,"cl"],["Crème de mûre",1.5,"cl"]],
+   tags:["Gin","Jus de citron","Sirop de sucre de canne","Crème de mûre"],
+   steps:["Shaker le gin, le jus de citron et le sirop avec de la glace.","Filtrez sur glace pilée dans un verre rocks.","Versez la crème de mûre en filet sur le dessus (ne pas mélanger, laissez cascader).","Décorez de mûres fraîches et d'un demi-citron.","Créé par Dick Bradsell à Londres en 1984."]},
+
+  {id:141,title:"Kir",emoji:"🍇",cat:"Apéritifs",baseAlcool:"Vin",diff:"facile",prep:1,glass:"Flûte",portions:1,
+   ingredients:[["Vin blanc sec",10,"cl"],["Crème de cassis",1.5,"cl"]],
+   tags:["Vin blanc sec","Crème de cassis"],
+   steps:["Versez la crème de cassis dans un verre à vin blanc ou flûte.","Ajoutez le vin blanc sec bien frais.","Remuez très légèrement.","Servez immédiatement sans glaçons.","Apéritif bourguignon né à Dijon — le Kir Royal se fait avec du Crémant ou Champagne."]},
+
+  {id:142,title:"Lemon Drop Martini",emoji:"🍋",cat:"Shortdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Vodka au citron",5,"cl"],["Cointreau",2,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",1,"cl"]],
+   tags:["Vodka au citron","Cointreau","Jus de citron","Sirop de sucre de canne"],
+   steps:["Givrez le bord d'une coupe avec du sucre et un quartier de citron.","Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans la coupe sucrée.","Décorez d'un zeste de citron."]},
+
+  {id:143,title:"Planter's Punch",emoji:"🌴",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:4,glass:"Highball",portions:1,
+   ingredients:[["Rhum jamaïcain",6,"cl"],["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Angostura bitters",3,"traits"],["Eau gazeuse",5,"cl"]],
+   tags:["Rhum jamaïcain","Jus de citron vert","Sirop de sucre de canne","Angostura bitters"],
+   steps:["Versez le rhum, le jus de citron vert, le sirop et les bitters dans un shaker avec de la glace.","Secouez bien.","Filtrez sur glaçons dans un grand verre.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de citron vert et d'un brin de menthe."]},
+
+  {id:144,title:"Rusty Nail",emoji:"🔩",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"facile",prep:2,glass:"Rocks",portions:1,
+   ingredients:[["Scotch whisky",4.5,"cl"],["Drambuie",2.5,"cl"]],
+   tags:["Scotch whisky","Drambuie"],
+   steps:["Mettez de gros glaçons dans un verre rocks.","Versez le Scotch puis le Drambuie.","Remuez doucement quelques secondes.","Décorez d'un zeste ou d'un quartier de citron.","Le Drambuie est une liqueur de whisky écossais au miel et aux épices."]},
+
+  {id:145,title:"Horse's Neck",emoji:"🐴",cat:"Longdrinks",baseAlcool:"Cognac",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Cognac",5,"cl"],["Ginger ale",15,"cl"],["Angostura bitters",2,"traits"],["Citron",1,""]],
+   tags:["Cognac","Ginger ale","Angostura bitters","Citron"],
+   steps:["Épluchez un citron entier en spirale continue.","Accrochez la spirale de citron sur le bord du verre, en laissant le reste descendre à l'intérieur.","Ajoutez les glaçons, le cognac et les bitters.","Complétez avec le ginger ale.","Ce zeste en spirale donne son nom au cocktail."]},
+
+  {id:146,title:"Garibaldi",emoji:"🍊",cat:"Apéritifs",baseAlcool:"Autre",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Campari",6,"cl"],["Jus d'orange",12,"cl"]],
+   tags:["Campari","Jus d'orange"],
+   steps:["Remplissez un highball de glaçons.","Versez le Campari.","Ajoutez le jus d'orange fraîchement pressé (ou très frais).","Remuez doucement.","Décorez d'une rondelle d'orange.","Simple mais excellent — le jus doit être bien frais pour ce cocktail."]},
+
+  {id:147,title:"Grasshopper",emoji:"🦗",cat:"Shortdrinks",baseAlcool:"Autre",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Crème de menthe verte",3,"cl"],["Crème de cacao blanc",3,"cl"],["Crème fraîche",3,"cl"]],
+   tags:["Crème de menthe verte","Crème de cacao blanc","Crème fraîche"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe bien froide.","Pas de décoration — la couleur verte est la décoration.","Cocktail after-dinner des années 50, doux et crémeux."]},
+
+  {id:148,title:"Mary Pickford",emoji:"🍍",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Rhum blanc",5,"cl"],["Jus d'ananas",5,"cl"],["Sirop de grenadine",0.75,"cl"],["Marasquin",0.5,"cl"]],
+   tags:["Rhum blanc","Jus d'ananas","Sirop de grenadine","Marasquin"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Décorez d'une cerise au marasquin.","Créé à La Havane dans les années 1920 en hommage à la star du cinéma muet."]},
+
+  {id:149,title:"Monkey Gland",emoji:"🐒",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Gin",5,"cl"],["Jus d'orange",3,"cl"],["Sirop de grenadine",1,"cl"],["Absinthe",1,"trait"]],
+   tags:["Gin","Jus d'orange","Sirop de grenadine","Absinthe"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange.","Créé par Harry MacElhone au Harry's New York Bar à Paris dans les années 1920."]},
+
+  {id:150,title:"Naked and Famous",emoji:"⭐",cat:"Shortdrinks",baseAlcool:"Autre",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Mezcal",2.25,"cl"],["Chartreuse jaune",2.25,"cl"],["Aperol",2.25,"cl"],["Jus de citron vert",2.25,"cl"]],
+   tags:["Mezcal","Chartreuse jaune","Aperol","Jus de citron vert"],
+   steps:["Versez tous les ingrédients en parts égales dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Pas de décoration pour laisser la belle couleur ambrée s'exprimer.","Variante moderne du Paper Plane — IBA New Era 2020."]},
+
+  {id:151,title:"Old Cuban",emoji:"🥂",cat:"Fizz & Pétillants",baseAlcool:"Rhum",diff:"moyen",prep:5,glass:"Coupe",portions:1,
+   ingredients:[["Rhum ambré",4.5,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Angostura bitters",2,"traits"],["Menthe fraîche",6,"feuilles"],["Champagne brut",6,"cl"]],
+   tags:["Rhum ambré","Jus de citron vert","Sirop de sucre de canne","Angostura bitters","Menthe fraîche","Champagne brut"],
+   steps:["Muddlez doucement les feuilles de menthe avec le sirop et le jus de citron vert.","Ajoutez le rhum, les bitters et de la glace. Secouez bien.","Filtrez dans une coupe froide.","Complétez avec le Champagne brut.","Décorez d'une feuille de menthe.","Créé par Audrey Saunders à New York en 2001 — Mojito habillé en Champagne."]},
+
+  {id:152,title:"Paradise",emoji:"🏖️",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Gin",4,"cl"],["Eau-de-vie d'abricot",2,"cl"],["Jus d'orange",2,"cl"],["Jus de citron",0.5,"cl"]],
+   tags:["Gin","Eau-de-vie d'abricot","Jus d'orange","Jus de citron"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange.","Classique des années 1930, tiré du Savoy Cocktail Book d'Harry Craddock."]},
+
+
+  // === IBA RESTANTS ACCESSIBLES ===
+  {id:153,title:"South Side",emoji:"🌿",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",6,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe fraîche",8,"feuilles"]],
+   tags:["Gin","Jus de citron","Sirop de sucre de canne","Menthe fraîche"],
+   steps:["Déposez la menthe dans le shaker et tapotez-la doucement dans la main pour libérer les arômes.","Ajoutez tous les autres ingrédients et de la glace.","Secouez vigoureusement.","Filtrez en double (passoire fine) dans une coupe froide.","Décorez d'une feuille de menthe.","Cousine du Gimlet, né à Chicago pendant la Prohibition."]},
+
+  {id:154,title:"Sea Breeze",emoji:"🌊",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Vodka",4,"cl"],["Jus de cranberry",12,"cl"],["Jus de pamplemousse",4,"cl"]],
+   tags:["Vodka","Jus de cranberry","Jus de pamplemousse"],
+   steps:["Remplissez un highball de glaçons.","Versez la vodka, puis le jus de cranberry.","Ajoutez le jus de pamplemousse.","Remuez doucement.","Décorez d'un quartier de citron vert ou de pamplemousse."]},
+
+  {id:155,title:"Tuxedo",emoji:"🎩",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Gin",4.5,"cl"],["Vermouth sec",4.5,"cl"],["Marasquin",0.5,"cl"],["Orange bitters",2,"traits"],["Absinthe",1,"trait"]],
+   tags:["Gin","Vermouth sec","Marasquin","Orange bitters","Absinthe"],
+   steps:["Rincez une coupe froide avec l'absinthe, jetez l'excédent.","Versez gin, vermouth, marasquin et bitters dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans la coupe parfumée à l'absinthe.","Décorez d'un zeste de citron et d'une cerise.","Variante sèche et élégante du Martini — tiré du Savoy Cocktail Book."]},
+
+  {id:156,title:"Ramos Gin Fizz",emoji:"🥛",cat:"Fizz & Pétillants",baseAlcool:"Gin",diff:"difficile",prep:10,glass:"Collins",portions:1,
+   ingredients:[["Gin",4.5,"cl"],["Jus de citron",1.5,"cl"],["Jus de citron vert",1.5,"cl"],["Blanc d'œuf",1,""],["Crème entière",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau de fleur d'oranger",3,"traits"],["Eau gazeuse",5,"cl"]],
+   tags:["Gin","Jus de citron","Jus de citron vert","Blanc d'œuf","Crème entière","Eau de fleur d'oranger"],
+   steps:["Versez tous les ingrédients SAUF l'eau gazeuse dans un shaker sans glace.","Secouez vigoureusement 1 à 2 minutes pour émulsionner le blanc d'œuf et la crème.","Ajoutez la glace et secouez encore 1 minute.","Filtrez dans un grand verre Collins sans glaçons.","Versez délicatement l'eau gazeuse en filet pour soulever la mousse au-dessus du bord.","Le shaking très long est essentiel — cocktail né à La Nouvelle-Orléans en 1888."]},
+
+  {id:157,title:"Tipperary",emoji:"🍀",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Irish whiskey",4.5,"cl"],["Vermouth rouge",2.25,"cl"],["Chartreuse verte",1,"cl"],["Angostura bitters",2,"traits"]],
+   tags:["Irish whiskey","Vermouth rouge","Chartreuse verte","Angostura bitters"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange.","Variante irlandaise du Manhattan, nommé d'après la ville de Tipperary en Irlande."]},
+
+  {id:158,title:"Trinidad Sour",emoji:"🌶️",cat:"Shortdrinks",baseAlcool:"Autre",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Angostura bitters",2.25,"cl"],["Sirop d'orgeat",2.25,"cl"],["Jus de citron",2.25,"cl"],["Rye whiskey",0.75,"cl"]],
+   tags:["Angostura bitters","Sirop d'orgeat","Jus de citron","Rye whiskey"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Pas de décoration — la couleur intense est sa signature.","Ce cocktail est remarquable : les bitters en sont la base, et non l'accent."]},
+
+  {id:159,title:"Rob Roy",emoji:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"facile",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Scotch whisky",6,"cl"],["Vermouth rouge",2,"cl"],["Angostura bitters",2,"traits"]],
+   tags:["Scotch whisky","Vermouth rouge","Angostura bitters"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'une cerise au marasquin ou d'un zeste d'orange.","Manhattan écossais — né à New York en 1894 pour célébrer l'opérette Rob Roy."]},
+
+  {id:160,title:"Fernandito",emoji:"🥤",cat:"Longdrinks",baseAlcool:"Autre",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Fernet-Branca",5,"cl"],["Coca-Cola",15,"cl"]],
+   tags:["Fernet-Branca","Coca-Cola"],
+   steps:["Remplissez un grand verre de glaçons.","Versez le Fernet-Branca.","Complétez avec le Coca-Cola bien frais.","Remuez très légèrement.","Boisson nationale d'Argentine — le Fernet-Branca est amer et mentholé, le cola adoucit."]},
+
+  // === GRANDS CLASSIQUES NON-IBA ===
+  {id:161,title:"Negroni Sbagliato",emoji:"🍾",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:2,glass:"Rocks",portions:1,
+   ingredients:[["Campari",3,"cl"],["Vermouth rouge",3,"cl"],["Prosecco",6,"cl"]],
+   tags:["Campari","Vermouth rouge","Prosecco"],
+   steps:["Mettez un gros glaçon dans un verre rocks.","Versez le Campari et le vermouth rouge.","Complétez avec le Prosecco bien frais.","Remuez très doucement pour ne pas perdre les bulles.","Décorez d'une tranche d'orange.","Sbagliato = 'raté' en italien — un barman milanais a remplacé le gin par du Prosecco par erreur en 1972."]},
+
+  {id:162,title:"El Diablo",emoji:"😈",cat:"Longdrinks",baseAlcool:"Tequila",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Tequila blanco",5,"cl"],["Crème de cassis",1.5,"cl"],["Jus de citron vert",2,"cl"],["Ginger beer",10,"cl"]],
+   tags:["Tequila blanco","Crème de cassis","Jus de citron vert","Ginger beer"],
+   steps:["Remplissez un highball de glaçons.","Versez la tequila, le jus de citron vert et la crème de cassis.","Complétez avec le ginger beer.","Remuez délicatement.","Décorez d'un quartier de citron vert et quelques groseilles si disponible."]},
+
+  {id:163,title:"Frozen Daiquiri",emoji:"🧊",cat:"Frozen",baseAlcool:"Rhum",diff:"facile",prep:5,glass:"Coupe",portions:1,
+   ingredients:[["Rhum blanc",6,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",2,"cl"]],
+   tags:["Rhum blanc","Jus de citron vert","Sirop de sucre de canne"],
+   steps:["Mettez tous les ingrédients dans un blender avec 200 g de glace pilée.","Mixez jusqu'à obtenir une texture lisse et crémeuse.","Versez dans une coupe bien froide.","Décorez d'un quartier de citron vert.","La version favorite d'Hemingway — servie au Floridita à La Havane."]},
+
+  {id:164,title:"Frozen Margarita",emoji:"🌵",cat:"Frozen",baseAlcool:"Tequila",diff:"facile",prep:5,glass:"Coupe",portions:1,
+   ingredients:[["Tequila blanco",5,"cl"],["Cointreau",2,"cl"],["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",1,"cl"]],
+   tags:["Tequila blanco","Cointreau","Jus de citron vert","Sirop de sucre de canne"],
+   steps:["Givrez le bord d'une coupe avec du sel (optionnel) et un quartier de citron vert.","Mettez tous les ingrédients dans un blender avec 200 g de glace pilée.","Mixez jusqu'à obtenir une consistance de slush lisse.","Versez dans la coupe givrée.","Décorez d'un quartier de citron vert."]},
+
+  {id:165,title:"Bobby Burns",emoji:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Scotch whisky",4.5,"cl"],["Vermouth rouge",4.5,"cl"],["Bénédictine",1,"cl"]],
+   tags:["Scotch whisky","Vermouth rouge","Bénédictine"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'un zeste de citron.","Nommé d'après le poète national écossais Robert Burns — proche du Rob Roy, plus complexe."]},
+
+  {id:166,title:"Mezcal Sour",emoji:"💨",cat:"Shortdrinks",baseAlcool:"Autre",diff:"moyen",prep:4,glass:"Rocks",portions:1,
+   ingredients:[["Mezcal",6,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Blanc d'œuf",1,""]],
+   tags:["Mezcal","Jus de citron","Sirop de sucre de canne","Blanc d'œuf"],
+   steps:["Dry shake : versez tous les ingrédients sans glace dans le shaker. Secouez fort 15 secondes pour émulsionner.","Ajoutez la glace et secouez encore vigoureusement.","Filtrez en double sur glaçons dans un verre rocks.","Décorez de quelques traits d'Angostura bitters sur la mousse.","Variante fumée et complexe du Whisky Sour."]},
+
+  {id:167,title:"Aperol Sour",emoji:"🍊",cat:"Shortdrinks",baseAlcool:"Autre",diff:"facile",prep:3,glass:"Coupe",portions:1,
+   ingredients:[["Aperol",5,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",1,"cl"],["Blanc d'œuf",1,""]],
+   tags:["Aperol","Jus de citron","Sirop de sucre de canne","Blanc d'œuf"],
+   steps:["Dry shake sans glace 15 secondes.","Ajoutez la glace et secouez à nouveau vigoureusement.","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange et quelques traits de bitters sur la mousse.","Plus léger et fruité que l'Amaretto Sour, idéal en apéritif."]},
+
+  {id:168,title:"Campari Spritz",emoji:"🍊",cat:"Apéritifs",baseAlcool:"Autre",diff:"facile",prep:2,glass:"Wine glass",portions:1,
+   ingredients:[["Campari",4,"cl"],["Prosecco",8,"cl"],["Eau gazeuse",2,"cl"]],
+   tags:["Campari","Prosecco","Eau gazeuse"],
+   steps:["Remplissez un grand verre à vin de glaçons.","Versez le Prosecco d'abord.","Ajoutez le Campari.","Complétez avec un trait d'eau gazeuse.","Décorez d'une tranche d'orange.","Plus amer et moins sucré que l'Aperol Spritz — la version des connaisseurs."]},
+
+  {id:169,title:"Passion Fruit Daiquiri",emoji:"🌸",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"facile",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Rhum blanc",5,"cl"],["Purée de fruit de la passion",3,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1,"cl"]],
+   tags:["Rhum blanc","Purée de fruit de la passion","Jus de citron vert","Sirop de sucre de canne"],
+   steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement 12–15 secondes.","Filtrez dans une coupe bien froide.","Décorez d'une demi-coque de fruit de la passion."]},
+
+  {id:170,title:"Tequila Old Fashioned",emoji:"🥃",cat:"Shortdrinks",baseAlcool:"Tequila",diff:"facile",prep:3,glass:"Rocks",portions:1,
+   ingredients:[["Tequila reposado",6,"cl"],["Sirop d'agave",1,"cl"],["Angostura bitters",2,"traits"],["Mole bitters",1,"trait"]],
+   tags:["Tequila reposado","Sirop d'agave","Angostura bitters"],
+   steps:["Déposez le sirop d'agave et les bitters dans un verre rocks.","Ajoutez un gros glaçon.","Versez la tequila reposado.","Remuez lentement 20–30 secondes.","Décorez d'un large zeste d'orange.","Le sirop d'agave à la place du sucre sublime les notes végétales de la tequila."]},
+
+  {id:171,title:"Oaxacan Old Fashioned",emoji:"🌋",cat:"Shortdrinks",baseAlcool:"Autre",diff:"moyen",prep:4,glass:"Rocks",portions:1,
+   ingredients:[["Tequila reposado",4,"cl"],["Mezcal",2,"cl"],["Sirop d'agave",1,"cl"],["Mole bitters",2,"traits"]],
+   tags:["Tequila reposado","Mezcal","Sirop d'agave","Mole bitters"],
+   steps:["Déposez le sirop et les bitters dans un verre rocks.","Ajoutez un gros glaçon.","Versez la tequila et le mezcal.","Remuez lentement 30 secondes.","Flambez un large zeste d'orange au-dessus du verre et déposez-le.","Créé par Phil Ward à New York en 2007 — le mezcal apporte une profondeur fumée remarquable."]},
+
+  {id:172,title:"Espresso Negroni",emoji:"☕",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Rocks",portions:1,
+   ingredients:[["Gin",3,"cl"],["Campari",2,"cl"],["Vermouth rouge",2,"cl"],["Espresso froid",2,"cl"]],
+   tags:["Gin","Campari","Vermouth rouge","Espresso froid"],
+   steps:["Préparez un espresso et laissez-le refroidir.","Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez sur un gros glaçon dans un verre rocks.","Décorez d'un zeste d'orange et de 3 grains de café.","Fusion parfaite du Negroni et de l'Espresso Martini."]},
+
+  {id:173,title:"Vodka Collins",emoji:"🍋",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Collins",portions:1,
+   ingredients:[["Vodka",5,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau gazeuse",10,"cl"]],
+   tags:["Vodka","Jus de citron","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Shaker la vodka, le jus de citron et le sirop avec de la glace.","Filtrez sur glaçons dans un grand verre Collins.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'une rondelle de citron et d'une cerise.","Version vodka du Tom Collins — frais et très accessible."]},
+
+  {id:174,title:"Rum Collins",emoji:"🌿",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:3,glass:"Collins",portions:1,
+   ingredients:[["Rhum blanc",5,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau gazeuse",10,"cl"]],
+   tags:["Rhum blanc","Jus de citron","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Shaker le rhum, le jus de citron et le sirop avec de la glace.","Filtrez sur glaçons dans un grand verre Collins.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'une rondelle de citron.","Proche du Mojito sans la menthe — plus simple et tout aussi rafraîchissant."]},
+
+  {id:175,title:"Tequila Collins",emoji:"🌵",cat:"Longdrinks",baseAlcool:"Tequila",diff:"facile",prep:3,glass:"Collins",portions:1,
+   ingredients:[["Tequila blanco",5,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau gazeuse",10,"cl"]],
+   tags:["Tequila blanco","Jus de citron vert","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Shaker la tequila, le jus de citron vert et le sirop avec de la glace.","Filtrez sur glaçons dans un grand verre Collins.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'un quartier de citron vert."]},
+
+  {id:176,title:"John Collins",emoji:"🍺",cat:"Longdrinks",baseAlcool:"Whisky",diff:"facile",prep:3,glass:"Collins",portions:1,
+   ingredients:[["Bourbon",5,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau gazeuse",10,"cl"]],
+   tags:["Bourbon","Jus de citron","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Shaker le bourbon, le jus de citron et le sirop avec de la glace.","Filtrez sur glaçons dans un grand verre Collins.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'une rondelle de citron et d'une cerise.","L'original historique — le Tom Collins au gin en est la variante. John Collins = bourbon."]},
+
+  {id:177,title:"Mezcal Margarita",emoji:"🌵",cat:"Shortdrinks",baseAlcool:"Autre",diff:"facile",prep:3,glass:"Rocks",portions:1,
+   ingredients:[["Mezcal",5,"cl"],["Cointreau",2,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",0.5,"cl"]],
+   tags:["Mezcal","Cointreau","Jus de citron vert","Sirop de sucre de canne"],
+   steps:["Givrez le bord d'un verre rocks avec du sel fumé et un quartier de citron vert (optionnel).","Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez sur un gros glaçon.","Décorez d'un quartier de citron vert.","Le mezcal apporte des notes fumées qui transforment la Margarita classique."]},
+
+  {id:178,title:"Perfect Manhattan",emoji:"⚖️",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"facile",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Rye whiskey",6,"cl"],["Vermouth rouge",1,"cl"],["Vermouth sec",1,"cl"],["Angostura bitters",2,"traits"]],
+   tags:["Rye whiskey","Vermouth rouge","Vermouth sec","Angostura bitters"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange ou d'une cerise.","Le 'Perfect' signifie moitié vermouth rouge, moitié vermouth sec — plus léger et équilibré."]},
+
+  {id:179,title:"Whisky & Ginger",emoji:"🥃",cat:"Longdrinks",baseAlcool:"Whisky",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Scotch whisky",5,"cl"],["Ginger ale",15,"cl"],["Citron vert frais",0.5,""]],
+   tags:["Scotch whisky","Ginger ale","Citron vert frais"],
+   steps:["Remplissez un highball de glaçons.","Versez le Scotch.","Complétez avec le ginger ale bien frais.","Pressez un quartier de citron vert et déposez-le.","Remuez délicatement.","L'un des highballs les plus populaires au Royaume-Uni. Fonctionne aussi avec le bourbon."]},
+
+  {id:180,title:"Pimm's Cup",emoji:"🥒",cat:"Longdrinks",baseAlcool:"Autre",diff:"facile",prep:4,glass:"Highball",portions:1,
+   ingredients:[["Pimm's No.1",5,"cl"],["Limonade",15,"cl"],["Concombre frais",3,"rondelles"],["Fraise fraîche",2,"pièces"],["Menthe fraîche",4,"feuilles"],["Orange",1,"tranche"]],
+   tags:["Pimm's No.1","Limonade","Concombre frais","Fraise fraîche","Menthe fraîche"],
+   steps:["Remplissez un grand verre de glaçons.","Déposez le concombre, les fraises et l'orange.","Versez le Pimm's.","Complétez avec la limonade (ou ginger ale).","Ajoutez les feuilles de menthe en décoration.","Boisson emblématique de l'été anglais — indispensable à Wimbledon."]},
+
+  {id:181,title:"Dark Mojito",emoji:"🌑",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:5,glass:"Highball",portions:1,
+   ingredients:[["Rhum brun",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe fraîche",8,"feuilles"],["Eau gazeuse",10,"cl"]],
+   tags:["Rhum brun","Jus de citron vert","Sirop de sucre de canne","Menthe fraîche","Eau gazeuse"],
+   steps:["Déposez la menthe, le jus de citron vert et le sirop dans le verre. Muddlez doucement.","Remplissez de glace pilée.","Versez le rhum brun.","Complétez avec l'eau gazeuse et remuez.","Décorez d'un brin de menthe.","Les notes caramel et vanille du rhum brun apportent plus de profondeur qu'avec le rhum blanc."]},
+
+  {id:182,title:"Grapefruit Gin Fizz",emoji:"🍊",cat:"Fizz & Pétillants",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Collins",portions:1,
+   ingredients:[["Gin",5,"cl"],["Jus de pamplemousse",4,"cl"],["Jus de citron",1,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Eau gazeuse",8,"cl"]],
+   tags:["Gin","Jus de pamplemousse","Jus de citron","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Shaker le gin, les jus et le sirop avec de la glace.","Filtrez sur glaçons dans un verre Collins.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de pamplemousse.","Le pamplemousse se marie remarquablement bien avec le gin botanique."]},
+
+  {id:183,title:"Vermouth Tonic",emoji:"🌿",cat:"Apéritifs",baseAlcool:"Vin",diff:"facile",prep:1,glass:"Wine glass",portions:1,
+   ingredients:[["Vermouth blanc ou rouge",6,"cl"],["Tonic",10,"cl"],["Citron frais",0.5,""]],
+   tags:["Vermouth blanc ou rouge","Tonic","Citron frais"],
+   steps:["Mettez des glaçons dans un grand verre à vin.","Versez le vermouth.","Complétez avec le tonic bien frais.","Pressez un quartier de citron et déposez-le.","Ajoutez quelques herbes aromatiques : romarin, thym ou basilic.","Apéritif très tendance — plus léger et complexe qu'un G&T simple."]},
+
+  {id:184,title:"Negroni Bianco",emoji:"⬜",cat:"Apéritifs",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Rocks",portions:1,
+   ingredients:[["Gin",3,"cl"],["Vermouth blanc",3,"cl"],["Suze ou Gentiane",3,"cl"]],
+   tags:["Gin","Vermouth blanc","Suze ou Gentiane"],
+   steps:["Mettez un gros glaçon dans un verre rocks.","Versez tous les ingrédients.","Remuez lentement 20 secondes.","Décorez d'un large zeste de citron.","Version blanche du Negroni — moins amer, plus floral. La Suze apporte une amertume végétale rafraîchissante."]},
+
+  {id:185,title:"Bamboo",emoji:"🎋",cat:"Apéritifs",baseAlcool:"Vin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
+   ingredients:[["Xérès fino ou amontillado",4.5,"cl"],["Vermouth sec",4.5,"cl"],["Angostura bitters",2,"traits"],["Orange bitters",1,"trait"]],
+   tags:["Xérès fino","Vermouth sec","Angostura bitters","Orange bitters"],
+   steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'un zeste de citron ou d'olive.","Cocktail sans spiritueux fort — léger et très complexe. Né au Grand Hotel de Yokohama en 1890."]},
+
+
+  // === SANS ALCOOL ===
+  {id:500,title:"Virgin Mojito",emoji:"🌿",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:4,glass:"Highball",portions:1,
+   ingredients:[["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Menthe fraîche",10,"feuilles"],["Eau gazeuse",20,"cl"],["Citron vert frais",0.5,""]],
+   tags:["Jus de citron vert","Sirop de sucre de canne","Menthe fraîche","Eau gazeuse"],
+   steps:["Déposez la menthe et le jus de citron vert dans le verre. Muddlez doucement.","Ajoutez le sirop de sucre de canne.","Remplissez de glace pilée.","Complétez avec l'eau gazeuse et remuez.","Décorez d'un brin de menthe et d'un quartier de citron vert."]},
+
+  {id:501,title:"Virgin Mary",emoji:"🍅",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Jus de tomate",15,"cl"],["Jus de citron",1.5,"cl"],["Worcestershire sauce",3,"traits"],["Tabasco",2,"traits"],["Sel de céleri",1,"pincée"],["Poivre noir",1,"pincée"]],
+   tags:["Jus de tomate","Jus de citron","Worcestershire sauce","Tabasco","Sel de céleri"],
+   steps:["Remplissez un highball de glaçons.","Versez le jus de tomate et le jus de citron.","Ajoutez la Worcestershire sauce, le Tabasco, le sel de céleri et le poivre.","Remuez bien.","Décorez d'une branche de céleri, d'un quartier de citron et d'une olive.","Ajustez le Tabasco selon votre tolérance au piment."]},
+
+  {id:502,title:"Shirley Temple",emoji:"🍒",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Ginger ale",15,"cl"],["Sirop de grenadine",2,"cl"],["Jus d'orange",5,"cl"]],
+   tags:["Ginger ale","Sirop de grenadine","Jus d'orange"],
+   steps:["Remplissez un verre de glaçons.","Versez le jus d'orange et la grenadine.","Complétez avec le ginger ale.","Remuez délicatement.","Décorez d'une cerise et d'un quartier d'orange.","Mocktail iconique créé dans les années 30 en hommage à la jeune star de cinéma."]},
+
+  {id:503,title:"Arnold Palmer",emoji:"⛳",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:2,glass:"Highball",portions:1,
+   ingredients:[["Thé glacé non sucré",15,"cl"],["Limonade maison",15,"cl"]],
+   tags:["Thé glacé non sucré","Limonade maison"],
+   steps:["Préparez un thé fort et laissez-le refroidir au réfrigérateur.","Préparez une limonade : 3 cl jus de citron + 1 cl sirop + eau fraîche.","Dans un grand verre de glaçons, versez le thé et la limonade à parts égales.","Remuez et décorez d'une rondelle de citron.","Nommé d'après le légendaire golfeur américain qui buvait ce mélange sur les greens."]},
+
+  {id:504,title:"Limonade au Gingembre",emoji:"🫚",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Highball",portions:1,
+   ingredients:[["Jus de citron",4,"cl"],["Sirop de sucre de canne",2,"cl"],["Gingembre frais",3,"cm"],["Eau gazeuse",20,"cl"],["Menthe fraîche",4,"feuilles"]],
+   tags:["Jus de citron","Sirop de sucre de canne","Gingembre frais","Eau gazeuse","Menthe fraîche"],
+   steps:["Pelez et râpez finement le gingembre. Pressez-le dans une passoire pour en extraire le jus.","Mélangez le jus de citron, le sirop et le jus de gingembre dans un shaker avec de la glace.","Agitez bien.","Filtrez sur glaçons dans un grand verre.","Complétez avec l'eau gazeuse. Décorez de menthe."]},
+
+  {id:505,title:"Sunrise Tropical",emoji:"🌅",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Jus d'orange",10,"cl"],["Jus d'ananas",8,"cl"],["Sirop de grenadine",2,"cl"]],
+   tags:["Jus d'orange","Jus d'ananas","Sirop de grenadine"],
+   steps:["Remplissez un verre de glaçons.","Mélangez le jus d'orange et le jus d'ananas et versez.","Versez doucement le sirop de grenadine sur le dessus sans mélanger.","La grenadine va descendre lentement pour créer l'effet coucher de soleil.","Décorez d'une rondelle d'orange et d'une cerise."]},
+
+  {id:506,title:"Virgin Piña Colada",emoji:"🌴",cat:"Frozen",baseAlcool:"Sans alcool",diff:"facile",prep:4,glass:"Tiki mug",portions:1,
+   ingredients:[["Jus d'ananas",12,"cl"],["Crème de coco",6,"cl"],["Jus de citron vert",1,"cl"]],
+   tags:["Jus d'ananas","Crème de coco","Jus de citron vert"],
+   steps:["Mettez tous les ingrédients dans un blender avec 200 g de glace pilée.","Mixez jusqu'à obtenir une texture onctueuse et crémeuse.","Versez dans un grand verre ou tiki mug.","Décorez d'une tranche d'ananas et d'une cerise.","Aussi savoureux que l'original — la crème de coco est la clé."]},
+
+  {id:507,title:"Cucumber Cooler",emoji:"🥒",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Highball",portions:1,
+   ingredients:[["Concombre frais",6,"rondelles"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Eau gazeuse",20,"cl"],["Menthe fraîche",5,"feuilles"]],
+   tags:["Concombre frais","Jus de citron vert","Sirop de sucre de canne","Eau gazeuse","Menthe fraîche"],
+   steps:["Muddlez le concombre, la menthe et le jus de citron vert dans un shaker.","Ajoutez le sirop et de la glace. Secouez bien.","Filtrez en double sur glaçons dans un grand verre.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de concombre et d'un brin de menthe.","Frais, léger, parfait en été."]},
+
+  {id:508,title:"Virgin Colada Mangue",emoji:"🥭",cat:"Frozen",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Highball",portions:1,
+   ingredients:[["Mangue fraîche ou surgelée",150,"g"],["Jus d'ananas",8,"cl"],["Crème de coco",4,"cl"],["Jus de citron vert",1,"cl"]],
+   tags:["Mangue fraîche","Jus d'ananas","Crème de coco","Jus de citron vert"],
+   steps:["Mettez tous les ingrédients dans un blender avec 150 g de glace pilée.","Mixez jusqu'à obtenir une texture lisse.","Versez dans un grand verre.","Décorez de morceaux de mangue et d'une tranche de citron vert."]},
+
+  {id:509,title:"Citrus Spritz",emoji:"🍋",cat:"Fizz & Pétillants",baseAlcool:"Sans alcool",diff:"facile",prep:2,glass:"Wine glass",portions:1,
+   ingredients:[["Jus d'orange",5,"cl"],["Jus de pamplemousse",3,"cl"],["Jus de citron",1,"cl"],["Sirop de sucre de canne",1,"cl"],["Eau gazeuse",12,"cl"]],
+   tags:["Jus d'orange","Jus de pamplemousse","Jus de citron","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Remplissez un grand verre à vin de glaçons.","Mélangez les jus et le sirop, versez sur la glace.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'une tranche d'orange et d'un zeste de citron."]},
+
+  {id:510,title:"Mocktail Fraise-Basilic",emoji:"🍓",cat:"Shortdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Coupe",portions:1,
+   ingredients:[["Fraises fraîches",5,"pièces"],["Jus de citron",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Basilic frais",3,"feuilles"],["Eau gazeuse",4,"cl"]],
+   tags:["Fraises fraîches","Jus de citron","Sirop de sucre de canne","Basilic frais","Eau gazeuse"],
+   steps:["Muddlez les fraises et le basilic dans un shaker.","Ajoutez le jus de citron, le sirop et de la glace.","Secouez vigoureusement.","Double filtrez dans une coupe froide.","Complétez avec un trait d'eau gazeuse.","Décorez d'une fraise et d'une feuille de basilic."]},
+
+  {id:511,title:"Ginger Beer Fizz",emoji:"🫚",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:2,glass:"Mug en cuivre",portions:1,
+   ingredients:[["Ginger beer",20,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",1,"cl"]],
+   tags:["Ginger beer","Jus de citron vert","Sirop de sucre de canne"],
+   steps:["Remplissez un mug de glaçons.","Versez le jus de citron vert et le sirop.","Complétez avec le ginger beer bien frais.","Remuez très délicatement.","Décorez d'une rondelle de citron vert.","Un Moscow Mule sans alcool — le ginger beer doit être artisanal et bien épicé pour être intéressant."]},
+
+  {id:512,title:"Lemonade à la Rose",emoji:"🌹",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Jus de citron",4,"cl"],["Sirop de rose",2,"cl"],["Sirop de sucre de canne",1,"cl"],["Eau gazeuse",20,"cl"]],
+   tags:["Jus de citron","Sirop de rose","Sirop de sucre de canne","Eau gazeuse"],
+   steps:["Versez le jus de citron, les sirops dans un verre de glaçons.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'un pétale de rose comestible ou d'un zeste de citron.","Floral et rafraîchissant — le sirop de rose se trouve facilement en épicerie orientale."]},
+
+  {id:513,title:"Limonade Lavande",emoji:"💜",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Jus de citron",4,"cl"],["Sirop de lavande",2,"cl"],["Eau gazeuse",18,"cl"],["Citron frais",0.5,""]],
+   tags:["Jus de citron","Sirop de lavande","Eau gazeuse"],
+   steps:["Versez le jus de citron et le sirop de lavande dans un verre de glaçons.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Pressez un quartier de citron frais.","Décorez d'un brin de lavande.","Le sirop de lavande se prépare facilement : faire infuser de la lavande sèche dans un sirop simple chaud."]},
+
+  {id:514,title:"Mocktail Pamplemousse Romarin",emoji:"🌿",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
+   ingredients:[["Jus de pamplemousse",12,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Romarin frais",1,"branche"],["Eau gazeuse",8,"cl"],["Jus de citron vert",1,"cl"]],
+   tags:["Jus de pamplemousse","Sirop de sucre de canne","Romarin frais","Eau gazeuse"],
+   steps:["Chauffez légèrement le sirop avec le romarin 5 minutes, laissez infuser et refroidir.","Versez le jus de pamplemousse, le jus de citron vert et le sirop parfumé sur glaçons.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de pamplemousse et d'un brin de romarin.","La version sans alcool de la Tequila Pamplemousse-Romarin."]},
+
+
 ];
 </script>
 </body>
