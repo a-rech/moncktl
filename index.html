@@ -120,6 +120,8 @@
     .cat-tab:hover,.cat-tab.active{background:var(--accent);color:#0C0F1D;border-color:var(--accent);font-weight:500;}
     .cat-tab-fav{border-color:#E05C5C;color:#E05C5C;}
     .cat-tab-fav:hover,.cat-tab-fav.active{background:#E05C5C;color:#fff;border-color:#E05C5C;}
+    .cat-tab-sa{border-color:#2ecc71;color:#2ecc71;}
+    .cat-tab-sa:hover,.cat-tab-sa.active{background:#2ecc71;color:#0C0F1D;border-color:#2ecc71;}
     .cat-tab-mycktls{cursor:auto !important;}
     .cat-tab-mycktls:hover{background:var(--surface) !important;color:var(--accent) !important;border-color:var(--accent) !important;}
     .cat-tab-add-btn{box-shadow:0 1px 4px rgba(0,0,0,0.2);}
@@ -1410,6 +1412,12 @@ window.addEventListener('popstate', function(e) {
     closeExpandQR();
     return;
   }
+  // Fermer le mode soirée si ouvert
+  var soireeOverlay = document.getElementById('soiree-overlay');
+  if (soireeOverlay) {
+    exitSoireeMode();
+    return;
+  }
   pageHistory.pop();
   var prev = pageHistory.length > 0 ? pageHistory[pageHistory.length - 1] : 'home';
   showPage(prev);
@@ -1726,6 +1734,11 @@ function loadCatalogueTabs() {
     var count = pfBase.filter(function(r) { return r[field] === v; }).length;
     html += '<div class="cat-tab" data-val="' + v + '">' + v + ' (' + count + ')</div>';
   });
+  // Onglet "Sans alcool" toujours visible en mode Alcool de base
+  if (catMode === 'base') {
+    var saCount = pfBase.filter(function(r) { return r.baseAlcool === 'Sans alcool'; }).length;
+    html += '<div class="cat-tab cat-tab-sa" data-val="__sansalcool__">🥤 Sans alcool' + (saCount > 0 ? ' (' + saCount + ')' : '') + '</div>';
+  }
   tabsContainer.innerHTML = html;
   // Un seul listener délégué sur le conteneur pour tous les onglets
   tabsContainer.addEventListener('click', function(e) {
@@ -1771,6 +1784,17 @@ function filterCatalogue(value, tabEl, skipScroll) {
     return;
   }
   
+  if (value === '__sansalcool__') {
+    var saCocktails = COCKTAILS.filter(function(c) { return c.baseAlcool === 'Sans alcool'; });
+    if (saCocktails.length === 0) {
+      document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">🥤</div><p>Aucune recette sans alcool pour l\'instant.<br>Créez-en une via <strong>✨ Créer</strong> !</p></div>';
+    } else {
+      renderCatalogueGrid(shuffle(saCocktails));
+    }
+    if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateResetBtnVisibility();
+    return;
+  }
   var field = catMode === 'cat' ? 'cat' : 'baseAlcool';
   var filtered = value === 'all' ? COCKTAILS.slice() : COCKTAILS.filter(function(r) { return r[field] === value; });
   renderCatalogueGrid(shuffle(filtered)); // Mélange pour varier l'ordre à chaque clic
@@ -1908,10 +1932,12 @@ function showRecipe(id) {
     + '<span class="tag">' + c.cat + '</span>'
     + '<span class="tag">🥃 ' + c.baseAlcool + '</span>'
     + '</div>'
-    + '<button id="recipe-like-btn" class="recipe-like-btn' + (faved ? ' liked' : '') + '" data-id="' + id + '" onclick="onLikeCard(event,' + id + ')">'
+    + '<div style="display:flex;gap:8px;width:100%;margin-bottom:4px">'
+    + '<button id="recipe-like-btn" class="recipe-like-btn' + (faved ? ' liked' : '') + '" data-id="' + id + '" onclick="onLikeCard(event,' + id + ')" style="flex:1">'
     + '<span class="rl-ico">' + (faved ? '❤️' : '🤍') + '</span>'
     + '<span class="rl-txt">' + (faved ? 'Retirer des favoris' : 'Ajouter aux favoris') + '</span>'
     + '</button>'
+    + '</div>'
     + userCreatedBadgeHeader(id)
     + '<div class="recipe-infos">'
     + '<div class="info-block"><div class="info-label">PRÉPARATION</div><div class="info-val">' + c.prep + ' min</div></div>'
@@ -1922,21 +1948,25 @@ function showRecipe(id) {
     + '<div>'
     + '<div class="recipe-section-title">INGRÉDIENTS</div>'
     + '<ul class="ingredients-list" id="ingredients-list-' + id + '">' + ingHtml + '</ul>'
+    + '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'
+    + '<button onclick="copyIngredients(' + id + ')" id="copy-ing-btn-' + id + '" style="padding:5px 12px;background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s">📋 Copier la liste</button>'
+    + '<button onclick="enterSoireeMode(' + id + ')" style="padding:5px 12px;background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
+    + '</div>'
     + '</div>'
     + '<div>'
     + '<div class="recipe-section-title">PRÉPARATION</div>'
     + '<ol class="steps-list">' + stepsHtml + '</ol>'
     + '</div></div>'
-    + buildTasteProfile(id)    // Profil gustatif en premier
-    + buildStarsHtml(id)       // Ma note juste en dessous
-    + userCreatedBadge(id)     // Badge + bouton supprimer pour les créations perso
-    + buildShareButton(id)     // Bouton "Partager cette recette"
-    + buildAdaptButton(id)     // Bouton "Adapter ce cocktail"
+    + buildTasteProfile(id)
+    + buildStarsHtml(id)
+    + userCreatedBadge(id)
     + '<div class="notes-block">'
     + '<div class="recipe-section-title" style="margin-top:24px;margin-bottom:10px">MES NOTES</div>'
     + '<textarea id="notes-ta-' + id + '" class="notes-textarea" placeholder="Ajoutez vos notes personnelles : dosage préféré, variantes, astuces..." oninput="saveNote(' + id + ', this.value)">' + note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>'
     + '<div id="notes-saved-' + id + '" class="notes-saved">✓ Note sauvegardée</div>'
-    + '</div>';
+    + '</div>'
+    + buildShareButton(id)
+    + buildAdaptButton(id);
   document.getElementById('recipe-content').innerHTML = html;
   
   // Attacher l'event listener du bouton partage APRÈS l'insertion du HTML
@@ -3670,6 +3700,94 @@ function doGenerateQRCode(text, container, modalId) {
     console.error('Stack:', e.stack);
     container.innerHTML = '<div style="color:var(--text3);font-size:12px">❌ Erreur génération QR: ' + e.message + '</div>';
   }
+}
+
+// ── COPIER INGRÉDIENTS ────────────────────────────────────────────────────
+function copyIngredients(id) {
+  var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
+  if (!c) return;
+  var text = c.title + '\n' + c.ingredients.map(function(i) {
+    var qty = i[1] ? ' (' + i[1] + (i[2] ? ' ' + i[2] : '') + ')' : '';
+    return '• ' + i[0] + qty;
+  }).join('\n');
+  var btn = document.getElementById('copy-ing-btn-' + id);
+  navigator.clipboard.writeText(text).then(function() {
+    if (btn) { btn.textContent = '✓ Copié !'; btn.style.color = 'var(--accent)'; btn.style.borderColor = 'var(--accent)'; }
+    setTimeout(function() {
+      if (btn) { btn.textContent = '📋 Copier la liste'; btn.style.color = ''; btn.style.borderColor = ''; }
+    }, 2000);
+  }).catch(function() {
+    // Fallback pour navigateurs sans clipboard API
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (btn) { btn.textContent = '✓ Copié !'; }
+    setTimeout(function() { if (btn) btn.textContent = '📋 Copier la liste'; }, 2000);
+  });
+}
+
+// ── MODE SOIRÉE ────────────────────────────────────────────────────────────
+function enterSoireeMode(id) {
+  var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
+  if (!c) return;
+
+  var ingHtml = c.ingredients.map(function(i) {
+    return '<li>' + i[0] + (i[1] ? ' <span style="opacity:.55;font-size:.75em">' + i[1] + ' ' + i[2] + '</span>' : '') + '</li>';
+  }).join('');
+  var stepsHtml = c.steps.map(function(s, i) {
+    return '<li><span style="display:inline-flex;align-items:center;justify-content:center;width:1.5em;height:1.5em;border-radius:50%;background:var(--accent);color:#0C0F1D;font-size:.65em;font-weight:700;margin-right:.6em;flex-shrink:0">' + (i+1) + '</span>' + s + '</li>';
+  }).join('');
+
+  var overlay = document.createElement('div');
+  overlay.id = 'soiree-overlay';
+  overlay.style.cssText = [
+    'position:fixed;inset:0;background:#0C0F1D;z-index:99990',
+    'overflow-y:auto;-webkit-overflow-scrolling:touch',
+    'padding:0 0 60px 0'
+  ].join(';');
+
+  overlay.innerHTML = [
+    // Bouton retour haut droite
+    '<button onclick="exitSoireeMode()" style="position:fixed;top:14px;right:16px;z-index:99991;',
+    'padding:8px 18px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);',
+    'border:1px solid rgba(255,255,255,.2);border-radius:20px;font-size:15px;cursor:pointer">← Retour</button>',
+
+    // Emoji + titre
+    '<div style="text-align:center;padding:48px 24px 24px">',
+    '<div style="font-size:80px;line-height:1;margin-bottom:16px">' + c.emoji + '</div>',
+    '<div style="font-family:\'Playfair Display\',serif;font-size:32px;font-weight:700;color:#fff;line-height:1.2">' + c.title + '</div>',
+    '</div>',
+
+    // Ingrédients
+    '<div style="padding:0 24px 32px">',
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:16px">Ingrédients</div>',
+    '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px">',
+    ingHtml.replace(/<li>/g, '<li style="font-size:22px;color:#fff;display:flex;align-items:baseline;gap:8px;line-height:1.3;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:14px">'),
+    '</ul></div>',
+
+    // Étapes
+    '<div style="padding:0 24px">',
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:16px">Préparation</div>',
+    '<ol style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:20px">',
+    stepsHtml.replace(/<li>/g, '<li style="font-size:20px;color:rgba(255,255,255,.88);line-height:1.5;display:flex;align-items:baseline">'),
+    '</ol></div>'
+  ].join('');
+
+  document.body.appendChild(overlay);
+
+  // Wake lock pour éviter extinction écran
+  if (navigator.wakeLock) {
+    navigator.wakeLock.request('screen').then(function(wl) { overlay._wl = wl; }).catch(function(){});
+  }
+}
+
+function exitSoireeMode() {
+  var overlay = document.getElementById('soiree-overlay');
+  if (!overlay) return;
+  if (overlay._wl) overlay._wl.release().catch(function(){});
+  overlay.remove();
 }
 
 // ── PLEIN ÉCRAN QR ─────────────────────────────────────────────────
