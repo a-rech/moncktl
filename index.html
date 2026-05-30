@@ -214,6 +214,11 @@
     @keyframes heartpop{0%{transform:scale(1)}50%{transform:scale(1.5)}100%{transform:scale(1)}}
     .like-btn.pop{animation:heartpop .25s ease;}
     @keyframes scanline{0%,100%{top:25%}50%{top:75%}}
+    .search-mode-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+    .search-mode-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;}
+    .search-mode-btn.active{background:var(--accent);color:#0C0F1D;border-color:var(--accent);font-weight:600;}
+    .ingredient-chip.excluded{background:rgba(220,60,60,.12);color:#e05555;border-color:rgba(220,60,60,.4);text-decoration:line-through;opacity:.75;}
+    .ingredient-chip.excluded:hover{border-color:#e05555;}
     /* Badge ✨ création utilisateur - haut gauche miniature */
     .creation-badge{position:absolute;top:8px;left:8px;z-index:2;width:28px;height:28px;border-radius:50%;background:rgba(12,15,29,0.75);border:1px solid rgba(255,255,255,0.15);font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;}
     /* Badge texte "✦ Votre création" dans le titre de carte */
@@ -829,10 +834,26 @@
   </div>
   <div class="section-title">Recherche par ingrédients</div>
   <p class="section-sub">Cochez vos ingrédients préférés pour trouver le cocktail idéal</p>
+
+  <div class="search-mode-bar" id="mode-bar-top">
+    <span style="font-size:12px;color:var(--text2)">Mode :</span>
+    <button id="search-mode-or-top"  onclick="setSearchMode('or')"  class="search-mode-btn active">Au moins un</button>
+    <button id="search-mode-and-top" onclick="setSearchMode('and')" class="search-mode-btn">Tous les ingrédients</button>
+    <span style="font-size:11px;color:var(--text3);margin-left:4px">· 1 tap ✓&nbsp;&nbsp;2 taps ✕ exclure</span>
+  </div>
+
   <div class="families-grid" id="families-container"></div>
+
+  <div class="search-mode-bar" id="mode-bar-bottom" style="margin-bottom:12px">
+    <span style="font-size:12px;color:var(--text2)">Mode :</span>
+    <button id="search-mode-or-bot"  onclick="setSearchMode('or')"  class="search-mode-btn active">Au moins un</button>
+    <button id="search-mode-and-bot" onclick="setSearchMode('and')" class="search-mode-btn">Tous les ingrédients</button>
+  </div>
+
   <div class="search-actions">
     <button class="btn btn-primary" id="btn-search" onclick="doSearch()" disabled>Rechercher</button>
     <button class="btn btn-secondary" onclick="resetFilters()">Réinitialiser</button>
+    <button id="btn-reset-excl" onclick="resetExclusions()" style="display:none;padding:7px 12px;background:rgba(220,60,60,.15);color:#e05555;border:1px solid rgba(220,60,60,.3);border-radius:6px;font-size:12px;cursor:pointer">✕ Effacer exclusions</button>
     <span class="selected-count" id="selected-count">Aucun ingrédient sélectionné</span>
   </div>
   <div id="search-results"></div>
@@ -1416,26 +1437,91 @@ function goHome() { navTo('home'); }
 // ── 5. PAGE INGRÉDIENTS ───────────────────────────────────────────────────
 // Les familles d'ingrédients sont construites une seule fois (data-loaded guard)
 // pour éviter de refabriquer le DOM à chaque visite de la page.
+
+var searchMode = 'or'; // 'or' | 'and'
+var EXCL_KEY = 'moncktl_excl_v1'; // localStorage key pour les exclusions persistantes
+
+// ── Synchronise les 4 boutons de mode (top + bottom) ──────────────────────
+function setSearchMode(mode) {
+  searchMode = mode;
+  ['or-top','and-top','or-bot','and-bot'].forEach(function(sfx) {
+    var btn = document.getElementById('search-mode-' + sfx);
+    if (btn) btn.classList.toggle('active', sfx.startsWith(mode));
+  });
+}
+
+// ── Exclusions persistantes (localStorage) ────────────────────────────────
+function _loadExclusions() {
+  try { return JSON.parse(localStorage.getItem(EXCL_KEY) || '[]'); } catch(e) { return []; }
+}
+function _saveExclusions(arr) {
+  try { localStorage.setItem(EXCL_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+// Affiche/masque le bouton "Effacer exclusions" selon l'état
+function _updateExclBtn() {
+  var btn = document.getElementById('btn-reset-excl');
+  if (btn) btn.style.display = _loadExclusions().length > 0 ? 'inline-flex' : 'none';
+}
+
+function resetExclusions() {
+  localStorage.removeItem(EXCL_KEY);
+  document.querySelectorAll('.ingredient-chip.excluded').forEach(function(c) { c.classList.remove('excluded'); });
+  _updateExclBtn();
+}
+
 function loadIngredientFamilies() {
   var container = document.getElementById('families-container');
-  if (container.dataset.loaded) return; // Guard : ne construire qu'une fois
-  container.dataset.loaded = '1';
-  var html = '';
-  FAMILIES.forEach(function(family) {
-    html += '<div class="family-block"><div class="family-label"><span>' + family.icon + '</span> ' + family.label + '</div><div class="ingredient-chips">';
-    family.items.forEach(function(item) {
-      html += '<span class="ingredient-chip" data-item="' + item.replace(/"/g, '&quot;') + '">' + item + '</span>';
+  if (!container.dataset.loaded) {
+    container.dataset.loaded = '1';
+    var html = '';
+    FAMILIES.forEach(function(family) {
+      html += '<div class="family-block"><div class="family-label"><span>' + family.icon + '</span> ' + family.label + '</div><div class="ingredient-chips">';
+      family.items.forEach(function(item) {
+        html += '<span class="ingredient-chip" data-item="' + item.replace(/"/g, '&quot;') + '">' + item + '</span>';
+      });
+      html += '</div></div>';
     });
-    html += '</div></div>';
+    container.innerHTML = html;
+
+    // ── Triple état cyclique au tap : neutre → sélectionné → exclu → neutre
+    container.addEventListener('click', function(e) {
+      var chip = e.target.closest('.ingredient-chip');
+      if (!chip) return;
+      var excl = _loadExclusions();
+      var item = chip.dataset.item || chip.textContent.trim();
+
+      if (!chip.classList.contains('selected') && !chip.classList.contains('excluded')) {
+        // neutre → sélectionné
+        chip.classList.add('selected');
+      } else if (chip.classList.contains('selected')) {
+        // sélectionné → exclu
+        chip.classList.remove('selected');
+        chip.classList.add('excluded');
+        if (excl.indexOf(item) === -1) excl.push(item);
+        _saveExclusions(excl);
+        _updateExclBtn();
+      } else {
+        // exclu → neutre
+        chip.classList.remove('excluded');
+        var idx = excl.indexOf(item);
+        if (idx !== -1) excl.splice(idx, 1);
+        _saveExclusions(excl);
+        _updateExclBtn();
+      }
+      updateSearchButton();
+      _saveSearchState();
+    });
+  }
+  // Restaurer exclusions persistantes (localStorage)
+  var excl = _loadExclusions();
+  excl.forEach(function(item) {
+    var chip = document.querySelector('.ingredient-chip[data-item="' + item.replace(/"/g, '&quot;') + '"]');
+    if (chip) { chip.classList.remove('selected'); chip.classList.add('excluded'); }
   });
-  container.innerHTML = html;
-  // Délégation d'événement sur le conteneur pour éviter N listeners individuels
-  container.addEventListener('click', function(e) {
-    var chip = e.target.closest('.ingredient-chip');
-    if (!chip) return;
-    chip.classList.toggle('selected');
-    updateSearchButton();
-  });
+  _updateExclBtn();
+  // Restaurer sélection session (retour depuis une fiche)
+  _restoreSearchState();
 }
 
 // Met à jour le bouton Rechercher et le FAB selon la sélection d'ingrédients
@@ -1449,16 +1535,47 @@ function updateSearchButton() {
     : 'Aucun ingrédient sélectionné';
 }
 
-// Remet à zéro toutes les sélections d'ingrédients
+// Réinitialise les sélections (pas les exclusions)
 function resetFilters() {
   document.querySelectorAll('.ingredient-chip.selected').forEach(function(c) { c.classList.remove('selected'); });
+  document.getElementById('search-results').innerHTML = '';
+  sessionStorage.removeItem('searchState');
   updateSearchButton();
+}
+
+// #3 — Sauvegarde sélection + mode en sessionStorage
+function _saveSearchState() {
+  var selected = Array.from(document.querySelectorAll('.ingredient-chip.selected')).map(function(c) {
+    return c.dataset.item || c.textContent.trim();
+  });
+  try {
+    sessionStorage.setItem('searchState', JSON.stringify({ items: selected, mode: searchMode }));
+  } catch(e) {}
+}
+
+// #3 — Restaure la sélection et le mode au retour sur la page
+function _restoreSearchState() {
+  try {
+    var raw = sessionStorage.getItem('searchState');
+    if (!raw) return;
+    var state = JSON.parse(raw);
+    if (state.mode && state.mode !== searchMode) setSearchMode(state.mode);
+    if (state.items && state.items.length) {
+      state.items.forEach(function(item) {
+        var chip = document.querySelector('.ingredient-chip[data-item="' + item.replace(/"/g, '&quot;') + '"]');
+        // Ne pas re-sélectionner un ingrédient exclu
+        if (chip && !chip.classList.contains('excluded')) chip.classList.add('selected');
+      });
+      updateSearchButton();
+      doSearch(true);
+    }
+  } catch(e) {}
 }
 
 // ── Utilitaire : mélange aléatoire Fisher-Yates ───────────────────────────
 // Retourne une COPIE mélangée du tableau (l'original n'est pas modifié).
 function shuffle(arr) {
-  var a = arr.slice(); // copie pour ne pas muter l'original
+  var a = arr.slice();
   for (var i = a.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var t = a[i]; a[i] = a[j]; a[j] = t;
@@ -1467,48 +1584,106 @@ function shuffle(arr) {
 }
 
 // ── 5b. RECHERCHE PAR INGRÉDIENTS ─────────────────────────────────────────
-// Algorithme : score = nb d'ingrédients sélectionnés présents dans c.tags.
-// Les résultats sont groupés par score décroissant, puis mélangés aléatoirement
-// au sein de chaque groupe pour éviter un ordre fixe par ID.
-function doSearch() {
-  var selected = Array.from(document.querySelectorAll('.ingredient-chip.selected')).map(function(c) { return c.dataset.item || c.textContent.trim(); });
+// Mode OR  : cocktail contient AU MOINS UN ingrédient sélectionné (résultats larges)
+// Mode AND : cocktail contient TOUS les ingrédients sélectionnés (filtre strict)
+// silent=true : restauration au retour (pas de scroll forcé)
+function doSearch(silent) {
+  var selected = Array.from(document.querySelectorAll('.ingredient-chip.selected')).map(function(c) {
+    return c.dataset.item || c.textContent.trim();
+  });
   var total = selected.length;
   var container = document.getElementById('search-results');
+  var isAnd = searchMode === 'and';
+
+  _saveSearchState(); // persister avant d'afficher
+
+  // Ingrédients exclus — filtrer dehors tout cocktail qui en contient un
+  var excluded = _loadExclusions();
 
   // Calculer le score de chaque cocktail
   var scored = COCKTAILS.map(function(c) {
     var mc = selected.filter(function(ing) { return c.tags.indexOf(ing) !== -1; }).length;
     return { c: c, mc: mc };
-  }).filter(function(x) { return x.mc > 0; }); // Exclure les zéros
+  }).filter(function(x) {
+    if (excluded.some(function(ex) { return x.c.tags.indexOf(ex) !== -1; })) return false; // contient un ingrédient exclu
+    return isAnd ? x.mc === total : x.mc > 0;
+  });
+
+  // #2 — Récapitulatif : ingrédients sélectionnés + mode
+  var modeLabel = isAnd
+    ? '<span style="background:var(--accent);color:#0C0F1D;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">TOUS</span>'
+    : '<span style="background:var(--surface2);color:var(--text2);padding:2px 8px;border-radius:10px;font-size:11px">AU MOINS UN</span>';
+  var chips = selected.map(function(s) {
+    return '<span style="display:inline-block;padding:2px 8px;background:var(--accent);color:#0C0F1D;border-radius:10px;font-size:11px;font-weight:500;margin:2px">' + s + '</span>';
+  }).join('');
+  var exclChips = excluded.length
+    ? '<div style="margin-top:6px">' + excluded.map(function(s) {
+        return '<span style="display:inline-block;padding:2px 8px;background:rgba(220,60,60,.12);color:#e05555;border:1px solid rgba(220,60,60,.3);border-radius:10px;font-size:11px;margin:2px;text-decoration:line-through">' + s + '</span>';
+      }).join('') + '</div>'
+    : '';
+  var recap = '<div style="margin-bottom:14px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">'
+    + '<div style="font-size:11px;color:var(--text2);margin-bottom:6px">Mode ' + modeLabel + '</div>'
+    + '<div>' + chips + '</div>'
+    + (exclChips ? '<div style="font-size:11px;color:#e05555;margin-top:6px;margin-bottom:2px">Exclus :</div>' + exclChips : '')
+    + '</div>';
 
   if (scored.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="big">🍹</div><p>Aucun cocktail trouvé.<br>Essayez d&#39;autres ingrédients&nbsp;!</p></div>';
+    var tip = isAnd && total > 1 ? '<br><button onclick="setSearchMode(\'or\');doSearch()" style="margin-top:8px;padding:6px 14px;background:var(--accent);color:#0C0F1D;border:none;border-radius:20px;font-size:12px;cursor:pointer">Essayer le mode « Au moins un »</button>' : '';
+    container.innerHTML = recap + '<div class="empty-state"><div class="big">🍹</div><p>Aucun cocktail trouvé.<br>Essayez d\'autres ingrédients&nbsp;!' + tip + '</p></div>';
+    if (!silent) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
 
-  // Trier par score décroissant, aléatoire à l'intérieur de chaque groupe de score égal
+  // Trier par score décroissant, aléatoire au sein de chaque groupe de score égal
   var maxScore = Math.max.apply(null, scored.map(function(x) { return x.mc; }));
   var sorted = [];
   for (var s = maxScore; s >= 1; s--) {
     sorted = sorted.concat(shuffle(scored.filter(function(x) { return x.mc === s; })));
   }
 
-  var html = '<div class="results-count">' + sorted.length + ' cocktail' + (sorted.length > 1 ? 's' : '') + ' trouvé' + (sorted.length > 1 ? 's' : '') + '</div><div class="results-grid">';
+  // Grouper visuellement : correspondance totale vs partielle (mode OR uniquement)
+  var groups = {};
   sorted.forEach(function(x) {
-    var c = x.c;
-    var mc = x.mc;
-    // Affiche le ratio de correspondance seulement si plusieurs ingrédients sélectionnés
-    var matchLabel = total > 1 ? '<span style="color:var(--accent);font-weight:600">✓ ' + mc + '/' + total + '</span>' : '';
-    html += '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
-      + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
-      + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + '</div>'
-      + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + matchLabel + '</div>'
-      + '<div class="recipe-card-tags"><span class="tag diff-' + c.diff + '">' + c.diff + '</span><span class="tag">' + c.cat + '</span></div>'
-      + '</div></div>';
+    var key = x.mc === total ? 'full' : 'partial';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(x);
   });
-  html += '</div>';
+
+  var html = recap
+    + '<div class="results-count">' + sorted.length + ' cocktail' + (sorted.length > 1 ? 's' : '') + ' trouvé' + (sorted.length > 1 ? 's' : '') + '</div>';
+
+  // En mode OR avec plusieurs ingrédients : séparer les groupes
+  if (!isAnd && total > 1 && groups.full && groups.partial) {
+    html += '<div style="font-size:12px;font-weight:600;color:var(--accent);margin:12px 0 6px">✓ Correspondance complète (' + groups.full.length + ')</div>';
+    html += '<div class="results-grid">';
+    groups.full.forEach(function(x) { html += _searchCard(x, total); });
+    html += '</div>';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:16px 0 6px">◐ Correspondance partielle (' + groups.partial.length + ')</div>';
+    html += '<div class="results-grid">';
+    groups.partial.forEach(function(x) { html += _searchCard(x, total); });
+    html += '</div>';
+  } else {
+    html += '<div class="results-grid">';
+    sorted.forEach(function(x) { html += _searchCard(x, total); });
+    html += '</div>';
+  }
+
   container.innerHTML = html;
-  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!silent) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Génère le HTML d'une carte résultat de recherche
+function _searchCard(x, total) {
+  var c = x.c; var mc = x.mc;
+  var matchLabel = total > 1
+    ? '<span style="color:' + (mc === total ? 'var(--accent)' : 'var(--text2)') + ';font-weight:600">✓ ' + mc + '/' + total + '</span>'
+    : '';
+  return '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
+    + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
+    + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + '</div>'
+    + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + matchLabel + '</div>'
+    + '<div class="recipe-card-tags"><span class="tag diff-' + c.diff + '">' + c.diff + '</span><span class="tag">' + c.cat + '</span></div>'
+    + '</div></div>';
 }
 
 // ── 6. CATALOGUE ──────────────────────────────────────────────────────────
