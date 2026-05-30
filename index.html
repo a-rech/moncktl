@@ -992,6 +992,12 @@
       </div>
     </div>
     <div class="form-row">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Créateur / Créatrice</label>
+        <input class="form-input" id="f-creator" type="text" placeholder="Ex : Sophie, Bar Le Zinc…">
+      </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label class="form-label">Catégorie *</label>
         <select class="form-select" id="f-cat">
@@ -1438,15 +1444,19 @@ function saveNote(id, txt) {
 // Système maison basé sur History API pour que le bouton retour natif
 // du navigateur (et du mobile) fonctionne correctement.
 var pageHistory = ['home']; // Pile des pages visitées
+var _scrollSave = {};       // Mémorise la position scroll par page
 
 function navTo(pageId) {
+  // Sauvegarde le scroll de la page courante avant de quitter
+  var cur = pageHistory[pageHistory.length - 1];
+  if (cur) _scrollSave[cur] = window.scrollY;
   showPage(pageId);
   pageHistory.push(pageId);
-  history.pushState({ page: pageId }, '', ''); // Crée une entrée dans l'historique navigateur
+  history.pushState({ page: pageId }, '', '');
 }
 
 function goBack() {
-  pageHistory.pop(); // Retire la page courante
+  pageHistory.pop();
   var prev = pageHistory.length > 0 ? pageHistory[pageHistory.length - 1] : 'home';
   showPage(prev);
   // Pas de pushState ici pour éviter de créer une boucle infinie avec popstate
@@ -1486,7 +1496,14 @@ function showPage(pageId) {
   if (!target) return;
   target.classList.add('active');
   document.getElementById('fab-search').classList.toggle('visible', pageId === 'search');
-  window.scrollTo(0, 0); // Remonte en haut à chaque changement de page
+  // Restaure la position scroll mémorisée si elle existe, sinon remonte en haut
+  var savedY = _scrollSave[pageId];
+  if (savedY) {
+    // Petit délai pour laisser le DOM se rendre avant de scroller
+    requestAnimationFrame(function() { window.scrollTo(0, savedY); });
+  } else {
+    window.scrollTo(0, 0);
+  }
   // Chargement différé : les données ne sont générées qu'au premier affichage
   if (pageId === 'search')   loadIngredientFamilies();
   if (pageId === 'catalogue') loadCatalogueTabs();
@@ -2031,12 +2048,12 @@ function showRecipe(id) {
     + '</div></div>'
     + buildTasteProfile(id)
     + buildStarsHtml(id)
-    + userCreatedBadge(id)
     + '<div class="notes-block">'
     + '<div class="recipe-section-title" style="margin-top:24px;margin-bottom:10px">MES NOTES</div>'
     + '<textarea id="notes-ta-' + id + '" class="notes-textarea" placeholder="Ajoutez vos notes personnelles : dosage préféré, variantes, astuces..." oninput="saveNote(' + id + ', this.value)">' + note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>'
     + '<div id="notes-saved-' + id + '" class="notes-saved">✓ Note sauvegardée</div>'
     + '</div>'
+    + userCreatedBadge(id)
     + buildShareButton(id)
     + buildAdaptButton(id);
   document.getElementById('recipe-content').innerHTML = html;
@@ -3065,6 +3082,7 @@ function adaptRecipe(id) {
 function fillFormFromCocktail(c) {
   document.getElementById('f-emoji').value    = c.emoji      || '🍸';
   document.getElementById('f-title').value    = c.title      || '';
+  document.getElementById('f-creator').value  = c.creator    || '';
   document.getElementById('f-cat').value      = c.cat        || '';
   document.getElementById('f-base').value     = c.baseAlcool || '';
   document.getElementById('f-diff').value     = c.diff       || 'moyen';
@@ -3099,6 +3117,7 @@ function fillFormFromCocktail(c) {
 function resetAddForm() {
   document.getElementById('f-emoji').value    = '🍸';
   document.getElementById('f-title').value    = '';
+  document.getElementById('f-creator').value  = '';
   document.getElementById('f-cat').value      = '';
   document.getElementById('f-base').value     = '';
   document.getElementById('f-diff').value     = 'moyen';
@@ -3263,6 +3282,7 @@ function saveUserCocktail() {
     emoji:       document.getElementById('f-emoji').value.trim() || '🍸',
     cat:         cat,
     baseAlcool:  base,
+    creator:     document.getElementById('f-creator').value.trim() || '',
     diff:        document.getElementById('f-diff').value,
     prep:        parseInt(document.getElementById('f-prep').value)     || 5,
     portions:    parseInt(document.getElementById('f-portions').value) || 1,
@@ -3327,9 +3347,10 @@ function showFormError(msg) {
 // Badge "Ma création" pour afficher à côté du cœur dans le header
 function userCreatedBadgeHeader(id) {
   var stored = lsGet(USER_COCKTAILS_KEY, []);
-  var isUser = stored.some(function(c) { return c.id === id; });
-  if (!isUser) return '';
-  return '<span class="user-recipe-badge" style="margin-left:12px;padding:6px 12px;background:var(--accent);color:#0C0F1D;border-radius:6px;font-size:12px;font-weight:500;">◆ Ma création</span>';
+  var c = stored.filter(function(c) { return c.id === id; })[0];
+  if (!c) return '';
+  var creatorPart = c.creator ? ' &nbsp;<span style="font-weight:400;opacity:.8">de&nbsp;' + c.creator + '</span>' : '';
+  return '<span class="user-recipe-badge" style="margin-left:12px;padding:6px 12px;background:var(--accent);color:#0C0F1D;border-radius:6px;font-size:12px;font-weight:500;">◆ Ma création' + creatorPart + '</span>';
 }
 
 // Bouton supprimer pour les recettes créées (affichage en bas de fiche)
@@ -3337,14 +3358,29 @@ function userCreatedBadgeBottom(id) {
   var stored = lsGet(USER_COCKTAILS_KEY, []);
   var isUser = stored.some(function(c) { return c.id === id; });
   if (!isUser) return '';
-  return '<div style="margin-top:20px;">'
-    + '<button class="back-btn" style="margin:0;font-size:13px;padding:8px 16px;color:var(--hard);border-color:var(--hard)" onclick="deleteUserCocktail(' + id + ')">🗑 Supprimer cette recette</button>'
+  return '<div style="margin-top:20px;display:flex;gap:8px;">'
+    + '<button class="back-btn" style="margin:0;font-size:13px;padding:8px 16px;flex:1" onclick="editUserCocktail(' + id + ')">✏️ Modifier</button>'
+    + '<button class="back-btn" style="margin:0;font-size:13px;padding:8px 16px;flex:1;color:var(--hard);border-color:var(--hard)" onclick="deleteUserCocktail(' + id + ')">🗑 Supprimer</button>'
     + '</div>';
 }
 
 // Compatibilité rétroactive (ancien nom)
 function userCreatedBadge(id) {
   return userCreatedBadgeBottom(id);
+}
+
+// Ouvre le formulaire en mode édition sur une recette création existante.
+// editingId positionné → saveUserCocktail() écrasera la recette sans doublon.
+function editUserCocktail(id) {
+  var stored = lsGet(USER_COCKTAILS_KEY, []);
+  var c = stored.filter(function(c) { return c.id === id; })[0];
+  if (!c) return;
+  editingId = id;
+  fillFormFromCocktail(c);
+  var badge = document.getElementById('form-source-badge');
+  badge.style.display = 'none';
+  document.getElementById('form-title-label').textContent = 'Modifier : ' + c.title;
+  navTo('add-form');
 }
 
 function buildAdaptButton(id) {
