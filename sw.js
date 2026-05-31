@@ -8,7 +8,7 @@
      les fichiers sur GitHub. L'app affichera le bouton "🔄 Mettre à jour".
    ════════════════════════════════════════════════════════════════════════ */
 
-const CACHE_VERSION = 'moncktl-v3.1.4';
+const CACHE_VERSION = 'moncktl-v3.1.5';
 
 // Les chemins sont résolus dynamiquement depuis le scope du SW,
 // indépendamment du nom du dépôt GitHub.
