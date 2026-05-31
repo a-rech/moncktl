@@ -843,20 +843,24 @@
   <div class="section-title">Recherche par ingrédients</div>
   <p class="section-sub">Cochez vos ingrédients préférés pour trouver le cocktail idéal</p>
 
+  <!-- MODE DE RECHERCHE (désactivé — réactiver en décommentant)
   <div class="search-mode-bar" id="mode-bar-top">
     <span style="font-size:12px;color:var(--text2)">Mode :</span>
     <button id="search-mode-or-top"  onclick="setSearchMode('or')"  class="search-mode-btn active">Au moins un</button>
     <button id="search-mode-and-top" onclick="setSearchMode('and')" class="search-mode-btn">Tous les ingrédients</button>
     <span style="font-size:11px;color:var(--text3);margin-left:4px">· 1 tap ✓&nbsp;&nbsp;2 taps ✕ exclure</span>
   </div>
+  -->
 
   <div class="families-grid" id="families-container"></div>
 
+  <!-- MODE DE RECHERCHE bas de page (désactivé — réactiver en décommentant)
   <div class="search-mode-bar" id="mode-bar-bottom" style="margin-bottom:12px">
     <span style="font-size:12px;color:var(--text2)">Mode :</span>
     <button id="search-mode-or-bot"  onclick="setSearchMode('or')"  class="search-mode-btn active">Au moins un</button>
     <button id="search-mode-and-bot" onclick="setSearchMode('and')" class="search-mode-btn">Tous les ingrédients</button>
   </div>
+  -->
 
   <div class="search-actions">
     <button class="btn btn-primary" id="btn-search" onclick="doSearch()" disabled>Rechercher</button>
@@ -1041,10 +1045,10 @@
         <input class="form-input" id="f-portions" type="number" min="1" max="20" value="1">
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
+    <div class="form-row" style="align-items:flex-end">
+      <div class="form-group" style="flex:1">
         <label class="form-label">Verre *</label>
-        <select class="form-select" id="f-glass">
+        <select class="form-select" id="f-glass" onchange="updateGlassPreview()">
           <option value="">— Choisir —</option>
           <option>Highball</option><option>Collins</option><option>Rocks</option>
           <option>Martini</option><option>Coupe</option><option>Flûte</option>
@@ -1054,6 +1058,7 @@
           <option>Julep cup</option><option>Punch bowl</option><option>Verre à pied</option>
         </select>
       </div>
+      <div id="glass-preview-form" style="display:flex;align-items:center;justify-content:center;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;min-width:64px;min-height:64px;flex-shrink:0"></div>
     </div>
   </div>
 
@@ -2029,6 +2034,7 @@ function showRecipe(id) {
     + '<span class="rt-txt">' + (isTested(id) ? 'Déjà testé' : 'Marquer comme testé') + '</span>'
     + '</button>'
     + '</div>'
+    + buildStarsInline(id)
     + '<div class="recipe-infos">'
     + '<div class="info-block"><div class="info-label">PRÉPARATION</div><div class="info-val">' + c.prep + ' min</div></div>'
     + '<div class="info-block"><div class="info-label">VERRE</div><div class="info-val">' + glassSvg + '</div></div>'
@@ -2048,7 +2054,6 @@ function showRecipe(id) {
     + '<ol class="steps-list">' + stepsHtml + '</ol>'
     + '</div></div>'
     + buildTasteProfile(id)
-    + buildStarsHtml(id)
     + '<div class="notes-block">'
     + '<div class="recipe-section-title" style="margin-top:24px;margin-bottom:10px">MES NOTES</div>'
     + '<textarea id="notes-ta-' + id + '" class="notes-textarea" placeholder="Ajoutez vos notes personnelles : dosage préféré, variantes, astuces..." oninput="saveNote(' + id + ', this.value)">' + note.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>'
@@ -2242,14 +2247,9 @@ function setRating(id, stars) {
 
 // Met à jour l'affichage des étoiles sans recharger la fiche
 function refreshStarsUI(id) {
+  resetStarsInline(id);
+  var hint = document.getElementById('rating-hint-' + id);
   var r = getRating(id);
-  var row = document.getElementById('stars-' + id);
-  if (!row) return;
-  row.querySelectorAll('.star').forEach(function(s, i) {
-    s.classList.toggle('on', i < r);
-    s.textContent = i < r ? '★' : '☆';
-  });
-  var hint = row.parentElement.querySelector('.rating-hint');
   if (hint) hint.textContent = r > 0 ? ['','⭐ Décevant','👍 Correct','😊 Bon','🔥 Excellent','🏆 Parfait'][r] : '';
 }
 
@@ -2267,22 +2267,48 @@ function hoverStars(id, n) {
 function resetStars(id) { refreshStarsUI(id); }
 
 // Construit le bloc HTML complet de notation inséré dans la fiche recette
-function buildStarsHtml(id) {
+// Ancien bloc conservé en stub — remplacé par buildStarsInline
+function buildStarsHtml(id) { return ''; }
+
+// Ligne compacte "Note ★★★★☆ 🔥 Excellent" sur une seule ligne
+function buildStarsInline(id) {
   var r = getRating(id);
-  var html = '<div class="rating-section">'
-    + '<div class="rating-label">MA NOTE</div>'
-    + '<div id="stars-' + id + '" class="star-row">';
+  var html = '<div class="rating-inline" style="display:flex;align-items:center;gap:8px;'
+    + 'width:100%;padding:8px 14px;margin-top:6px;margin-bottom:2px;'
+    + 'background:var(--surface);border:1px solid var(--border);border-radius:10px;box-sizing:border-box;">'
+    + '<span style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:500;white-space:nowrap">Note</span>'
+    + '<div id="stars-' + id + '" style="display:flex;gap:2px">';
   for (var i = 1; i <= 5; i++) {
-    html += '<span class="star' + (i <= r ? ' on' : '') + '"'
+    html += '<span style="font-size:22px;cursor:pointer;line-height:1;color:' + (i <= r ? '#f5a623' : 'var(--border)') + '"'
       + ' onclick="setRating(' + id + ',' + i + ')"'
-      + ' onmouseover="hoverStars(' + id + ',' + i + ')"'
-      + ' onmouseout="resetStars(' + id + ')">'
+      + ' onmouseover="hoverStarsInline(' + id + ',' + i + ')"'
+      + ' onmouseout="resetStarsInline(' + id + ')">'
       + (i <= r ? '★' : '☆') + '</span>';
   }
-  html += '</div><span class="rating-hint">'
+  html += '</div>'
+    + '<span id="rating-hint-' + id + '" style="font-size:12px;color:var(--text2);margin-left:4px">'
     + (r > 0 ? ['','⭐ Décevant','👍 Correct','😊 Bon','🔥 Excellent','🏆 Parfait'][r] : '')
     + '</span></div>';
   return html;
+}
+
+function hoverStarsInline(id, n) {
+  var stars = document.getElementById('stars-' + id);
+  if (!stars) return;
+  stars.querySelectorAll('span').forEach(function(s, i) {
+    s.style.color = i < n ? '#f5a623' : 'var(--border)';
+    s.textContent = i < n ? '★' : '☆';
+  });
+}
+
+function resetStarsInline(id) {
+  var r = getRating(id);
+  var stars = document.getElementById('stars-' + id);
+  if (!stars) return;
+  stars.querySelectorAll('span').forEach(function(s, i) {
+    s.style.color = i < r ? '#f5a623' : 'var(--border)';
+    s.textContent = i < r ? '★' : '☆';
+  });
 }
 
 // Version miniature pour les cartes du catalogue : n'affiche que si noté
@@ -3090,6 +3116,7 @@ function fillFormFromCocktail(c) {
   document.getElementById('f-prep').value     = c.prep       || 5;
   document.getElementById('f-portions').value = c.portions   || 1;
   document.getElementById('f-glass').value    = c.glass      || '';
+  updateGlassPreview();
 
   // Profil gustatif : depuis l'objet profile ou depuis PROFILES global
   var p = c.profile || PROFILES[c.id] || { s:2, b:1, a:3 };
@@ -3115,6 +3142,22 @@ function fillFormFromCocktail(c) {
   renderTagChips();
 }
 
+// Affiche l'icône SVG du verre sélectionné dans le formulaire de création
+function updateGlassPreview() {
+  var sel = document.getElementById('f-glass');
+  var box = document.getElementById('glass-preview-form');
+  if (!sel || !box) return;
+  var v = sel.value;
+  if (!v) {
+    box.innerHTML = '';
+    return;
+  }
+  box.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'
+    + '<span>' + glassIcon(v, 36, 52) + '</span>'
+    + '<span style="font-size:10px;color:var(--text3);text-align:center;max-width:60px;line-height:1.2">' + v + '</span>'
+    + '</div>';
+}
+
 function resetAddForm() {
   document.getElementById('f-emoji').value    = '🍸';
   document.getElementById('f-title').value    = '';
@@ -3125,6 +3168,8 @@ function resetAddForm() {
   document.getElementById('f-prep').value     = '5';
   document.getElementById('f-portions').value = '1';
   document.getElementById('f-glass').value    = '';
+  var gpf = document.getElementById('glass-preview-form');
+  if (gpf) gpf.innerHTML = '';
   document.getElementById('f-sweet').value    = '2';
   document.getElementById('f-bitter').value   = '1';
   document.getElementById('f-alco').value     = '3';
