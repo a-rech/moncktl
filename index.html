@@ -152,18 +152,18 @@
     #btn-reset-filters:hover{background:var(--accent);color:#0C0F1D;}
     /* FICHE RECETTE */
     #page-recipe{max-width:800px;}
-    .recipe-header{margin-bottom:24px;}
+    .recipe-header{margin-bottom:16px;}
     .recipe-hero-img{height:200px;border-radius:var(--radius);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:76px;margin-bottom:20px;}
     .recipe-title-row{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;}
     .recipe-big-title{font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,34px);font-weight:700;flex:1;color:var(--text);}
     .recipe-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
-    .recipe-infos{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:18px 0;}
+    .recipe-infos{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0 20px;}
     .info-block{flex:1;min-width:90px;padding:12px 16px;border-right:1px solid var(--border);text-align:center;}
     .info-block:last-child{border-right:none;}
     .info-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:3px;}
     .info-val{font-size:17px;font-weight:500;color:var(--text);}
     .info-val select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;}
-    .recipe-body{display:grid;grid-template-columns:1fr 2fr;gap:28px;}
+    .recipe-body{display:grid;grid-template-columns:1fr 2fr;gap:24px;}
     @media(max-width:600px){.recipe-body{grid-template-columns:1fr;}}
     .recipe-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:500;margin-bottom:12px;}
     .ingredients-list{list-style:none;}
@@ -231,14 +231,14 @@
     .fav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border-radius:8px;background:#E05C5C;color:#fff;font-size:10px;font-weight:700;padding:0 4px;margin-left:3px;vertical-align:middle;}
     .fav-badge.hidden{display:none;}
     /* Bouton like sur la fiche recette */
-    .recipe-like-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;margin-top:14px;font-family:'DM Sans',sans-serif;}
+    .recipe-like-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;font-family:'DM Sans',sans-serif;}
     .recipe-like-btn:hover{border-color:#E05C5C;color:#E05C5C;}
     .recipe-like-btn.liked{border-color:#E05C5C;color:#E05C5C;background:rgba(224,92,92,0.12);}
-    .recipe-tested-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;margin-top:14px;font-family:'DM Sans',sans-serif;}
+    .recipe-tested-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;font-family:'DM Sans',sans-serif;}
     .recipe-tested-btn:hover{border-color:#7B68EE;color:#7B68EE;}
     .recipe-tested-btn.tested{border-color:#7B68EE;color:#7B68EE;background:rgba(123,104,238,0.12);}
     /* ============ NOTES ============ */
-    .notes-block{margin-top:24px;}
+    .notes-block{margin-top:28px;}
     .notes-block .recipe-section-title{margin-bottom:10px;}
     .notes-textarea{width:100%;min-height:90px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);resize:vertical;outline:none;transition:border-color .2s;line-height:1.6;}
     .notes-textarea:focus{border-color:var(--accent);}
@@ -1993,6 +1993,7 @@ function showRecipe(id) {
   var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
   if (!c) return;
   navTo('recipe');
+  _scrollSave['recipe'] = 0; // la fiche repart toujours du haut
   var note = getNote(id);
   var ingHtml = '';
   c.ingredients.forEach(function(ing) {
@@ -2012,22 +2013,22 @@ function showRecipe(id) {
   var html = '<div class="recipe-header">'
     + '<div class="recipe-hero-img">' + c.emoji + '</div>'
     + '<h1 class="recipe-big-title" style="width:100%;margin:16px 0 8px 0;padding:0">' + c.title + '</h1>'
-    + '<div class="recipe-badges" style="width:100%;margin-bottom:16px">'
+    + '<div class="recipe-badges" style="width:100%;margin-bottom:14px">'
     + '<span class="tag diff-' + c.diff + '">' + c.diff + '</span>'
     + '<span class="tag">' + c.cat + '</span>'
     + '<span class="tag">🥃 ' + c.baseAlcool + '</span>'
     + '</div>'
-    + '<div style="display:flex;gap:8px;width:100%;margin-bottom:4px">'
-    + '<button id="recipe-like-btn" class="recipe-like-btn' + (faved ? ' liked' : '') + '" data-id="' + id + '" onclick="onLikeCard(event,' + id + ')" style="flex:1">'
+    + userCreatedBadgeHeader(id)
+    + '<div style="display:flex;gap:8px;width:100%;margin-top:4px;margin-bottom:4px">'
+    + '<button id="recipe-like-btn" class="recipe-like-btn' + (faved ? ' liked' : '') + '" data-id="' + id + '" onclick="onLikeCard(event,' + id + ')" style="flex:1;margin-top:0">'
     + '<span class="rl-ico">' + (faved ? '❤️' : '🤍') + '</span>'
     + '<span class="rl-txt">' + (faved ? 'Retirer des favoris' : 'Ajouter aux favoris') + '</span>'
     + '</button>'
-    + '<button id="recipe-tested-btn" class="recipe-tested-btn' + (isTested(id) ? ' tested' : '') + '" data-id="' + id + '" onclick="toggleTested(' + id + ')" style="flex:1">'
+    + '<button id="recipe-tested-btn" class="recipe-tested-btn' + (isTested(id) ? ' tested' : '') + '" data-id="' + id + '" onclick="toggleTested(' + id + ')" style="flex:1;margin-top:0">'
     + '<span class="rt-ico">' + (isTested(id) ? '☑️' : '⬜') + '</span>'
     + '<span class="rt-txt">' + (isTested(id) ? 'Déjà testé' : 'Marquer comme testé') + '</span>'
     + '</button>'
     + '</div>'
-    + userCreatedBadgeHeader(id)
     + '<div class="recipe-infos">'
     + '<div class="info-block"><div class="info-label">PRÉPARATION</div><div class="info-val">' + c.prep + ' min</div></div>'
     + '<div class="info-block"><div class="info-label">VERRE</div><div class="info-val">' + glassSvg + '</div></div>'
@@ -2035,11 +2036,11 @@ function showRecipe(id) {
     + '</div></div>'
     + '<div class="recipe-body">'
     + '<div>'
-    + '<div class="recipe-section-title">INGRÉDIENTS</div>'
+    + '<div class="recipe-section-title" style="margin-top:4px">INGRÉDIENTS</div>'
     + '<ul class="ingredients-list" id="ingredients-list-' + id + '">' + ingHtml + '</ul>'
-    + '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'
-    + '<button onclick="copyIngredients(' + id + ')" id="copy-ing-btn-' + id + '" style="padding:5px 12px;background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s">📋 Copier la liste</button>'
-    + '<button onclick="enterSoireeMode(' + id + ')" style="padding:5px 12px;background:transparent;color:var(--text3);border:1px solid var(--border);border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
+    + '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">'
+    + '<button onclick="copyIngredients(' + id + ')" id="copy-ing-btn-' + id + '" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">📋 Copier la liste</button>'
+    + '<button onclick="enterSoireeMode(' + id + ')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
     + '</div>'
     + '</div>'
     + '<div>'
@@ -3349,8 +3350,11 @@ function userCreatedBadgeHeader(id) {
   var stored = lsGet(USER_COCKTAILS_KEY, []);
   var c = stored.filter(function(c) { return c.id === id; })[0];
   if (!c) return '';
-  var creatorPart = c.creator ? ' &nbsp;<span style="font-weight:400;opacity:.8">de&nbsp;' + c.creator + '</span>' : '';
-  return '<span class="user-recipe-badge" style="margin-left:12px;padding:6px 12px;background:var(--accent);color:#0C0F1D;border-radius:6px;font-size:12px;font-weight:500;">◆ Ma création' + creatorPart + '</span>';
+  var creatorPart = c.creator ? '<span style="font-weight:400;opacity:.85;margin-left:6px">de ' + c.creator + '</span>' : '';
+  return '<div style="width:100%;margin-bottom:10px">'
+    + '<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;background:var(--accent);color:#0C0F1D;border-radius:8px;font-size:13px;font-weight:600;">'
+    + '◆ Création' + creatorPart
+    + '</span></div>';
 }
 
 // Bouton supprimer pour les recettes créées (affichage en bas de fiche)
@@ -3497,6 +3501,7 @@ function buildReadableRecipeText(c, note, userStars) {
   }
   
   var text = c.emoji + ' ' + c.title + '\n';
+  if (c.creator) text += '✦ Création de ' + c.creator + '\n';
   text += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
   text += c.diff + ' | ' + c.baseAlcool + ' | ' + c.cat + '\n';
   text += '⏱️  ' + c.prep + ' min | 🥃 ' + c.glass + ' | 👥 ' + c.portions + ' portion(s)\n';
@@ -3593,7 +3598,8 @@ function exportRecipeData(c, note, userStars) {
     pf: profile,   // profile
     nt: note || '', // note
     sr: userStars || 0,  // stars rating
-    uc: c.userCreated || false  // user created
+    uc: c.userCreated || false,  // user created
+    cr: c.creator || ''          // creator
   };
 }
 
@@ -4215,7 +4221,8 @@ function normalizeImportedData(data) {
     profile: data.pf || data.profile || {s:2, b:1, a:3},
     userNote: data.nt || data.userNote || '',
     userStars: data.sr || data.userStars || 0,
-    userCreated: data.uc !== undefined ? data.uc : (data.userCreated || false)
+    userCreated: data.uc !== undefined ? data.uc : (data.userCreated || false),
+    creator: data.cr || data.creator || ''
   };
   
   return normalized;
