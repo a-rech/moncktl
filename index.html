@@ -462,6 +462,48 @@
       .prefs-overlay.open .prefs-panel { transform: translate(-50%, 0); }
       .prefs-handle { display: none; }
     }
+    /* ── BAR EXPÉRIMENTAL ─────────────────────────────────────────────── */
+    .bar-header { text-align:center; padding:28px 0 20px; }
+    .bar-header .bar-title { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--text); }
+    .bar-header .bar-sub { color:var(--text2); font-size:13px; margin-top:6px; }
+    .bar-saved-badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--easy); background:rgba(93,184,118,.12); border:1px solid rgba(93,184,118,.25); border-radius:20px; padding:4px 12px; margin-bottom:16px; }
+    .bar-family-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; }
+    .bar-family-label { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+    .bar-chips { display:flex; flex-wrap:wrap; gap:5px; }
+    .bar-chip { display:inline-flex; align-items:center; padding:5px 10px; border-radius:20px; border:1px solid var(--border); background:var(--bg); font-size:12px; cursor:pointer; transition:all .15s; user-select:none; color:var(--text2); gap:5px; }
+    .bar-chip.on { background:var(--accent); color:#0C0F1D; border-color:var(--accent); font-weight:500; }
+    .bar-chip:hover:not(.on) { border-color:var(--accent); color:var(--accent); }
+    .bar-chip .chip-del { font-size:10px; opacity:.6; display:none; }
+    .bar-chip.custom .chip-del { display:inline; }
+    .bar-add-form { display:flex; gap:6px; margin-top:10px; }
+    .bar-add-input { flex:1; padding:6px 10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+    .bar-add-input:focus { border-color:var(--accent); }
+    .bar-add-btn { padding:6px 12px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:13px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+    .bar-add-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .bar-reset-btn { display:flex; align-items:center; gap:6px; padding:7px 14px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text3); font-size:12px; cursor:pointer; transition:all .15s; }
+    .bar-reset-btn:hover { border-color:#E05C5C; color:#E05C5C; }
+    .bar-go-btn { display:block; width:100%; margin:24px 0 8px; padding:18px; border-radius:16px; border:none; cursor:pointer; font-family:'Playfair Display',serif; font-size:20px; font-weight:700; background:linear-gradient(135deg,var(--accent),#c99c3a); color:#0C0F1D; box-shadow:0 4px 24px rgba(212,170,74,.35); transition:all .2s; text-align:center; }
+    .bar-go-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(212,170,74,.45); }
+    .bar-go-btn:active { transform:translateY(0); }
+    /* Page générateur */
+    .gen-disclaimer { margin:16px 0 24px; padding:14px 16px; background:rgba(212,170,74,.08); border:1px solid rgba(212,170,74,.2); border-radius:12px; font-size:13px; color:var(--text2); line-height:1.5; text-align:center; }
+    .gen-result-area { display:none; }
+    .gen-result-area.visible { display:block; }
+    .gen-cat-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; }
+    .gen-cat-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--accent); margin-bottom:12px; }
+    .gen-items { display:flex; flex-direction:column; gap:8px; }
+    .gen-item { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .gen-item-name { font-size:16px; font-weight:500; color:var(--text); flex:1; }
+    .gen-item-reroll { padding:5px 10px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; }
+    .gen-item-reroll:hover { border-color:var(--accent); color:var(--accent); }
+    .gen-add-btn { display:flex; align-items:center; gap:5px; padding:5px 10px; background:transparent; border:1px dashed var(--border); border-radius:8px; color:var(--text3); font-size:12px; cursor:pointer; transition:all .15s; margin-top:4px; }
+    .gen-add-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .gen-add-btn.hidden { display:none; }
+    .gen-reroll-btn { display:block; width:100%; margin-top:20px; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text2); font-size:15px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
+    .gen-reroll-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .gen-nav-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; background:transparent; border:1px solid var(--border); border-radius:10px; color:var(--text2); font-size:13px; cursor:pointer; transition:all .15s; }
+    .gen-nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+
     /* Onglet installation */
     .install-link-box {
       background: var(--surface2); border: 1px solid var(--border);
@@ -1254,6 +1296,69 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE BAR-STOCK — Sélection des ingrédients disponibles
+     ══════════════════════════════════════════════════════════════ -->
+<div id="page-bar-stock" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+    <button class="gen-nav-btn" onclick="navTo('bar-gen')" id="btn-goto-gen" style="display:none">Générer ✨</button>
+    <button class="bar-reset-btn" onclick="barResetStock()" style="margin-left:auto">🗑 Réinitialiser</button>
+  </div>
+  <div class="bar-header">
+    <div class="bar-title">🧪 Mon bar</div>
+    <div class="bar-sub">Cochez ce que vous avez à disposition</div>
+  </div>
+  <div id="bar-saved-badge" class="bar-saved-badge" style="display:none">✓ Sélection sauvegardée</div>
+  <div id="bar-families-container"></div>
+  <button class="bar-go-btn" id="bar-go-btn" onclick="barGoGenerate()">🪄 Laissons la magie opérer</button>
+  <p style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:32px">Appuyez pour générer une recette expérimentale</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE BAR-GEN — Générateur de recette expérimentale
+     ══════════════════════════════════════════════════════════════ -->
+<div id="page-bar-gen" class="page">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+    <button class="gen-nav-btn" onclick="navTo('bar-stock')">← Mon bar</button>
+  </div>
+  <div class="bar-header">
+    <div class="bar-title">✨ Recette expérimentale</div>
+    <div class="bar-sub" id="gen-tagline">Votre combinaison du moment</div>
+  </div>
+  <div class="gen-disclaimer">
+    ⚠️ Ces combinaisons sont générées aléatoirement — on décline toute responsabilité pour les résultats… surprenants 😅<br>
+    <span style="font-size:11px;opacity:.7">Cliquez 🔀 pour relancer un ingrédient, ou + pour en ajouter un.</span>
+  </div>
+  <div id="gen-result-area" class="gen-result-area">
+    <div class="gen-cat-block">
+      <div class="gen-cat-label">🥃 Alcool de base</div>
+      <div class="gen-items" id="gen-items-alcool"></div>
+      <button class="gen-add-btn" id="gen-addbtn-alcool" onclick="genAddItem('alcool')">+ ajouter</button>
+    </div>
+    <div class="gen-cat-block">
+      <div class="gen-cat-label">🍋 Jus &amp; acidité</div>
+      <div class="gen-items" id="gen-items-acide"></div>
+      <button class="gen-add-btn" id="gen-addbtn-acide" onclick="genAddItem('acide')">+ ajouter</button>
+    </div>
+    <div class="gen-cat-block">
+      <div class="gen-cat-label">🍯 Sucrant</div>
+      <div class="gen-items" id="gen-items-sucrant"></div>
+      <button class="gen-add-btn" id="gen-addbtn-sucrant" onclick="genAddItem('sucrant')">+ ajouter</button>
+    </div>
+    <div class="gen-cat-block">
+      <div class="gen-cat-label">🫧 Diluant</div>
+      <div class="gen-items" id="gen-items-diluant"></div>
+      <button class="gen-add-btn" id="gen-addbtn-diluant" onclick="genAddItem('diluant')">+ ajouter</button>
+    </div>
+    <div class="gen-cat-block">
+      <div class="gen-cat-label">🌿 Herbes &amp; condiments</div>
+      <div class="gen-items" id="gen-items-condiment"></div>
+      <button class="gen-add-btn" id="gen-addbtn-condiment" onclick="genAddItem('condiment')">+ ajouter</button>
+    </div>
+    <button class="gen-reroll-btn" onclick="barGoGenerate()">🔀 Nouvelle combinaison</button>
+  </div>
+</div>
+
 <script>
 /* ════════════════════════════════════════════════════════════════════════════
    MonCocktail — JavaScript principal
@@ -1275,6 +1380,7 @@
     14. Lexique (LEXIQUE, openLexique, setLexTab, renderLexique, toggleLexItem)
     15. Données statiques (FAMILIES, COCKTAILS)
     16. Initialisation (window.onload)
+    17. Bar Expérimental (barGoGenerate, barPool, barGenerate, genRerollItem…)
    ════════════════════════════════════════════════════════════════════════════ */
 
 // ── 1. HELPERS localStorage ───────────────────────────────────────────────
@@ -1514,6 +1620,7 @@ function showPage(pageId) {
   if (pageId === 'catalogue') loadCatalogueTabs();
   if (pageId === 'random')   pickRandom();
   if (pageId === 'lexique')  renderLexique();
+  if (pageId === 'bar-stock') loadBarStock();
 }
 
 function goHome() { navTo('home'); }
@@ -1935,6 +2042,13 @@ function execCatSearch() {
     navTo('add-entry');
     return;
   }
+  // 🧪 Easter egg : accès au bar expérimental
+  if (query.toLowerCase() === 'bar') {
+    document.getElementById('cat-search-input').value = '';
+    document.getElementById('cat-search-clear').style.display = 'none';
+    navTo('bar-stock');
+    return;
+  }
   if (!query) { loadCatalogueTabs(); return; } // Barre vide → retour au catalogue normal
   var q = query.toLowerCase();
   // Recherche partielle (indexOf) dans 4 champs : titre, tags, alcool de base, catégorie
@@ -2092,6 +2206,374 @@ function updateQuantities(id) {
   });
 }
 
+
+// ── 17. BAR EXPÉRIMENTAL ──────────────────────────────────────────────────
+// Easter egg : accessible via "bar" dans la recherche catalogue.
+// Deux pages : bar-stock (sélection ingrédients) + bar-gen (générateur).
+// Les sélections cochées persistent en localStorage (BAR_STOCK_KEY).
+// Les items custom ajoutés persistent aussi (BAR_CUSTOM_KEY).
+
+var BAR_STOCK_KEY   = 'mc_bar_stock_v1';   // Set d'ingrédients cochés
+var BAR_CUSTOM_KEY  = 'mc_bar_custom_v1';  // Items custom par catégorie {catId:[...]}
+var BAR_STOCK_BUILT = false;               // Guard : construire le DOM une seule fois
+
+// ── Données du bar : catégories et pools ─────────────────────────────────
+
+var BAR_CATS = [
+  { id:'alcools',  label:'Alcools forts',      icon:'🥃',
+    items:['Vodka','Rhum blanc','Rhum ambré','Gin','Whisky bourbon','Scotch','Tequila','Mezcal','Cognac','Cachaça'] },
+  { id:'liqueurs', label:'Liqueurs & Amers',   icon:'🍶',
+    items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de menthe','St-Germain','Grand Marnier','Chambord'] },
+  { id:'vins',     label:'Champagne & Vins',   icon:'🥂',
+    items:['Champagne','Prosecco','Vermouth dry','Vermouth rosso'] },
+  { id:'jus',      label:'Jus & Purées',       icon:'🍊',
+    items:["Jus de citron","Jus de citron vert","Jus d'orange","Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Purée de passion","Purée de pêche"] },
+  { id:'sodas',    label:'Sodas & Tonics',     icon:'🫧',
+    items:['Coca-Cola','Eau gazeuse','Tonic water','Ginger beer','Ginger ale','Limonade'] },
+  { id:'sirops',   label:'Sirops & Sucres',    icon:'🍯',
+    items:["Sirop de sucre de canne","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Miel","Angostura bitters"] },
+  { id:'herbes',   label:'Herbes & Fruits',    icon:'🌿',
+    items:["Menthe fraîche","Basilic","Citron vert frais","Citron jaune frais","Orange fraîche","Fraise fraîche","Concombre","Ananas frais"] },
+  { id:'epices',   label:'Épices & Condiments',icon:'🌶️',
+    items:["Sel","Tabasco","Sauce Worcestershire","Cannelle","Noix de muscade","Poivre noir"] },
+];
+
+// ── Règles de compatibilité ───────────────────────────────────────────────
+// Pour chaque role du générateur, quelles catégories du bar sont éligibles,
+// et quelles familles d'alcool imposent des exclusions.
+
+var GEN_ROLES = {
+  alcool:    { label:'🥃 Alcool de base',    cats:['alcools','liqueurs','vins'],    min:1, max:2 },
+  acide:     { label:'🍋 Jus & acidité',     cats:['jus'],                          min:1, max:2 },
+  sucrant:   { label:'🍯 Sucrant',           cats:['sirops','liqueurs'],            min:1, max:2 },
+  diluant:   { label:'🫧 Diluant',           cats:['sodas'],                        min:0, max:1 },
+  condiment: { label:'🌿 Herbes & condiments',cats:['herbes','epices'],             min:1, max:2 },
+};
+
+// Paires incompatibles : si l'alcool contient l'un des mots clés, exclure les items de la liste
+var INCOMPAT = [
+  { alcool:'Baileys',     exclude:['Jus de citron','Jus de citron vert','Jus de pamplemousse','Coca-Cola','Tonic water','Tabasco','Sauce Worcestershire'] },
+  { alcool:'Campari',     exclude:["Sirop de fraise","Sirop de framboise","Baileys","Purée de pêche"] },
+  { alcool:'Aperol',      exclude:["Sirop de fraise","Sirop de framboise","Baileys"] },
+  { alcool:'Whisky',      exclude:['Coca-Cola','Limonade','Lait de coco','Purée de mangue','Sirop de fraise'] },
+  { alcool:'Scotch',      exclude:['Coca-Cola','Limonade','Sirop de fraise','Purée de mangue'] },
+  { alcool:'Mezcal',      exclude:["Jus d'ananas","Purée de pêche","Sirop de framboise"] },
+  { alcool:'Tequila',     exclude:['Coca-Cola','Ginger ale'] },
+  { alcool:'Cognac',      exclude:['Ginger beer','Tabasco','Sauce Worcestershire','Sirop de fraise'] },
+  { alcool:'Champagne',   exclude:['Tabasco','Sauce Worcestershire','Tonic water','Ginger beer','Coca-Cola'] },
+  { alcool:'Prosecco',    exclude:['Tabasco','Sauce Worcestershire','Tonic water','Ginger beer','Coca-Cola'] },
+  { alcool:'Vermouth',    exclude:['Tabasco','Sauce Worcestershire','Coca-Cola','Ginger beer'] },
+];
+
+// Messages rigolos pour le gros bouton
+var BAR_TAGLINES = [
+  "🪄 Laissons la magie opérer",
+  "🎲 Le hasard a du goût… parfois",
+  "🔬 Expérience en cours…",
+  "🌀 Ça va être… intéressant",
+  "⚗️ La science du cocktail",
+  "🃏 Tirage au sort spiritueux",
+  "🎰 Jackpot ou désastre ?",
+  "🌪️ Tourbillon de saveurs",
+  "🧙 L'alchimiste a la parole",
+  "🚀 Mission cocktail lancée",
+];
+
+function barRandTagline() {
+  return BAR_TAGLINES[Math.floor(Math.random() * BAR_TAGLINES.length)];
+}
+
+// ── Chargement / sauvegarde état ──────────────────────────────────────────
+
+function barGetChecked() { return lsGet(BAR_STOCK_KEY, []); }
+function barSetChecked(arr) { lsSet(BAR_STOCK_KEY, arr); }
+function barGetCustom() { return lsGet(BAR_CUSTOM_KEY, {}); }
+function barSetCustom(obj) { lsSet(BAR_CUSTOM_KEY, obj); }
+
+// ── Construction de la page bar-stock ────────────────────────────────────
+
+function loadBarStock() {
+  if (BAR_STOCK_BUILT) { barRefreshBadge(); return; }
+  BAR_STOCK_BUILT = true;
+  var checked = barGetChecked();
+  var custom  = barGetCustom();
+  var container = document.getElementById('bar-families-container');
+  var html = '';
+  BAR_CATS.forEach(function(cat) {
+    var allItems = cat.items.concat(custom[cat.id] || []);
+    html += '<div class="bar-family-block" data-catid="' + cat.id + '">';
+    html += '<div class="bar-family-label">' + cat.icon + ' ' + cat.label + '</div>';
+    html += '<div class="bar-chips" id="bar-chips-' + cat.id + '">';
+    allItems.forEach(function(item) {
+      var isOn = checked.indexOf(item) !== -1;
+      var isCustom = (custom[cat.id] || []).indexOf(item) !== -1;
+      html += barChipHtml(item, isOn, isCustom, cat.id);
+    });
+    html += '</div>';
+    html += '<div class="bar-add-form">';
+    html += '<input class="bar-add-input" type="text" placeholder="Ajouter un ingrédient…" id="bar-input-' + cat.id + '" data-catid="' + cat.id + '">';
+    html += '<button class="bar-add-btn" data-catid="' + cat.id + '">+ Ajouter</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+  barRefreshBadge();
+  barRefreshGoBtn();
+}
+
+function barChipHtml(item, isOn, isCustom, catId) {
+  var onClass = isOn ? ' on' : '';
+  var custClass = isCustom ? ' custom' : '';
+  var delPart = isCustom
+    ? '<span class="chip-del" data-del-cat="' + catId + '" data-del-item="' + encodeURIComponent(item) + '">✕</span>'
+    : '';
+  return '<span class="bar-chip' + onClass + custClass + '" data-item="' + encodeURIComponent(item) + '" data-cat="' + catId + '">'  + item + delPart + '</span>';
+    + item + delPart + '</span>';
+}
+
+function barToggleChip(el, item) {
+  var checked = barGetChecked();
+  var idx = checked.indexOf(item);
+  if (idx === -1) { checked.push(item); el.classList.add('on'); }
+  else            { checked.splice(idx, 1); el.classList.remove('on'); }
+  barSetChecked(checked);
+  barShowSavedBadge();
+  barRefreshGoBtn();
+}
+// Délégation interne gérée via DOMContentLoaded (voir init)
+
+function barAddCustom(catId) {
+  var input = document.getElementById('bar-input-' + catId);
+  var val = input.value.trim();
+  if (!val) return;
+  var custom = barGetCustom();
+  custom[catId] = custom[catId] || [];
+  if (custom[catId].indexOf(val) !== -1) { input.value = ''; return; } // déjà présent
+  custom[catId].push(val);
+  barSetCustom(custom);
+  // Ajouter visuellement ET cocher auto
+  var container = document.getElementById('bar-chips-' + catId);
+  var chip = document.createElement('span');
+  chip.className = 'bar-chip custom on';
+  chip.innerHTML = val + '<span class="chip-del" data-del-cat="' + catId + '" data-del-item="' + encodeURIComponent(val) + '">✕</span>';
+  // délégation gère le toggle via data-item
+  container.appendChild(chip);
+  var checked = barGetChecked();
+  if (checked.indexOf(val) === -1) { checked.push(val); barSetChecked(checked); }
+  input.value = '';
+  barShowSavedBadge();
+  barRefreshGoBtn();
+}
+
+function barDelCustom(catId, item) {
+  var custom = barGetCustom();
+  custom[catId] = (custom[catId] || []).filter(function(x){ return x !== item; });
+  barSetCustom(custom);
+  var checked = barGetChecked().filter(function(x){ return x !== item; });
+  barSetChecked(checked);
+  // Retirer le chip du DOM
+  var container = document.getElementById('bar-chips-' + catId);
+  if (container) {
+    container.querySelectorAll('.bar-chip.custom').forEach(function(el){
+      if (el.textContent.replace('✕','').trim() === item) el.remove();
+    });
+  }
+  barShowSavedBadge();
+  barRefreshGoBtn();
+}
+
+function barResetStock() {
+  if (!confirm('Réinitialiser toute la sélection ?')) return;
+  barSetChecked([]);
+  document.querySelectorAll('.bar-chip.on').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('bar-saved-badge').style.display = 'none';
+  barRefreshGoBtn();
+}
+
+var _barSavedTimer = null;
+function barShowSavedBadge() {
+  var badge = document.getElementById('bar-saved-badge');
+  badge.style.display = 'inline-flex';
+  clearTimeout(_barSavedTimer);
+  _barSavedTimer = setTimeout(function(){ badge.style.display = 'none'; }, 2500);
+}
+
+function barRefreshBadge() {
+  var n = barGetChecked().length;
+  document.getElementById('bar-saved-badge').style.display = n > 0 ? 'none' : 'none';
+  // on affiche juste après modification, pas au chargement
+}
+
+function barRefreshGoBtn() {
+  var n = barGetChecked().length;
+  var gotoGen = document.getElementById('btn-goto-gen');
+  // Afficher le lien "Générer" uniquement si on a déjà généré au moins une fois
+  if (gotoGen) gotoGen.style.display = (_barHasGenerated ? 'flex' : 'none');
+}
+
+// ── Génération ────────────────────────────────────────────────────────────
+
+var _barHasGenerated = false;
+// État courant du générateur (pour les rerolls individuels)
+var _genState = { alcool:[], acide:[], sucrant:[], diluant:[], condiment:[] };
+
+// Pool d'ingrédients disponibles pour un role, en tenant compte des cochés
+function barPool(role, checkedSet, excludedItems) {
+  var cats = GEN_ROLES[role].cats;
+  var pool = [];
+  BAR_CATS.forEach(function(cat) {
+    if (cats.indexOf(cat.id) === -1) return;
+    var allItems = cat.items.concat((barGetCustom()[cat.id] || []));
+    allItems.forEach(function(item) {
+      if (excludedItems && excludedItems.indexOf(item) !== -1) return;
+      // Priorité aux cochés, mais si rien de coché dans cette catégorie on prend tout
+      if (checkedSet.length === 0 || checkedSet.indexOf(item) !== -1) {
+        pool.push(item);
+      }
+    });
+  });
+  // Si le pool filtré est vide, on utilise tout le pool de la catégorie sans filtre coché
+  if (pool.length === 0) {
+    BAR_CATS.forEach(function(cat) {
+      if (cats.indexOf(cat.id) === -1) return;
+      var allItems = cat.items.concat((barGetCustom()[cat.id] || []));
+      allItems.forEach(function(item) {
+        if (excludedItems && excludedItems.indexOf(item) !== -1) return;
+        pool.push(item);
+      });
+    });
+  }
+  return pool;
+}
+
+function barPickFrom(pool, n) {
+  var shuffled = pool.slice().sort(function(){ return Math.random() - 0.5; });
+  return shuffled.slice(0, Math.min(n, shuffled.length));
+}
+
+function barGenerate() {
+  var checked = barGetChecked();
+  // 1. Tirer l'alcool en premier pour calculer les exclusions
+  var alcoolPool = barPool('alcool', checked, []);
+  var alcools = barPickFrom(alcoolPool, 1 + (Math.random() < 0.3 ? 1 : 0));
+
+  // Calculer exclusions basées sur l'alcool choisi
+  var excluded = [];
+  alcools.forEach(function(alc) {
+    INCOMPAT.forEach(function(rule) {
+      if (alc.toLowerCase().indexOf(rule.alcool.toLowerCase()) !== -1) {
+        excluded = excluded.concat(rule.exclude);
+      }
+    });
+  });
+
+  // Si alcool fort → diluant probable (75%), sinon sans diluant (25%)
+  var wantDiluant = !['Champagne','Prosecco','Vermouth dry','Vermouth rosso'].some(function(v){ return alcools.indexOf(v) !== -1; });
+  var withDiluant = wantDiluant && Math.random() < 0.75;
+
+  // Si liqueur sucrée en alcool → pas de sucrant obligatoire
+  var sweetAlcools = ['Amaretto','Baileys','Kahlúa','Midori','Crème de cassis','Crème de menthe','St-Germain','Grand Marnier','Chambord','Cointreau','Triple sec'];
+  var alreadySweet = alcools.some(function(a){ return sweetAlcools.indexOf(a) !== -1; });
+  var wantSucrant  = !alreadySweet || Math.random() < 0.5;
+
+  var acidePool    = barPool('acide',    checked, excluded);
+  var sucrantPool  = barPool('sucrant',  checked, excluded.concat(alcools));
+  var diluantPool  = barPool('diluant',  checked, excluded);
+  var condPool     = barPool('condiment',checked, excluded);
+
+  _genState.alcool    = alcools;
+  _genState.acide     = barPickFrom(acidePool, 1 + (Math.random() < 0.25 ? 1 : 0));
+  _genState.sucrant   = wantSucrant ? barPickFrom(sucrantPool, 1) : [];
+  _genState.diluant   = withDiluant ? barPickFrom(diluantPool, 1) : [];
+  _genState.condiment = barPickFrom(condPool, 1 + (Math.random() < 0.4 ? 1 : 0));
+}
+
+function barGoGenerate() {
+  barGenerate();
+  _barHasGenerated = true;
+  var gotoGen = document.getElementById('btn-goto-gen');
+  if (gotoGen) gotoGen.style.display = 'flex';
+  // Mise à jour du tagline
+  var tag = document.getElementById('gen-tagline');
+  if (tag) tag.textContent = 'Combinaison du ' + new Date().toLocaleDateString('fr-FR',{weekday:'long'});
+  // Mise à jour du bouton
+  var goBtn = document.getElementById('bar-go-btn');
+  if (goBtn) goBtn.textContent = barRandTagline();
+  renderGenResult();
+  navTo('bar-gen');
+}
+
+function renderGenResult() {
+  var roles = ['alcool','acide','sucrant','diluant','condiment'];
+  roles.forEach(function(role) {
+    var container = document.getElementById('gen-items-' + role);
+    if (!container) return;
+    var items = _genState[role];
+    var addBtn = document.getElementById('gen-addbtn-' + role);
+    container.innerHTML = '';
+    items.forEach(function(item, i) {
+      var div = document.createElement('div');
+      div.className = 'gen-item';
+      div.innerHTML = '<span class="gen-item-name">' + item + '</span>'
+        + '<button class="gen-item-reroll" data-role="' + role + '" data-idx="' + i + '">🔀</button>';
+      container.appendChild(div);
+    });
+    var maxReached = items.length >= GEN_ROLES[role].max;
+    var roleEmpty  = items.length === 0;
+    if (addBtn) addBtn.className = 'gen-add-btn' + (maxReached ? ' hidden' : '');
+    // Si catégorie vide (diluant ou sucrant optionnel), afficher un placeholder
+    if (roleEmpty) {
+      var ph = document.createElement('div');
+      ph.style.cssText = 'font-size:13px;color:var(--text3);padding:4px 0';
+      ph.textContent = role === 'diluant' ? '— sans diluant' : '— aucun';
+      container.appendChild(ph);
+    }
+  });
+  document.getElementById('gen-result-area').classList.add('visible');
+}
+
+function genRerollItem(role, idx) {
+  var checked  = barGetChecked();
+  var excluded = [];
+  _genState.alcool.forEach(function(alc) {
+    INCOMPAT.forEach(function(rule) {
+      if (alc.toLowerCase().indexOf(rule.alcool.toLowerCase()) !== -1)
+        excluded = excluded.concat(rule.exclude);
+    });
+  });
+  var pool = barPool(role, checked, excluded);
+  // Exclure les items déjà présents dans ce role
+  var current = _genState[role];
+  var available = pool.filter(function(x){ return current.indexOf(x) === -1; });
+  if (available.length === 0) available = pool; // si rien de neuf, tout le pool
+  var newItem = available[Math.floor(Math.random() * available.length)];
+  if (newItem) {
+    _genState[role][idx] = newItem;
+    renderGenResult();
+  }
+}
+
+function genAddItem(role) {
+  var current = _genState[role];
+  if (current.length >= GEN_ROLES[role].max) return;
+  var checked  = barGetChecked();
+  var excluded = [];
+  _genState.alcool.forEach(function(alc) {
+    INCOMPAT.forEach(function(rule) {
+      if (alc.toLowerCase().indexOf(rule.alcool.toLowerCase()) !== -1)
+        excluded = excluded.concat(rule.exclude);
+    });
+  });
+  var pool = barPool(role, checked, excluded);
+  var available = pool.filter(function(x){ return current.indexOf(x) === -1; });
+  if (available.length === 0) available = pool;
+  var newItem = available[Math.floor(Math.random() * available.length)];
+  if (newItem) {
+    _genState[role].push(newItem);
+    renderGenResult();
+  }
+}
+
 // ── 16. INITIALISATION ────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function() {
   applyPrefs();
@@ -2113,6 +2595,39 @@ window.addEventListener('DOMContentLoaded', function() {
   });
   // Initialise l'état History API
   history.replaceState({ page: 'home' }, '', '');
+
+  // Délégation : boutons + Enter sur les inputs d'ajout du bar-stock
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.bar-add-btn');
+    if (btn) { barAddCustom(btn.getAttribute('data-catid')); }
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.classList.contains('bar-add-input')) {
+      barAddCustom(e.target.getAttribute('data-catid'));
+    }
+  });
+
+  // Délégation : reroll bouton générateur
+  document.addEventListener('click', function(e) {
+    var rb = e.target.closest('.gen-item-reroll');
+    if (rb) genRerollItem(rb.getAttribute('data-role'), parseInt(rb.getAttribute('data-idx'), 10));
+  });
+
+  // Délégation : toggle chip et suppression chip custom
+  document.addEventListener('click', function(e) {
+    // Suppression chip custom (✕)
+    var delBtn = e.target.closest('[data-del-item]');
+    if (delBtn) {
+      e.stopPropagation();
+      barDelCustom(delBtn.getAttribute('data-del-cat'), decodeURIComponent(delBtn.getAttribute('data-del-item')));
+      return;
+    }
+    // Toggle chip
+    var chip = e.target.closest('.bar-chip');
+    if (chip && chip.hasAttribute('data-item')) {
+      barToggleChip(chip, decodeURIComponent(chip.getAttribute('data-item')));
+    }
+  });
 
   // ── Service Worker + système de mise à jour ───────────────────────────
   if ('serviceWorker' in navigator && !location.hostname.includes('claudeusercontent')) {
