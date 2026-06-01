@@ -466,7 +466,8 @@
     .bar-header { text-align:center; padding:28px 0 20px; }
     .bar-header .bar-title { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--text); }
     .bar-header .bar-sub { color:var(--text2); font-size:13px; margin-top:6px; }
-    .bar-saved-badge { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--easy); background:rgba(93,184,118,.12); border:1px solid rgba(93,184,118,.25); border-radius:20px; padding:4px 12px; margin-bottom:16px; }
+    .bar-saved-badge { display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; color:var(--easy); background:rgba(93,184,118,.12); border:1px solid rgba(93,184,118,.25); border-radius:20px; padding:4px 12px; margin-bottom:16px; visibility:hidden; opacity:0; transition:opacity .25s; }
+    .bar-saved-badge.visible { visibility:visible; opacity:1; }
     .bar-family-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; }
     .bar-family-label { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); margin-bottom:10px; display:flex; align-items:center; gap:5px; }
     .bar-chips { display:flex; flex-wrap:wrap; gap:5px; }
@@ -494,15 +495,23 @@
     .gen-items { display:flex; flex-direction:column; gap:8px; }
     .gen-item { display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .gen-item-name { font-size:16px; font-weight:500; color:var(--text); flex:1; }
+    .gen-item-qty { font-size:12px; color:var(--text3); white-space:nowrap; padding:0 6px; }
     .gen-item-reroll { padding:5px 10px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; }
     .gen-item-reroll:hover { border-color:var(--accent); color:var(--accent); }
     .gen-add-btn { display:flex; align-items:center; gap:5px; padding:5px 10px; background:transparent; border:1px dashed var(--border); border-radius:8px; color:var(--text3); font-size:12px; cursor:pointer; transition:all .15s; margin-top:4px; }
     .gen-add-btn:hover { border-color:var(--accent); color:var(--accent); }
     .gen-add-btn.hidden { display:none; }
-    .gen-reroll-btn { display:block; width:100%; margin-top:20px; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text2); font-size:15px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
-    .gen-reroll-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .gen-reroll-btn { display:block; width:100%; margin-top:20px; padding:15px; border-radius:12px; border:2px solid #4CAF7D; background:rgba(76,175,125,.1); color:#4CAF7D; font-size:17px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
+    .gen-reroll-btn:hover { background:rgba(76,175,125,.2); border-color:#5dba8c; }
     .gen-nav-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; background:transparent; border:1px solid var(--border); border-radius:10px; color:var(--text2); font-size:13px; cursor:pointer; transition:all .15s; }
     .gen-nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .gen-item-del { padding:5px 9px; background:transparent; border:1px solid transparent; border-radius:8px; color:var(--text3); font-size:12px; cursor:pointer; transition:all .15s; flex-shrink:0; }
+    .gen-item-del:hover { border-color:#E05C5C; color:#E05C5C; }
+    .gen-actions { display:flex; flex-direction:row; gap:10px; margin-top:12px; padding-bottom:32px; }
+    .gen-action-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:13px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text2); font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
+    .gen-action-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .gen-action-btn.primary { background:var(--accent); color:#0C0F1D; border-color:var(--accent); font-weight:600; }
+    .gen-action-btn.primary:hover { filter:brightness(1.1); }
 
     /* Onglet installation */
     .install-link-box {
@@ -1300,16 +1309,16 @@
      PAGE BAR-STOCK — Sélection des ingrédients disponibles
      ══════════════════════════════════════════════════════════════ -->
 <div id="page-bar-stock" class="page">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-    <button class="gen-nav-btn" onclick="navTo('bar-gen')" id="btn-goto-gen" style="display:none">Générer ✨</button>
-    <button class="bar-reset-btn" onclick="barResetStock()" style="margin-left:auto">🗑 Réinitialiser</button>
+  <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:4px;min-height:36px;">
+    <button class="gen-nav-btn" onclick="navTo('bar-gen')" id="btn-goto-gen" style="display:none">Générateur →</button>
   </div>
   <div class="bar-header">
     <div class="bar-title">🧪 Mon bar</div>
     <div class="bar-sub">Cochez ce que vous avez à disposition</div>
   </div>
-  <div id="bar-saved-badge" class="bar-saved-badge" style="display:none">✓ Sélection sauvegardée</div>
+  <div id="bar-saved-badge" class="bar-saved-badge">✓ Sélection sauvegardée</div>
   <div id="bar-families-container"></div>
+  <button class="bar-reset-btn" id="bar-reset-btn" onclick="barResetStock()" style="margin-bottom:16px">🗑 Réinitialiser la sélection</button>
   <button class="bar-go-btn" id="bar-go-btn" onclick="barGoGenerate()">🪄 Laissons la magie opérer</button>
   <p style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:32px">Appuyez pour générer une recette expérimentale</p>
 </div>
@@ -1356,6 +1365,10 @@
       <button class="gen-add-btn" id="gen-addbtn-condiment" onclick="genAddItem('condiment')">+ ajouter</button>
     </div>
     <button class="gen-reroll-btn" onclick="barGoGenerate()">🔀 Nouvelle combinaison</button>
+    <div class="gen-actions">
+      <button class="gen-action-btn" id="gen-copy-btn" onclick="genCopyText()">📋 Copier la recette</button>
+      <button class="gen-action-btn primary" onclick="genOpenInForm()">✨ Créer ce cocktail</button>
+    </div>
   </div>
 </div>
 
@@ -2220,22 +2233,22 @@ var BAR_STOCK_BUILT = false;               // Guard : construire le DOM une seul
 // ── Données du bar : catégories et pools ─────────────────────────────────
 
 var BAR_CATS = [
-  { id:'alcools',  label:'Alcools forts',      icon:'🥃',
-    items:['Vodka','Rhum blanc','Rhum ambré','Gin','Whisky bourbon','Scotch','Tequila','Mezcal','Cognac','Cachaça'] },
-  { id:'liqueurs', label:'Liqueurs & Amers',   icon:'🍶',
-    items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de menthe','St-Germain','Grand Marnier','Chambord'] },
-  { id:'vins',     label:'Champagne & Vins',   icon:'🥂',
-    items:['Champagne','Prosecco','Vermouth dry','Vermouth rosso'] },
-  { id:'jus',      label:'Jus & Purées',       icon:'🍊',
-    items:["Jus de citron","Jus de citron vert","Jus d'orange","Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Purée de passion","Purée de pêche"] },
-  { id:'sodas',    label:'Sodas & Tonics',     icon:'🫧',
-    items:['Coca-Cola','Eau gazeuse','Tonic water','Ginger beer','Ginger ale','Limonade'] },
-  { id:'sirops',   label:'Sirops & Sucres',    icon:'🍯',
-    items:["Sirop de sucre de canne","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Miel","Angostura bitters"] },
-  { id:'herbes',   label:'Herbes & Fruits',    icon:'🌿',
-    items:["Menthe fraîche","Basilic","Citron vert frais","Citron jaune frais","Orange fraîche","Fraise fraîche","Concombre","Ananas frais"] },
-  { id:'epices',   label:'Épices & Condiments',icon:'🌶️',
-    items:["Sel","Tabasco","Sauce Worcestershire","Cannelle","Noix de muscade","Poivre noir"] },
+  { id:'alcools',  label:'Alcools forts',       icon:'🥃',
+    items:['Vodka','Rhum blanc','Rhum ambré','Rhum vieux','Gin','Gin London Dry','Whisky bourbon','Scotch whisky','Rye whiskey','Tequila blanco','Tequila reposado','Mezcal','Cognac','Armagnac','Pisco','Cachaça','Vodka aromatisée','Gin floral'] },
+  { id:'liqueurs', label:'Liqueurs & Amers',    icon:'🍶',
+    items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de mûre','Crème de menthe','Crème de cacao','St-Germain','Grand Marnier','Chambord','Chartreuse verte','Chartreuse jaune','Drambuie','Frangelico','Galliano','Luxardo Maraschino','Cynar','Fernet-Branca',"Pimm's",'Limoncello','Passoã','Blue Curaçao','Malibu','Licor 43'] },
+  { id:'vins',     label:'Vins & Bulles',        icon:'🥂',
+    items:['Champagne','Prosecco','Cava','Crémant','Vermouth dry','Vermouth rosso','Vermouth blanc','Porto ruby','Porto tawny','Lillet blanc','Lillet rosé','Xérès fino','Xérès amontillado'] },
+  { id:'jus',      label:'Jus & Purées',         icon:'🍊',
+    items:["Jus de citron","Jus de citron vert","Jus d'orange","Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Jus de pomme","Jus de mangue","Jus de tomate","Jus de pastèque","Purée de passion","Purée de pêche","Purée de fraise","Purée de mangue","Purée de framboise","Purée de litchi","Purée de coco"] },
+  { id:'sodas',    label:'Sodas & Tonics',        icon:'🫧',
+    items:['Coca-Cola','Pepsi','Eau gazeuse','Tonic water','Tonic premium','Ginger beer','Ginger ale','Limonade','Soda citron','Soda orange','Eau de coco','Lait de coco','Crème de coco'] },
+  { id:'sirops',   label:'Sirops & Sucres',       icon:'🍯',
+    items:["Sirop de sucre de canne","Sirop simple (1:1)","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de lavande","Sirop de rose","Sirop de vanille","Sirop de caramel","Sirop de cerise","Sirop de pêche","Miel","Miel liquide","Sucre en poudre","Angostura bitters","Peychaud's bitters","Orange bitters","Cardamome bitters"] },
+  { id:'herbes',   label:'Herbes & Fruits frais', icon:'🌿',
+    items:["Menthe fraîche","Basilic","Romarin","Thym","Coriandre","Citron vert frais","Citron jaune frais","Orange fraîche","Pamplemousse frais","Fraise fraîche","Framboise fraîche","Mûre fraîche","Myrtille","Cerise fraîche","Concombre","Ananas frais","Pastèque fraîche","Raisin frais","Jalapeño","Gingembre frais"] },
+  { id:'epices',   label:'Épices & Condiments',   icon:'🌶️',
+    items:["Sel","Fleur de sel","Sel fumé","Tabasco","Sauce Worcestershire","Cannelle","Noix de muscade","Poivre noir","Cardamome","Clou de girofle","Anis étoilé","Curcuma","Piment de Cayenne","Zeste de citron","Zeste d'orange","Blanc d'œuf","Crème épaisse","Lait entier"] },
 ];
 
 // ── Règles de compatibilité ───────────────────────────────────────────────
@@ -2250,19 +2263,44 @@ var GEN_ROLES = {
   condiment: { label:'🌿 Herbes & condiments',cats:['herbes','epices'],             min:1, max:2 },
 };
 
-// Paires incompatibles : si l'alcool contient l'un des mots clés, exclure les items de la liste
+// Paires incompatibles : si UN item tiré (quelque rôle que ce soit) correspond au mot-clé,
+// les items de la liste exclude sont bannis de tous les autres rôles.
 var INCOMPAT = [
-  { alcool:'Baileys',     exclude:['Jus de citron','Jus de citron vert','Jus de pamplemousse','Coca-Cola','Tonic water','Tabasco','Sauce Worcestershire'] },
-  { alcool:'Campari',     exclude:["Sirop de fraise","Sirop de framboise","Baileys","Purée de pêche"] },
-  { alcool:'Aperol',      exclude:["Sirop de fraise","Sirop de framboise","Baileys"] },
-  { alcool:'Whisky',      exclude:['Coca-Cola','Limonade','Lait de coco','Purée de mangue','Sirop de fraise'] },
-  { alcool:'Scotch',      exclude:['Coca-Cola','Limonade','Sirop de fraise','Purée de mangue'] },
-  { alcool:'Mezcal',      exclude:["Jus d'ananas","Purée de pêche","Sirop de framboise"] },
-  { alcool:'Tequila',     exclude:['Coca-Cola','Ginger ale'] },
-  { alcool:'Cognac',      exclude:['Ginger beer','Tabasco','Sauce Worcestershire','Sirop de fraise'] },
-  { alcool:'Champagne',   exclude:['Tabasco','Sauce Worcestershire','Tonic water','Ginger beer','Coca-Cola'] },
-  { alcool:'Prosecco',    exclude:['Tabasco','Sauce Worcestershire','Tonic water','Ginger beer','Coca-Cola'] },
-  { alcool:'Vermouth',    exclude:['Tabasco','Sauce Worcestershire','Coca-Cola','Ginger beer'] },
+  // Laitier / crémeux
+  { trigger:'Baileys',        exclude:["Jus de citron","Jus de citron vert","Jus de pamplemousse","Jus de cranberry","Coca-Cola","Pepsi","Tonic water","Tonic premium","Limonade","Soda citron","Soda orange","Tabasco","Sauce Worcestershire","Piment de Cayenne","Jalapeño"] },
+  { trigger:'Crème de cacao', exclude:["Jus de citron","Jus de citron vert","Tabasco","Sauce Worcestershire","Jus de tomate"] },
+  { trigger:'Lait entier',    exclude:["Jus de citron","Jus de citron vert","Jus de pamplemousse","Tabasco","Sauce Worcestershire","Jus de tomate","Coca-Cola"] },
+  { trigger:'Crème épaisse',  exclude:["Jus de citron","Jus de citron vert","Jus de pamplemousse","Tabasco","Sauce Worcestershire","Jus de tomate","Ginger beer","Tonic water"] },
+  { trigger:'Lait de coco',   exclude:["Jus de citron","Jus de citron vert","Tabasco","Sauce Worcestershire","Whisky bourbon","Scotch whisky","Rye whiskey"] },
+  { trigger:'Crème de coco',  exclude:["Jus de citron","Jus de citron vert","Tabasco","Sauce Worcestershire","Whisky bourbon","Scotch whisky"] },
+  // Amers
+  { trigger:'Campari',        exclude:["Sirop de fraise","Sirop de framboise","Sirop de caramel","Baileys","Crème de cacao","Purée de pêche","Lait entier","Crème épaisse"] },
+  { trigger:'Aperol',         exclude:["Sirop de fraise","Sirop de framboise","Baileys","Crème de cacao","Jus de tomate"] },
+  { trigger:'Fernet-Branca',  exclude:["Jus d'orange","Purée de pêche","Sirop de fraise","Sirop de caramel","Baileys","Crème de cacao"] },
+  { trigger:'Cynar',          exclude:["Sirop de fraise","Sirop de framboise","Purée de pêche","Purée de litchi","Baileys"] },
+  // Whisky / boisé
+  { trigger:'Whisky',         exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Sirop de framboise","Purée de mangue","Purée de litchi","Lait de coco","Crème de coco","Midori","Passoã","Blue Curaçao"] },
+  { trigger:'Scotch',         exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Sirop de framboise","Purée de mangue","Purée de litchi","Midori","Passoã"] },
+  { trigger:'Rye whiskey',    exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Purée de mangue","Midori"] },
+  // Fumé / terreux
+  { trigger:'Mezcal',         exclude:["Jus d'ananas","Purée de pêche","Sirop de framboise","Sirop de rose","Sirop de lavande","Passoã","Midori","Baileys","Crème de cacao"] },
+  // Cognac / eau de vie
+  { trigger:'Cognac',         exclude:["Ginger beer","Tabasco","Sauce Worcestershire","Sirop de fraise","Sirop de framboise","Midori","Passoã","Blue Curaçao"] },
+  { trigger:'Armagnac',       exclude:["Ginger beer","Tabasco","Sauce Worcestershire","Sirop de fraise","Midori","Passoã"] },
+  { trigger:'Pisco',          exclude:["Jus de tomate","Tabasco","Sauce Worcestershire","Ginger beer"] },
+  // Tequila / agave
+  { trigger:'Tequila',        exclude:["Coca-Cola","Pepsi","Ginger ale","Baileys","Crème de cacao","Sirop de rose","Sirop de lavande"] },
+  // Bulles / vins
+  { trigger:'Champagne',      exclude:["Tabasco","Sauce Worcestershire","Tonic water","Tonic premium","Ginger beer","Coca-Cola","Pepsi","Jus de tomate","Baileys"] },
+  { trigger:'Prosecco',       exclude:["Tabasco","Sauce Worcestershire","Tonic water","Ginger beer","Coca-Cola","Pepsi","Jus de tomate","Baileys"] },
+  { trigger:'Cava',           exclude:["Tabasco","Sauce Worcestershire","Tonic water","Ginger beer","Coca-Cola","Jus de tomate"] },
+  { trigger:'Vermouth',       exclude:["Tabasco","Sauce Worcestershire","Coca-Cola","Pepsi","Ginger beer","Jus de tomate","Baileys"] },
+  // Xérès
+  { trigger:'Xérès',          exclude:["Coca-Cola","Pepsi","Ginger beer","Tabasco","Sauce Worcestershire","Sirop de fraise","Sirop de framboise","Midori"] },
+  // Porto
+  { trigger:'Porto',          exclude:["Tabasco","Sauce Worcestershire","Coca-Cola","Ginger beer","Tonic water","Jus de citron vert"] },
+  // Malibu / noix de coco sucrée
+  { trigger:'Malibu',         exclude:["Tabasco","Sauce Worcestershire","Jus de tomate","Fernet-Branca","Cynar","Campari","Vermouth dry"] },
 ];
 
 // Messages rigolos pour le gros bouton
@@ -2383,25 +2421,23 @@ function barDelCustom(catId, item) {
 }
 
 function barResetStock() {
-  if (!confirm('Réinitialiser toute la sélection ?')) return;
+  if (!confirm('Désélectionner tous les ingrédients ?')) return;
   barSetChecked([]);
   document.querySelectorAll('.bar-chip.on').forEach(function(el){ el.classList.remove('on'); });
-  document.getElementById('bar-saved-badge').style.display = 'none';
+  document.getElementById('bar-saved-badge').classList.remove('visible');
   barRefreshGoBtn();
 }
 
 var _barSavedTimer = null;
 function barShowSavedBadge() {
   var badge = document.getElementById('bar-saved-badge');
-  badge.style.display = 'inline-flex';
+  badge.classList.add('visible');
   clearTimeout(_barSavedTimer);
-  _barSavedTimer = setTimeout(function(){ badge.style.display = 'none'; }, 2500);
+  _barSavedTimer = setTimeout(function(){ badge.classList.remove('visible'); }, 2500);
 }
 
 function barRefreshBadge() {
-  var n = barGetChecked().length;
-  document.getElementById('bar-saved-badge').style.display = n > 0 ? 'none' : 'none';
-  // on affiche juste après modification, pas au chargement
+  // badge géré par barShowSavedBadge (visibility toggle), rien à faire au chargement
 }
 
 function barRefreshGoBtn() {
@@ -2415,6 +2451,83 @@ function barRefreshGoBtn() {
 
 var _barHasGenerated = false;
 // État courant du générateur (pour les rerolls individuels)
+// Quantités classiques par ingrédient : [qty, unité]
+// qty peut être un nombre ou une string (ex: "2-3")
+var GEN_QTY = {
+  // Alcools forts
+  'Vodka':4,'Rhum blanc':4,'Rhum ambré':4,'Rhum vieux':4,'Gin':4,'Gin London Dry':4,
+  'Whisky bourbon':4,'Scotch whisky':4,'Rye whiskey':4,'Tequila blanco':4,'Tequila reposado':4,
+  'Mezcal':4,'Cognac':4,'Armagnac':4,'Pisco':4,'Cachaça':5,'Vodka aromatisée':4,'Gin floral':4,
+  // Liqueurs & Amers
+  'Cointreau':2,'Triple sec':2,'Amaretto':3,'Baileys':4,'Kahlúa':3,'Campari':3,'Aperol':6,
+  'Midori':2,'Crème de cassis':2,'Crème de mûre':2,'Crème de menthe':2,'Crème de cacao':2,
+  "St-Germain":2,'Grand Marnier':2,'Chambord':2,'Chartreuse verte':2,'Chartreuse jaune':2,
+  'Drambuie':2,'Frangelico':2,'Galliano':2,'Luxardo Maraschino':2,'Cynar':3,'Fernet-Branca':2,
+  "Pimm's":5,'Limoncello':3,'Passoã':3,'Blue Curaçao':2,'Malibu':4,'Licor 43':2,
+  // Vins & Bulles
+  'Champagne':9,'Prosecco':9,'Cava':9,'Crémant':9,'Vermouth dry':3,'Vermouth rosso':3,
+  'Vermouth blanc':3,'Porto ruby':3,'Porto tawny':3,'Lillet blanc':3,'Lillet rosé':3,
+  'Xérès fino':3,'Xérès amontillado':3,
+  // Jus & Purées
+  'Jus de citron':2,'Jus de citron vert':2,"Jus d'orange":6,"Jus de cranberry":6,
+  "Jus d'ananas":6,'Jus de pamplemousse':6,'Jus de pomme':6,'Jus de mangue':6,
+  'Jus de tomate':10,'Jus de pastèque':6,'Purée de passion':3,'Purée de pêche':3,
+  'Purée de fraise':3,'Purée de mangue':3,'Purée de framboise':3,'Purée de litchi':3,
+  'Purée de coco':3,
+  // Sodas & Tonics (remplissage = quantité libre → on met une valeur indicative)
+  'Coca-Cola':10,'Pepsi':10,'Eau gazeuse':10,'Tonic water':10,'Tonic premium':10,
+  'Ginger beer':10,'Ginger ale':10,'Limonade':10,'Soda citron':10,'Soda orange':10,
+  'Eau de coco':6,'Lait de coco':6,'Crème de coco':4,
+  // Sirops & Sucres
+  'Sirop de sucre de canne':2,'Sirop simple (1:1)':2,'Sirop de grenadine':2,
+  "Sirop d'orgeat":2,'Sirop de fraise':2,'Sirop de framboise':2,"Sirop d'agave":2,
+  'Sirop de lavande':1,'Sirop de rose':1,'Sirop de vanille':1,'Sirop de caramel':2,
+  'Sirop de cerise':2,'Sirop de pêche':2,'Miel':1,'Miel liquide':1,'Sucre en poudre':1,
+  'Angostura bitters':0.5,"Peychaud's bitters":0.5,'Orange bitters':0.5,'Cardamome bitters':0.5,
+  // Herbes & Fruits frais (unités différentes, gérées via GEN_UNIT)
+  'Menthe fraîche':8,'Basilic':4,'Romarin':1,'Thym':2,'Coriandre':4,
+  'Citron vert frais':0.5,'Citron jaune frais':0.5,'Orange fraîche':0.5,
+  'Pamplemousse frais':0.25,'Fraise fraîche':3,'Framboise fraîche':4,'Mûre fraîche':4,
+  'Myrtille':10,'Cerise fraîche':3,'Concombre':3,'Ananas frais':2,'Pastèque fraîche':2,
+  'Raisin frais':6,'Jalapeño':2,'Gingembre frais':2,
+  // Épices & Condiments
+  'Sel':1,'Fleur de sel':1,'Sel fumé':1,'Tabasco':4,'Sauce Worcestershire':4,
+  'Cannelle':1,'Noix de muscade':1,'Poivre noir':2,'Cardamome':1,'Clou de girofle':1,
+  "Anis étoilé":1,'Curcuma':0.5,'Piment de Cayenne':1,"Zeste de citron":0.5,
+  "Zeste d'orange":0.5,"Blanc d'œuf":1,'Crème épaisse':3,'Lait entier':6,
+};
+
+// Unités classiques par ingrédient (si absent → 'cl' par défaut)
+var GEN_UNIT = {
+  // Alcools & liqueurs → cl
+  // Jus & purées → cl
+  // Sodas → cl
+  // Sirops → cl sauf bitters en trait
+  'Angostura bitters':'trait',"Peychaud's bitters":"trait",'Orange bitters':'trait','Cardamome bitters':'trait',
+  'Sucre en poudre':'càc','Miel':'càc','Miel liquide':'càc',
+  // Herbes → feuilles, brins, tranches, pièces
+  'Menthe fraîche':'feuilles','Basilic':'feuilles','Romarin':'brin','Thym':'brin','Coriandre':'brins',
+  'Citron vert frais':'tranche','Citron jaune frais':'tranche','Orange fraîche':'tranche',
+  'Pamplemousse frais':'tranche','Fraise fraîche':'pièces','Framboise fraîche':'pièces',
+  'Mûre fraîche':'pièces','Myrtille':'pièces','Cerise fraîche':'pièces',
+  'Concombre':'tranches','Ananas frais':'tranches','Pastèque fraîche':'cubes',
+  'Raisin frais':'grains','Jalapeño':'rondelles','Gingembre frais':'cm',
+  // Épices → pincée, trait, càc
+  'Sel':'pincée','Fleur de sel':'pincée','Sel fumé':'pincée',
+  'Tabasco':'traits','Sauce Worcestershire':'traits',
+  'Cannelle':'pincée','Noix de muscade':'pincée','Poivre noir':'tours',
+  'Cardamome':'pincée','Clou de girofle':'pièce',"Anis étoilé":'pièce',
+  'Curcuma':'pincée','Piment de Cayenne':'pincée',
+  "Zeste de citron":'pièce',"Zeste d'orange":'pièce',
+  "Blanc d'œuf":'blanc',
+};
+
+function genGetQty(item) {
+  var qty  = GEN_QTY[item]  !== undefined ? GEN_QTY[item]  : 4;
+  var unit = GEN_UNIT[item] !== undefined ? GEN_UNIT[item] : 'cl';
+  return { qty: qty, unit: unit };
+}
+
 var _genState = { alcool:[], acide:[], sucrant:[], diluant:[], condiment:[] };
 
 // Pool d'ingrédients disponibles pour un role, en tenant compte des cochés
@@ -2451,39 +2564,50 @@ function barPickFrom(pool, n) {
   return shuffled.slice(0, Math.min(n, shuffled.length));
 }
 
-function barGenerate() {
-  var checked = barGetChecked();
-  // 1. Tirer l'alcool en premier pour calculer les exclusions
-  var alcoolPool = barPool('alcool', checked, []);
-  var alcools = barPickFrom(alcoolPool, 1 + (Math.random() < 0.3 ? 1 : 0));
-
-  // Calculer exclusions basées sur l'alcool choisi
+// Calcule les exclusions depuis n'importe quelle liste d'items tirés (pas seulement alcool)
+function calcExcluded(items) {
   var excluded = [];
-  alcools.forEach(function(alc) {
+  items.forEach(function(item) {
     INCOMPAT.forEach(function(rule) {
-      if (alc.toLowerCase().indexOf(rule.alcool.toLowerCase()) !== -1) {
+      if (item.toLowerCase().indexOf(rule.trigger.toLowerCase()) !== -1) {
         excluded = excluded.concat(rule.exclude);
       }
     });
   });
+  return excluded;
+}
 
-  // Si alcool fort → diluant probable (75%), sinon sans diluant (25%)
-  var wantDiluant = !['Champagne','Prosecco','Vermouth dry','Vermouth rosso'].some(function(v){ return alcools.indexOf(v) !== -1; });
+function barGenerate() {
+  var checked = barGetChecked();
+
+  // 1. Tirer l'alcool en premier
+  var alcoolPool = barPool('alcool', checked, []);
+  var alcools    = barPickFrom(alcoolPool, 1 + (Math.random() < 0.3 ? 1 : 0));
+  var excAlcool  = calcExcluded(alcools);
+
+  // 2. Tirer le sucrant (peut être une liqueur type Baileys → ses exclusions s'appliquent ensuite)
+  var sweetAlcools = ['Amaretto','Baileys','Kahlúa','Midori','Crème de cassis','Crème de mûre','Crème de menthe','Crème de cacao','St-Germain','Grand Marnier','Chambord','Cointreau','Triple sec','Frangelico','Galliano','Passoã','Malibu','Licor 43'];
+  var alreadySweet = alcools.some(function(a){ return sweetAlcools.some(function(s){ return a.indexOf(s) !== -1; }); });
+  var wantSucrant  = !alreadySweet || Math.random() < 0.5;
+  var sucrantPool  = barPool('sucrant', checked, excAlcool.concat(alcools));
+  var sucrants     = wantSucrant ? barPickFrom(sucrantPool, 1) : [];
+  var excSucrant   = calcExcluded(sucrants);
+
+  // 3. Exclusions cumulées (alcool + sucrant)
+  var excluded = excAlcool.concat(excSucrant);
+
+  // 4. Diluant : pas pour les bulles/vins, probable pour les alcools forts
+  var nobulles = ['Champagne','Prosecco','Cava','Crémant','Vermouth','Lillet','Xérès','Porto'];
+  var wantDiluant = !nobulles.some(function(v){ return alcools.some(function(a){ return a.indexOf(v) !== -1; }); });
   var withDiluant = wantDiluant && Math.random() < 0.75;
 
-  // Si liqueur sucrée en alcool → pas de sucrant obligatoire
-  var sweetAlcools = ['Amaretto','Baileys','Kahlúa','Midori','Crème de cassis','Crème de menthe','St-Germain','Grand Marnier','Chambord','Cointreau','Triple sec'];
-  var alreadySweet = alcools.some(function(a){ return sweetAlcools.indexOf(a) !== -1; });
-  var wantSucrant  = !alreadySweet || Math.random() < 0.5;
-
-  var acidePool    = barPool('acide',    checked, excluded);
-  var sucrantPool  = barPool('sucrant',  checked, excluded.concat(alcools));
-  var diluantPool  = barPool('diluant',  checked, excluded);
-  var condPool     = barPool('condiment',checked, excluded);
+  var acidePool   = barPool('acide',     checked, excluded);
+  var diluantPool = barPool('diluant',   checked, excluded);
+  var condPool    = barPool('condiment', checked, excluded);
 
   _genState.alcool    = alcools;
-  _genState.acide     = barPickFrom(acidePool, 1 + (Math.random() < 0.25 ? 1 : 0));
-  _genState.sucrant   = wantSucrant ? barPickFrom(sucrantPool, 1) : [];
+  _genState.acide     = barPickFrom(acidePool,   1 + (Math.random() < 0.25 ? 1 : 0));
+  _genState.sucrant   = sucrants;
   _genState.diluant   = withDiluant ? barPickFrom(diluantPool, 1) : [];
   _genState.condiment = barPickFrom(condPool, 1 + (Math.random() < 0.4 ? 1 : 0));
 }
@@ -2501,6 +2625,11 @@ function barGoGenerate() {
   if (goBtn) goBtn.textContent = barRandTagline();
   renderGenResult();
   navTo('bar-gen');
+  // Scroll vers le bloc alcool pour voir le résultat immédiatement
+  setTimeout(function() {
+    var bloc = document.getElementById('gen-items-alcool');
+    if (bloc) bloc.closest('.gen-cat-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
 }
 
 function renderGenResult() {
@@ -2514,7 +2643,11 @@ function renderGenResult() {
     items.forEach(function(item, i) {
       var div = document.createElement('div');
       div.className = 'gen-item';
+      var q = genGetQty(item);
+      var qtyLabel = '<span class="gen-item-qty">' + q.qty + ' ' + q.unit + '</span>';
       div.innerHTML = '<span class="gen-item-name">' + item + '</span>'
+        + qtyLabel
+        + '<button class="gen-item-del" data-del-role="' + role + '" data-del-idx="' + i + '">❌</button>'
         + '<button class="gen-item-reroll" data-role="' + role + '" data-idx="' + i + '">🔀</button>';
       container.appendChild(div);
     });
@@ -2534,13 +2667,8 @@ function renderGenResult() {
 
 function genRerollItem(role, idx) {
   var checked  = barGetChecked();
-  var excluded = [];
-  _genState.alcool.forEach(function(alc) {
-    INCOMPAT.forEach(function(rule) {
-      if (alc.toLowerCase().indexOf(rule.alcool.toLowerCase()) !== -1)
-        excluded = excluded.concat(rule.exclude);
-    });
-  });
+  var allItems = _genState.alcool.concat(_genState.sucrant || []);
+  var excluded = calcExcluded(allItems);
   var pool = barPool(role, checked, excluded);
   // Exclure les items déjà présents dans ce role
   var current = _genState[role];
@@ -2557,13 +2685,8 @@ function genAddItem(role) {
   var current = _genState[role];
   if (current.length >= GEN_ROLES[role].max) return;
   var checked  = barGetChecked();
-  var excluded = [];
-  _genState.alcool.forEach(function(alc) {
-    INCOMPAT.forEach(function(rule) {
-      if (alc.toLowerCase().indexOf(rule.alcool.toLowerCase()) !== -1)
-        excluded = excluded.concat(rule.exclude);
-    });
-  });
+  var allItems = _genState.alcool.concat(_genState.sucrant || []);
+  var excluded = calcExcluded(allItems);
   var pool = barPool(role, checked, excluded);
   var available = pool.filter(function(x){ return current.indexOf(x) === -1; });
   if (available.length === 0) available = pool;
@@ -2572,6 +2695,95 @@ function genAddItem(role) {
     _genState[role].push(newItem);
     renderGenResult();
   }
+}
+
+function genDeleteItem(role, idx) {
+  _genState[role].splice(idx, 1);
+  renderGenResult();
+}
+
+function genCopyText() {
+  var lines = ['✨ Recette expérimentale'];
+  var labels = {
+    alcool:    '🥃 Alcool',
+    acide:     '🍋 Jus & acidité',
+    sucrant:   '🍯 Sucrant',
+    diluant:   '🫧 Diluant',
+    condiment: '🌿 Herbes & condiments'
+  };
+  Object.keys(labels).forEach(function(role) {
+    var items = _genState[role];
+    if (items && items.length > 0) {
+      items.forEach(function(item) {
+        var q = genGetQty(item);
+        lines.push('• ' + item + ' — ' + q.qty + ' ' + q.unit);
+      });
+    }
+  });
+  lines.push('');
+  lines.push('Généré avec MonCocktail 🍸');
+  var text = lines.join('\n');
+  var btn = document.getElementById('gen-copy-btn');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      if (btn) { btn.textContent = '✓ Copié !'; btn.style.color = 'var(--accent)'; btn.style.borderColor = 'var(--accent)'; }
+      setTimeout(function() {
+        if (btn) { btn.textContent = '📋 Copier la recette'; btn.style.color = ''; btn.style.borderColor = ''; }
+      }, 2000);
+    }).catch(function() { genCopyFallback(text, btn); });
+  } else {
+    genCopyFallback(text, btn);
+  }
+}
+
+function genCopyFallback(text, btn) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  if (btn) {
+    btn.textContent = '✓ Copié !';
+    setTimeout(function() { btn.textContent = '📋 Copier la recette'; }, 2000);
+  }
+}
+
+function genOpenInForm() {
+  // Construire un objet cocktail minimal depuis _genState pour pré-remplir le formulaire
+  var allItems = [];
+  var roles = ['alcool', 'acide', 'sucrant', 'diluant', 'condiment'];
+  roles.forEach(function(role) {
+    (_genState[role] || []).forEach(function(item) {
+      var q = genGetQty(item);
+      allItems.push([item, q.qty, q.unit]);
+    });
+  });
+  // Construire un titre suggéré depuis le premier alcool
+  var firstAlcool = (_genState.alcool || [])[0] || '';
+  var titleSuggestion = firstAlcool ? 'Mon ' + firstAlcool.toLowerCase() + ' expérimental' : 'Cocktail expérimental';
+  var fakeRecipe = {
+    emoji:      '🧪',
+    title:      titleSuggestion,
+    creator:    '',
+    cat:        'Signature',
+    baseAlcool: firstAlcool,
+    diff:       'moyen',
+    prep:       5,
+    portions:   1,
+    glass:      '',
+    profile:    { s: 2, b: 1, a: 3 },
+    ingredients: allItems,
+    steps:      ['Mélanger les ingrédients selon votre inspiration.'],
+    tags:       ['expérimental']
+  };
+  editingId = null;
+  resetAddForm();
+  fillFormFromCocktail(fakeRecipe);
+  var badge = document.getElementById('form-source-badge');
+  badge.textContent = '🧪 Depuis le Bar expérimental';
+  badge.style.display = 'inline-flex';
+  document.getElementById('form-title-label').textContent = 'Créer depuis le bar';
+  navTo('add-form');
 }
 
 // ── 16. INITIALISATION ────────────────────────────────────────────────────
@@ -2610,7 +2822,9 @@ window.addEventListener('DOMContentLoaded', function() {
   // Délégation : reroll bouton générateur
   document.addEventListener('click', function(e) {
     var rb = e.target.closest('.gen-item-reroll');
-    if (rb) genRerollItem(rb.getAttribute('data-role'), parseInt(rb.getAttribute('data-idx'), 10));
+    if (rb) { genRerollItem(rb.getAttribute('data-role'), parseInt(rb.getAttribute('data-idx'), 10)); return; }
+    var db = e.target.closest('.gen-item-del');
+    if (db) { genDeleteItem(db.getAttribute('data-del-role'), parseInt(db.getAttribute('data-del-idx'), 10)); }
   });
 
   // Délégation : toggle chip et suppression chip custom
