@@ -1321,7 +1321,7 @@
     <div class="bar-sub">Cochez ce que vous avez à disposition - Le générateur vous proposera un cocktail expérimental de façon aléatoire 🎰</div>
   </div>
   <div class="bar-disclaimer">
-    Certaines combinaisons d'ingrédients sont interdites pour éviter les désastres 🤢<br>
+    Certaines combinaisons d'ingrédients sont interdites pour limiter les désastres 😵<br>
     <span style="font-size:11px;opacity:.7">La sélection est sauvegardée entre chaque session.</span>
   </div>
   <div id="bar-saved-badge" class="bar-saved-badge">✓ Sélection sauvegardée</div>
@@ -1344,7 +1344,7 @@
   </div>
   <div class="gen-disclaimer">
     ⚠️ Ces combinaisons sont générées aléatoirement — on décline toute responsabilité pour les résultats… surprenants 😅<br>
-    <span style="font-size:11px;opacity:.7">Cliquez 🔀 pour relancer un ingrédient, ou + pour en ajouter un.</span>
+    <span style="font-size:11px;opacity:.7">Cliquez 🔀 pour relancer un ingrédient, + pour en ajouter un ou ❌ pour supprimer</span>
   </div>
   <div id="gen-result-area" class="gen-result-area">
     <div class="gen-cat-block">
@@ -1446,7 +1446,7 @@ function refreshFavUI(id) {
     var ico = rlBtn.querySelector('.rl-ico');
     var txt = rlBtn.querySelector('.rl-txt');
     if (ico) ico.textContent = faved ? '❤️' : '🤍';
-    if (txt) txt.textContent = faved ? 'Retirer des favoris' : 'Ajouter aux favoris';
+    if (txt) txt.textContent = faved ? 'Favori' : 'Ajouter';
   }
 
   // Si le catalogue est visible, mettre à jour le compteur de l'onglet favoris
@@ -1510,7 +1510,7 @@ function refreshTestedUI(id) {
     var ico = tBtn.querySelector('.rt-ico');
     var txt = tBtn.querySelector('.rt-txt');
     if (ico) ico.textContent = tested ? '☑️' : '⬜';
-    if (txt) txt.textContent = tested ? 'Déjà testé' : 'Marquer comme testé';
+    if (txt) txt.textContent = tested ? 'Déjà testé' : 'Non testé';
   }
 
   // Onglet dans le catalogue
@@ -2242,17 +2242,17 @@ var BAR_STOCK_BUILT = false;               // Guard : construire le DOM une seul
 
 var BAR_CATS = [
   { id:'alcools',  label:'Alcools forts',       icon:'🥃',
-    items:['Vodka','Rhum blanc','Rhum ambré','Rhum vieux','Gin','Gin London Dry','Whisky bourbon','Scotch whisky','Rye whiskey','Tequila blanco','Tequila reposado','Mezcal','Cognac','Armagnac','Pisco','Cachaça','Vodka aromatisée','Gin floral'] },
+    items:['Vodka','Rhum blanc','Rhum ambré','Gin','Whisky bourbon','Scotch whisky','Tequila blanco','Mezcal','Cognac','Armagnac','Pisco','Cachaça'] },
   { id:'liqueurs', label:'Liqueurs & Amers',    icon:'🍶',
-    items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de mûre','Crème de menthe','Crème de cacao','St-Germain','Grand Marnier','Chambord','Chartreuse verte','Chartreuse jaune','Drambuie','Frangelico','Galliano','Luxardo Maraschino','Cynar','Fernet-Branca',"Pimm's",'Limoncello','Passoã','Blue Curaçao','Malibu','Licor 43'] },
+    items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de mûre','Crème de menthe','Crème de cacao','St-Germain','Grand Marnier','Chambord','Chartreuse verte','Drambuie','Frangelico','Galliano','Luxardo Maraschino','Cynar','Fernet-Branca',"Pimm's",'Limoncello','Passoã','Blue Curaçao','Malibu','Licor 43'] },
   { id:'vins',     label:'Vins & Bulles',        icon:'🥂',
     items:['Champagne','Prosecco','Cava','Crémant','Vermouth dry','Vermouth rosso','Vermouth blanc','Porto ruby','Porto tawny','Lillet blanc','Lillet rosé','Xérès fino','Xérès amontillado'] },
   { id:'jus',      label:'Jus & Purées',         icon:'🍊',
     items:["Jus de citron","Jus de citron vert","Jus d'orange","Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Jus de pomme","Jus de mangue","Jus de tomate","Jus de pastèque","Purée de passion","Purée de pêche","Purée de fraise","Purée de mangue","Purée de framboise","Purée de litchi","Purée de coco"] },
   { id:'sodas',    label:'Sodas & Tonics',        icon:'🫧',
-    items:['Coca-Cola','Pepsi','Eau gazeuse','Tonic water','Tonic premium','Ginger beer','Ginger ale','Limonade','Soda citron','Soda orange','Eau de coco','Lait de coco','Crème de coco'] },
+    items:['Coca-Cola','Pepsi','Eau gazeuse','Tonic water','Ginger beer','Ginger ale','Limonade','Soda citron','Soda orange','Eau de coco','Lait de coco','Crème de coco'] },
   { id:'sirops',   label:'Sirops & Sucres',       icon:'🍯',
-    items:["Sirop de sucre de canne","Sirop simple (1:1)","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de lavande","Sirop de rose","Sirop de vanille","Sirop de caramel","Sirop de cerise","Sirop de pêche","Miel","Miel liquide","Sucre en poudre","Angostura bitters","Peychaud's bitters","Orange bitters","Cardamome bitters"] },
+    items:["Sirop de sucre de canne","Sirop simple (1:1)","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de lavande","Sirop de rose","Sirop de vanille","Sirop de caramel","Sirop de cerise","Sirop de pêche","Miel","Sucre en poudre","Angostura bitters","Peychaud's bitters","Orange bitters","Cardamome bitters"] },
   { id:'herbes',   label:'Herbes & Fruits frais', icon:'🌿',
     items:["Menthe fraîche","Basilic","Romarin","Thym","Coriandre","Citron vert frais","Citron jaune frais","Orange fraîche","Pamplemousse frais","Fraise fraîche","Framboise fraîche","Mûre fraîche","Myrtille","Cerise fraîche","Concombre","Ananas frais","Pastèque fraîche","Raisin frais","Jalapeño","Gingembre frais"] },
   { id:'epices',   label:'Épices & Condiments',   icon:'🌶️',
