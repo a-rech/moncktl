@@ -1339,8 +1339,7 @@
     <button class="gen-nav-btn" onclick="navTo('bar-stock')">← Mon bar</button>
   </div>
   <div class="bar-header">
-    <div class="bar-title">⚗️ Recette expérimentale</div>
-    <div class="bar-sub" id="gen-tagline">Votre combinaison du moment</div>
+    <div class="bar-title">⚗️ Cocktail expérimental</div>
   </div>
   <div class="gen-disclaimer">
     ⚠️ Ces combinaisons sont générées aléatoirement — on décline toute responsabilité pour les résultats… surprenants 😅<br>
@@ -2162,11 +2161,11 @@ function showRecipe(id) {
     + '<div style="display:flex;gap:8px;width:100%;margin-top:4px;margin-bottom:4px">'
     + '<button id="recipe-like-btn" class="recipe-like-btn' + (faved ? ' liked' : '') + '" data-id="' + id + '" onclick="onLikeCard(event,' + id + ')" style="flex:1;margin-top:0">'
     + '<span class="rl-ico">' + (faved ? '❤️' : '🤍') + '</span>'
-    + '<span class="rl-txt">' + (faved ? 'Retirer des favoris' : 'Ajouter aux favoris') + '</span>'
+    + '<span class="rl-txt">' + (faved ? 'Favori' : 'Ajouter') + '</span>'
     + '</button>'
     + '<button id="recipe-tested-btn" class="recipe-tested-btn' + (isTested(id) ? ' tested' : '') + '" data-id="' + id + '" onclick="toggleTested(' + id + ')" style="flex:1;margin-top:0">'
     + '<span class="rt-ico">' + (isTested(id) ? '☑️' : '⬜') + '</span>'
-    + '<span class="rt-txt">' + (isTested(id) ? 'Déjà testé' : 'Marquer comme testé') + '</span>'
+    + '<span class="rt-txt">' + (isTested(id) ? 'Déjà testé' : 'Non testé') + '</span>'
     + '</button>'
     + '</div>'
     + buildStarsInline(id)
@@ -2495,10 +2494,10 @@ var GEN_QTY = {
   'Sirop de cerise':2,'Sirop de pêche':2,'Miel':1,'Miel liquide':1,'Sucre en poudre':1,
   'Angostura bitters':0.5,"Peychaud's bitters":0.5,'Orange bitters':0.5,'Cardamome bitters':0.5,
   // Herbes & Fruits frais (unités différentes, gérées via GEN_UNIT)
-  'Menthe fraîche':8,'Basilic':4,'Romarin':1,'Thym':2,'Coriandre':4,
+  'Menthe fraîche':4,'Basilic':4,'Romarin':1,'Thym':2,'Coriandre':4,
   'Citron vert frais':0.5,'Citron jaune frais':0.5,'Orange fraîche':0.5,
   'Pamplemousse frais':0.25,'Fraise fraîche':3,'Framboise fraîche':4,'Mûre fraîche':4,
-  'Myrtille':10,'Cerise fraîche':3,'Concombre':3,'Ananas frais':2,'Pastèque fraîche':2,
+  'Myrtille':8,'Cerise fraîche':3,'Concombre':3,'Ananas frais':2,'Pastèque fraîche':2,
   'Raisin frais':6,'Jalapeño':2,'Gingembre frais':2,
   // Épices & Condiments
   'Sel':1,'Fleur de sel':1,'Sel fumé':1,'Tabasco':4,'Sauce Worcestershire':4,
@@ -2998,7 +2997,7 @@ function refreshStarsUI(id) {
   resetStarsInline(id);
   var hint = document.getElementById('rating-hint-' + id);
   var r = getRating(id);
-  if (hint) hint.textContent = r > 0 ? ['','⭐ Décevant','👍 Correct','😊 Bon','🔥 Excellent','🏆 Parfait'][r] : '';
+  if (hint) hint.textContent = r > 0 ? ['','🫤 Décevant','👍 Correct','😊 Bon','🔥 Excellent','🏆 Parfait'][r] : '';
 }
 
 // Prévisualisation au survol : affiche les étoiles comme si on avait noté n
@@ -3035,7 +3034,7 @@ function buildStarsInline(id) {
   }
   html += '</div>'
     + '<span id="rating-hint-' + id + '" style="font-size:12px;color:var(--text2);margin-left:4px">'
-    + (r > 0 ? ['','⭐ Décevant','👍 Correct','😊 Bon','🔥 Excellent','🏆 Parfait'][r] : '')
+    + (r > 0 ? ['','🫤 Décevant','👍 Correct','😊 Bon','🔥 Excellent','🏆 Parfait'][r] : '')
     + '</span></div>';
   return html;
 }
