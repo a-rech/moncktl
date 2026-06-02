@@ -61,7 +61,9 @@
     body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;zoom:var(--font-zoom,1);}
     .taste-profile{display:var(--taste-display,block);}
     /* TOPBAR */
+    :root { --topbar-h: 58px; }
     .topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:12px;height:58px;}
+    #catalogue-results, .gen-cat-block { scroll-margin-top: calc(var(--topbar-h) + 12px); }
     .topbar-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;}
     .topbar-logo span{color:var(--accent);}
     .topbar-nav{display:flex;gap:2px;margin-left:auto;flex-wrap:nowrap;}
@@ -733,12 +735,13 @@
     <h1>Shakers à la main,<br>votre bar <em>chez vous</em></h1>
     <p>Composez vos cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
     <div class="hero-btns">
-      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos alcools et sirops préférés</p></div>
-      <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés</p></div>
+      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails classiques qui vous correspondent</p></div>
+      <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés par catégories</p></div>
       <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Aléatoire</h3><p>Laissez le hasard remplir votre verre</p></div>
     </div>
     <div class="hero-btns" style="gap:12px;margin-top:16px">
       <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créer</h3><p>Créer un nouveau cocktail</p></div>
+      <div class="hero-card" onclick="navTo('bar-stock')"><div class="icon">🧪</div><h3>Bar expérimental</h3><p>Générez une recette aléatoire avec les ingrédients de votre bar</p></div>
     </div>
     <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Préférences</button>
   </div>
@@ -892,7 +895,7 @@
     <button class="btn-lexique" onclick="openLexique()">💡 Lexique</button>
   </div>
   <div class="section-title">Recherche par ingrédients</div>
-  <p class="section-sub">Cochez vos ingrédients préférés pour trouver le cocktail idéal</p>
+  <p class="section-sub">Cochez vos ingrédients préférés pour trouver le cocktail idéal parmi le catalogue</p>
 
   <!-- MODE DE RECHERCHE (désactivé — réactiver en décommentant)
   <div class="search-mode-bar" id="mode-bar-top">
@@ -955,7 +958,7 @@
     <button class="cat-mode-btn" id="mode-btn-base" onclick="setCatMode('base')">🥃 Alcool de base</button>
   </div>
   <div id="cat-tabs"></div>
-  <div id="catalogue-results"></div>
+  <div id="catalogue-results" style="margin-top:12px"></div>
   <button id="btn-reset-filters" onclick="resetAllCatalogueFilters()">↺ Réinitialiser</button>
 </div>
 
@@ -1364,7 +1367,7 @@
       <div class="gen-items" id="gen-items-condiment"></div>
       <button class="gen-add-btn" id="gen-addbtn-condiment" onclick="genAddItem('condiment')">+ ajouter</button>
     </div>
-    <button class="gen-reroll-btn" onclick="barGoGenerate()">🔀 Nouvelle combinaison</button>
+    <button class="gen-reroll-btn" onclick="barRegenerate()">🔀 Nouvelle combinaison</button>
     <div class="gen-actions">
       <button class="gen-action-btn" id="gen-copy-btn" onclick="genCopyText()">📋 Copier la recette</button>
       <button class="gen-action-btn primary" onclick="genOpenInForm()">✨ Créer ce cocktail</button>
@@ -2333,6 +2336,8 @@ function barSetCustom(obj) { lsSet(BAR_CUSTOM_KEY, obj); }
 function loadBarStock() {
   if (BAR_STOCK_BUILT) { barRefreshBadge(); return; }
   BAR_STOCK_BUILT = true;
+  var goBtn = document.getElementById('bar-go-btn');
+  if (goBtn) goBtn.textContent = barRandTagline();
   var checked = barGetChecked();
   var custom  = barGetCustom();
   var container = document.getElementById('bar-families-container');
@@ -2613,23 +2618,32 @@ function barGenerate() {
 }
 
 function barGoGenerate() {
+  // Appelé depuis le gros bouton de bar-stock → navigue vers bar-gen, haut de page
   barGenerate();
   _barHasGenerated = true;
   var gotoGen = document.getElementById('btn-goto-gen');
   if (gotoGen) gotoGen.style.display = 'flex';
-  // Mise à jour du tagline
-  var tag = document.getElementById('gen-tagline');
-  if (tag) tag.textContent = 'Combinaison du ' + new Date().toLocaleDateString('fr-FR',{weekday:'long'});
-  // Mise à jour du bouton
   var goBtn = document.getElementById('bar-go-btn');
   if (goBtn) goBtn.textContent = barRandTagline();
-  renderGenResult();
   navTo('bar-gen');
-  // Scroll vers le bloc alcool pour voir le résultat immédiatement
+  // Rendu après navigation, sans scroll (on arrive en haut de page)
+  setTimeout(function() {
+    var tag = document.getElementById('gen-tagline');
+    if (tag) tag.textContent = 'Combinaison du ' + new Date().toLocaleDateString('fr-FR',{weekday:'long'});
+    renderGenResult();
+  }, 50);
+}
+
+function barRegenerate() {
+  // Appelé depuis "Nouvelle combinaison" dans bar-gen → scroll vers le résultat
+  barGenerate();
+  var tag = document.getElementById('gen-tagline');
+  if (tag) tag.textContent = 'Combinaison du ' + new Date().toLocaleDateString('fr-FR',{weekday:'long'});
+  renderGenResult();
   setTimeout(function() {
     var bloc = document.getElementById('gen-items-alcool');
     if (bloc) bloc.closest('.gen-cat-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 80);
+  }, 50);
 }
 
 function renderGenResult() {
