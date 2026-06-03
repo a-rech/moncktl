@@ -496,9 +496,13 @@
     .bar-header { text-align:center; padding:28px 0 20px; }
     .bar-header .bar-title { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--text); }
     .bar-header .bar-sub { color:var(--text2); font-size:13px; margin-top:6px; }
-    .bar-disclaimer { margin:16px 0 24px; padding:14px 16px; background:rgba(212,170,74,.08); border:1px solid rgba(212,170,74,.2); border-radius:12px; font-size:13px; color:var(--text2); line-height:1.5; text-align:center; }
-    .bar-saved-badge { display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; color:var(--easy); background:rgba(93,184,118,.12); border:1px solid rgba(93,184,118,.25); border-radius:20px; padding:4px 12px; margin-bottom:16px; visibility:hidden; opacity:0; transition:opacity .25s; }
-    .bar-saved-badge.visible { visibility:visible; opacity:1; }
+    .bar-disclaimer { position:relative; margin:16px 0 24px; padding:14px 16px 32px; background:rgba(212,170,74,.08); border:1px solid rgba(212,170,74,.2); border-radius:12px; font-size:13px; color:var(--text2); line-height:1.5; text-align:center; transition:all .2s; }
+    .gen-disclaimer { position:relative; margin:16px 0 24px; padding:14px 16px 32px; background:rgba(212,170,74,.08); border:1px solid rgba(212,170,74,.2); border-radius:12px; font-size:13px; color:var(--text2); line-height:1.5; text-align:center; transition:all .2s; }
+    .disclaimer-hide-btn { position:absolute; bottom:7px; left:10px; display:flex; align-items:center; gap:3px; padding:2px 7px; border:none; background:transparent; cursor:pointer; font-size:11px; color:var(--text3); font-family:'DM Sans',sans-serif; border-radius:6px; transition:color .15s; }
+    .disclaimer-hide-btn:hover { color:var(--text2); }
+    .disclaimer-info-pill { display:none; align-items:center; gap:5px; margin:0 0 16px; cursor:pointer; padding:4px 10px; border-radius:20px; border:1px solid rgba(212,170,74,.3); background:rgba(212,170,74,.07); font-size:11px; color:var(--text3); font-family:'DM Sans',sans-serif; transition:all .15s; }
+    .disclaimer-info-pill:hover { color:var(--accent); border-color:rgba(212,170,74,.6); }
+    .disclaimer-info-pill.visible { display:inline-flex; }
     .bar-family-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; }
     .bar-family-label { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); margin-bottom:10px; display:flex; align-items:center; gap:5px; }
     .bar-chips { display:flex; flex-wrap:wrap; gap:5px; }
@@ -518,7 +522,6 @@
     .bar-go-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(212,170,74,.45); }
     .bar-go-btn:active { transform:translateY(0); }
     /* Page générateur */
-    .gen-disclaimer { margin:16px 0 24px; padding:14px 16px; background:rgba(212,170,74,.08); border:1px solid rgba(212,170,74,.2); border-radius:12px; font-size:13px; color:var(--text2); line-height:1.5; text-align:center; }
     .gen-result-area { display:none; }
     .gen-result-area.visible { display:block; }
     .gen-cat-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; }
@@ -1372,11 +1375,11 @@
     <div class="bar-title">🍹 Mon bar</div>
     <div class="bar-sub">Cochez tout ce que vous avez à disposition - Le générateur vous proposera un cocktail expérimental aléatoire 🎰</div>
   </div>
-  <div class="bar-disclaimer">
-    Certaines combinaisons d'ingrédients sont impossibles pour limiter les désastres 😵<br>
-    <span style="font-size:11px;opacity:.7">La sélection est sauvegardée entre chaque session.</span>
+  <div class="bar-disclaimer" id="bar-disclaimer">
+    <button class="disclaimer-hide-btn" onclick="hideDisclaimer('bar')">▲ cacher</button>
+    Certaines combinaisons d'ingrédients sont impossibles pour limiter les désastres 😵
   </div>
-  <div id="bar-saved-badge" class="bar-saved-badge">✓ Sélection sauvegardée</div>
+  <div class="disclaimer-info-pill" id="bar-disclaimer-pill" onclick="showDisclaimer('bar')">ℹ️ info</div>
   <div id="bar-families-container"></div>
   <button class="bar-reset-btn" id="bar-reset-btn" onclick="barResetStock()" style="margin-bottom:16px">🗑 Réinitialiser la sélection</button>
   <button class="bar-go-btn" id="bar-go-btn" onclick="barGoGenerate()">🪄 Laissons la magie opérer</button>
@@ -1393,10 +1396,12 @@
   <div class="bar-header">
     <div class="bar-title">⚗️ Cocktail expérimental</div>
   </div>
-  <div class="gen-disclaimer">
+  <div class="gen-disclaimer" id="gen-disclaimer">
+    <button class="disclaimer-hide-btn" onclick="hideDisclaimer('gen')">▲ cacher</button>
     ⚠️ Ces combinaisons sont générées aléatoirement — on décline toute responsabilité pour les résultats… surprenants 😅<br>
     <span style="font-size:11px;opacity:.7">Cliquez 🔀 pour relancer un ingrédient, + pour en ajouter un ou ❌ pour supprimer</span>
   </div>
+  <div class="disclaimer-info-pill" id="gen-disclaimer-pill" onclick="showDisclaimer('gen')">ℹ️ info</div>
   <div id="gen-result-area" class="gen-result-area">
     <div class="gen-cat-block">
       <div class="gen-cat-label">🥃 Alcool de base</div>
@@ -2411,7 +2416,7 @@ function barSetCustom(obj) { lsSet(BAR_CUSTOM_KEY, obj); }
 // ── Construction de la page bar-stock ────────────────────────────────────
 
 function loadBarStock() {
-  if (BAR_STOCK_BUILT) { barRefreshBadge(); return; }
+  if (BAR_STOCK_BUILT) return;
   BAR_STOCK_BUILT = true;
   var goBtn = document.getElementById('bar-go-btn');
   if (goBtn) goBtn.textContent = barRandTagline();
@@ -2437,7 +2442,7 @@ function loadBarStock() {
     html += '</div>';
   });
   container.innerHTML = html;
-  barRefreshBadge();
+
   barRefreshGoBtn();
 }
 
@@ -2457,7 +2462,6 @@ function barToggleChip(el, item) {
   if (idx === -1) { checked.push(item); el.classList.add('on'); }
   else            { checked.splice(idx, 1); el.classList.remove('on'); }
   barSetChecked(checked);
-  barShowSavedBadge();
   barRefreshGoBtn();
 }
 // Délégation interne gérée via DOMContentLoaded (voir init)
@@ -2481,7 +2485,6 @@ function barAddCustom(catId) {
   var checked = barGetChecked();
   if (checked.indexOf(val) === -1) { checked.push(val); barSetChecked(checked); }
   input.value = '';
-  barShowSavedBadge();
   barRefreshGoBtn();
 }
 
@@ -2498,7 +2501,6 @@ function barDelCustom(catId, item) {
       if (el.textContent.replace('✕','').trim() === item) el.remove();
     });
   }
-  barShowSavedBadge();
   barRefreshGoBtn();
 }
 
@@ -2506,20 +2508,7 @@ function barResetStock() {
   if (!confirm('Désélectionner tous les ingrédients ?')) return;
   barSetChecked([]);
   document.querySelectorAll('.bar-chip.on').forEach(function(el){ el.classList.remove('on'); });
-  document.getElementById('bar-saved-badge').classList.remove('visible');
   barRefreshGoBtn();
-}
-
-var _barSavedTimer = null;
-function barShowSavedBadge() {
-  var badge = document.getElementById('bar-saved-badge');
-  badge.classList.add('visible');
-  clearTimeout(_barSavedTimer);
-  _barSavedTimer = setTimeout(function(){ badge.classList.remove('visible'); }, 2500);
-}
-
-function barRefreshBadge() {
-  // badge géré par barShowSavedBadge (visibility toggle), rien à faire au chargement
 }
 
 function barRefreshGoBtn() {
@@ -2878,9 +2867,40 @@ function genOpenInForm() {
 }
 
 // ── 16. INITIALISATION ────────────────────────────────────────────────────
+// ── DISCLAIMER MASQUABLE ──────────────────────────────────────────────────
+function hideDisclaimer(key) {
+  var disc = document.getElementById(key + '-disclaimer');
+  var pill = document.getElementById(key + '-disclaimer-pill');
+  if (disc) disc.style.display = 'none';
+  if (pill) pill.classList.add('visible');
+  try { localStorage.setItem('mc_disc_hidden_' + key, '1'); } catch(e) {}
+}
+
+function showDisclaimer(key) {
+  var disc = document.getElementById(key + '-disclaimer');
+  var pill = document.getElementById(key + '-disclaimer-pill');
+  if (disc) disc.style.display = '';
+  if (pill) pill.classList.remove('visible');
+  try { localStorage.removeItem('mc_disc_hidden_' + key); } catch(e) {}
+}
+
+function initDisclaimers() {
+  ['bar', 'gen'].forEach(function(key) {
+    try {
+      if (localStorage.getItem('mc_disc_hidden_' + key) === '1') {
+        var disc = document.getElementById(key + '-disclaimer');
+        var pill = document.getElementById(key + '-disclaimer-pill');
+        if (disc) disc.style.display = 'none';
+        if (pill) pill.classList.add('visible');
+      }
+    } catch(e) {}
+  });
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   applyPrefs();
   loadUserCocktails(); // Fusionner les recettes utilisateur avec COCKTAILS // Appliquer les préférences sauvegardées
+  initDisclaimers();
   // Fermer les dropdowns profil sur clic extérieur
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.pf-btn')) {
