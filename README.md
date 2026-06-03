@@ -330,7 +330,7 @@ Ouvrez une issue ou contactez directement !
 
 ---
 
-**Version** : 2.10  
+**Version** : 3.4  
 **Dernière mise à jour** : Mai 2026  
 **Status** : ✅ Production-ready
 
