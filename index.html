@@ -3276,8 +3276,9 @@ function updateResetBtnVisibility() {
   var hasPf = profileFilters.s.length > 0 || profileFilters.b.length > 0 || profileFilters.a.length > 0;
   var activeTab = document.querySelector('#cat-tabs .cat-tab.active');
   var hasTab = activeTab && activeTab.getAttribute('data-val') !== 'all';
+  var hasCard = !!document.querySelector('.my-list-card.active');
   var btn = document.getElementById('btn-reset-filters');
-  if (btn) btn.classList.toggle('visible', hasPf || hasTab);
+  if (btn) btn.classList.toggle('visible', hasPf || hasTab || hasCard);
 }
 
 function toggleAdvancedFilters() {
