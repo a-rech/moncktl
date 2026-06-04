@@ -67,7 +67,7 @@
     .topbar-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;}
     .topbar-logo span{color:var(--accent);}
     .topbar-nav{display:flex;gap:0;margin-left:auto;flex-wrap:nowrap;}
-    .nav-btn{padding:5px 8px;border:none;background:transparent;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;white-space:nowrap;}
+    .nav-btn{padding:5px 6px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;white-space:nowrap;}
     .nav-btn:hover,.nav-btn.active{background:var(--surface2);color:var(--text);}
     /* PAGES */
     .page{display:none;padding:32px 24px;max-width:1100px;margin:0 auto;}
@@ -279,13 +279,13 @@
     /* Encoche iPhone X+ en mode standalone */
     .topbar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));padding-top:env(safe-area-inset-top);}
     .page{padding-bottom:max(24px,env(safe-area-inset-bottom));}
-    @media(max-width:700px){.topbar{padding:0 12px;}.topbar-logo{font-size:16px;}.nav-btn{padding:4px 7px;font-size:12px;}.page{padding:18px 14px;}.hero{padding:24px 0 20px;}.families-grid{grid-template-columns:1fr 1fr;}.recipe-infos{flex-direction:column;}.info-block{border-right:none;border-bottom:1px solid var(--border);}.info-block:last-child{border-bottom:none;}}
+    @media(max-width:700px){.topbar{padding:0 12px;}.topbar-logo{font-size:16px;}.nav-btn{padding:4px 6px;font-size:12px;}.page{padding:18px 14px;}.hero{padding:24px 0 20px;}.families-grid{grid-template-columns:1fr 1fr;}.recipe-infos{flex-direction:column;}.info-block{border-right:none;border-bottom:1px solid var(--border);}.info-block:last-child{border-bottom:none;}}
     /* Sous 480px : une seule colonne pour les familles d'ingrédients */
     @media(max-width:480px){
       .topbar{padding:0 10px;gap:6px;}
       .topbar-logo{font-size:17px;}
-      .topbar-nav{gap:1px;}
-      .nav-btn{padding:6px 9px;font-size:17px;}
+      .topbar-nav{gap:0;}
+      .nav-btn{padding:6px 7px;font-size:17px;}
       .nav-btn .nav-label{display:none;}
       .families-grid{grid-template-columns:1fr;}
     }
@@ -790,7 +790,7 @@
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
-    <button class="nav-btn" onclick="navTo('bar-gen')">🧪<span class="nav-label"> Expérimental</span></button>    
+    <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
