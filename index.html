@@ -789,7 +789,7 @@
     <button class="nav-btn" onclick="navTo('search')">🍸<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
-    <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créer</span></button>
+    <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
@@ -802,12 +802,12 @@
     <h1>Shakers à la main,<br>votre bar <em>chez vous</em></h1>
     <p>Composez vos cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
     <div class="hero-btns">
-      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails classiques qui vous correspondent</p></div>
+      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails qui vous correspondent</p></div>
       <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés par catégories</p></div>
-      <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Aléatoire</h3><p>Laissez le hasard remplir votre verre</p></div>
+      <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Hasard</h3><p>Un cocktail du catalogue choisi au hasard pour remplir votre verre</p></div>
     </div>
     <div class="hero-btns" style="gap:12px;margin-top:16px">
-      <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créer</h3><p>Créer un nouveau cocktail</p></div>
+      <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créations</h3><p>Créez un nouveau cocktail ou importez celui d'un ami</p></div>
       <div class="hero-card" onclick="navTo('bar-stock')"><div class="icon">🧪</div><h3>Bar expérimental</h3><p>Générez une recette aléatoire avec les ingrédients de votre bar</p></div>
     </div>
     <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Préférences</button>
@@ -973,7 +973,7 @@
   </div>
   -->
 
-  <p class="ingredient-tap-hint">1 tap ✔ - 2 tap exclu</p>
+  <p class="ingredient-tap-hint">1 tap ✔ sélecction - 2 tap ✕ exclusion</p>
   <div class="families-grid" id="families-container"></div>
 
   <!-- MODE DE RECHERCHE bas de page (désactivé — réactiver en décommentant)
@@ -1023,7 +1023,7 @@
     </div>
   </div>
   <!-- Filtres : hint + barre mode + bouton avancé -->
-  <p class="pf-hint">Filtrez par <strong>type</strong> ou <strong>alcool</strong> - par goût et intensité avec 🎛️</p>
+  <p class="pf-hint">Cliquez sur 🎛️ pour ouvrir les filtre avancés</p>
   <div class="cat-mode-bar">
     <button class="cat-mode-btn active" id="mode-btn-cat" onclick="setCatMode('cat')">🍸 Type</button>
     <button class="cat-mode-btn" id="mode-btn-base" onclick="setCatMode('base')">🥃 Alcool</button>
@@ -1406,7 +1406,7 @@
   <div class="bar-disclaimer" id="bar-disclaimer">
     <button class="disclaimer-hide-btn" onclick="hideDisclaimer('bar')">▲ cacher</button>
     Certaines combinaisons d'ingrédients sont impossibles pour limiter les désastres 😵<br>
-    <span style="font-size:11px;opacity:.7">La sélection est sauvegardée entre chaque session.</span>
+    <span style="font-size:11px;opacity:.7">La sélection est sauvegardée entre chaque session ✅</span>
   </div>
   <div class="disclaimer-info-pill" id="bar-disclaimer-pill" onclick="showDisclaimer('bar')">▼</div>
   <div id="bar-families-container"></div>
@@ -3831,14 +3831,14 @@ function openPrefs() {
 // Navigue vers un onglet spécifique du catalogue (utilisé depuis À propos)
 function goToMyCreations() {
   navTo('catalogue');
-  // Attendre que la page soit rendue puis scroller sur la ligne "Mes listes"
+  // Double rAF : laisser navTo + loadCatalogueTabs se terminer avant d'interagir
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
-      var target = document.getElementById('mylist-fav');
-      if (!target) return;
-      var topbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 58;
-      var top = target.getBoundingClientRect().top + window.scrollY - topbarH - 12;
-      window.scrollTo({ top: top, behavior: 'smooth' });
+      var card = document.getElementById('mylist-creations');
+      if (card) filterCatalogueFromCard('__mycocktails__', card);
+      // Le scroll jusqu'aux résultats (scroll-margin-top tient compte de la topbar)
+      var results = document.getElementById('catalogue-results');
+      if (results) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 }
