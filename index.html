@@ -1961,11 +1961,11 @@ function doSearch(silent) {
 
   // En mode OR avec plusieurs ingrédients : séparer les groupes
   if (!isAnd && total > 1 && groups.full && groups.partial) {
-    html += '<div style="font-size:12px;font-weight:600;color:var(--accent);margin:12px 0 6px">✓ Correspondance complète (' + groups.full.length + ')</div>';
+    html += '<div style="font-size:13px;font-weight:600;color:var(--accent);margin:12px 0 6px">✓ Correspondance complète (' + groups.full.length + ')</div>';
     html += '<div class="results-grid">';
     groups.full.forEach(function(x) { html += _searchCard(x, total); });
     html += '</div>';
-    html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:16px 0 6px">◐ Correspondance partielle (' + groups.partial.length + ')</div>';
+    html += '<div style="font-size:13px;font-weight:600;color:var(--text2);margin:16px 0 6px">◐ Correspondance partielle (' + groups.partial.length + ')</div>';
     html += '<div class="results-grid">';
     groups.partial.forEach(function(x) { html += _searchCard(x, total); });
     html += '</div>';
