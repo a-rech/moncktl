@@ -66,8 +66,8 @@
     #catalogue-results, .gen-cat-block { scroll-margin-top: calc(var(--topbar-h) + 12px); }
     .topbar-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;}
     .topbar-logo span{color:var(--accent);}
-    .topbar-nav{display:flex;gap:2px;margin-left:auto;flex-wrap:nowrap;}
-    .nav-btn{padding:5px 10px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;white-space:nowrap;}
+    .topbar-nav{display:flex;gap:0;margin-left:auto;flex-wrap:nowrap;}
+    .nav-btn{padding:5px 8px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;white-space:nowrap;}
     .nav-btn:hover,.nav-btn.active{background:var(--surface2);color:var(--text);}
     /* PAGES */
     .page{display:none;padding:32px 24px;max-width:1100px;margin:0 auto;}
@@ -790,6 +790,7 @@
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
+    <button class="nav-btn" onclick="navTo('bar-gen')">🧪<span class="nav-label"> Expérimental</span></button>    
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
@@ -1458,8 +1459,11 @@
       <button class="gen-add-btn" id="gen-addbtn-condiment" onclick="genAddItem('condiment')">➕ ajouter</button>
     </div>
     <button class="gen-reroll-btn" onclick="barRegenerate()">🔀 Nouvelle combinaison</button>
-    <div class="gen-actions">
-      <button class="gen-action-btn" id="gen-copy-btn" onclick="genCopyText()">📋 Copier la recette</button>
+    <div class="gen-actions" style="flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:8px;">
+        <button class="gen-action-btn" id="gen-copy-btn" onclick="genCopyText()">📋 Copier la recette</button>
+        <button class="gen-action-btn" onclick="enterGenSoireeMode()">🔥 Agrandir la recette</button>
+      </div>
       <button class="gen-action-btn primary" onclick="genOpenInForm()">✨ Créer ce cocktail</button>
     </div>
   </div>
@@ -4875,6 +4879,73 @@ function copyIngredients(id) {
 }
 
 // ── MODE SOIRÉE ────────────────────────────────────────────────────────────
+function enterGenSoireeMode() {
+  var roles = ['alcool', 'acide', 'sucrant', 'diluant', 'condiment'];
+  var labels = { alcool:'🥃 Alcool', acide:'🍋 Jus & acidité', sucrant:'🍯 Sucrant', diluant:'🫧 Diluant', condiment:'🌿 Herbes & condiments' };
+
+  // Construire la liste d'ingrédients depuis _genState
+  var ingHtml = '';
+  roles.forEach(function(role) {
+    var items = _genState[role];
+    if (!items || items.length === 0) return;
+    items.forEach(function(item) {
+      var q = genGetQty(item);
+      ingHtml += '<li style="font-size:22px;color:#fff;display:flex;align-items:baseline;gap:8px;line-height:1.3;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:14px">'
+        + item
+        + ' <span style="opacity:.55;font-size:.75em">' + q.qty + ' ' + q.unit + '</span>'
+        + '</li>';
+    });
+  });
+  if (!ingHtml) return; // rien à afficher si le générateur est vide
+
+  var steps = [
+    'Mélangez les ingrédients selon vos envies - aucune règle, c\'est votre expérience.',
+    'Santé 🥂'
+  ];
+  var stepsHtml = steps.map(function(s, i) {
+    return '<li style="font-size:20px;color:rgba(255,255,255,.88);line-height:1.5;display:flex;align-items:baseline">'
+      + '<span style="display:inline-flex;align-items:center;justify-content:center;width:1.5em;height:1.5em;border-radius:50%;background:var(--accent);color:#0C0F1D;font-size:.65em;font-weight:700;margin-right:.6em;flex-shrink:0">' + (i+1) + '</span>'
+      + s + '</li>';
+  }).join('');
+
+  var overlay = document.createElement('div');
+  overlay.id = 'soiree-overlay';
+  overlay.style.cssText = [
+    'position:fixed;inset:0;background:#0C0F1D;z-index:99990',
+    'overflow-y:auto;-webkit-overflow-scrolling:touch',
+    'padding:0 0 60px 0'
+  ].join(';');
+
+  overlay.innerHTML = [
+    '<button onclick="exitSoireeMode()" style="position:fixed;top:14px;right:16px;z-index:99991;',
+    'padding:8px 18px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);',
+    'border:1px solid rgba(255,255,255,.2);border-radius:20px;font-size:15px;cursor:pointer">← Retour</button>',
+
+    '<div style="text-align:center;padding:48px 24px 24px">',
+    '<div style="font-size:80px;line-height:1;margin-bottom:16px">🧪</div>',
+    '<div style="font-family:\'Playfair Display\',serif;font-size:32px;font-weight:700;color:#fff;line-height:1.2">Cocktail expérimental</div>',
+    '</div>',
+
+    '<div style="padding:0 24px 32px">',
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:16px">Ingrédients</div>',
+    '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px">',
+    ingHtml,
+    '</ul></div>',
+
+    '<div style="padding:0 24px">',
+    '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:16px">Préparation</div>',
+    '<ol style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:20px">',
+    stepsHtml,
+    '</ol></div>'
+  ].join('');
+
+  document.body.appendChild(overlay);
+
+  if (navigator.wakeLock) {
+    navigator.wakeLock.request('screen').then(function(wl) { overlay._wl = wl; }).catch(function(){});
+  }
+}
+
 function enterSoireeMode(id) {
   var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
   if (!c) return;
