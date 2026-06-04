@@ -93,7 +93,7 @@
     .ingredient-chip{display:inline-flex;align-items:center;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:var(--bg);font-size:12px;cursor:pointer;margin:2px;transition:all .15s;user-select:none;color:var(--text2);}
     .ingredient-chip.selected{background:var(--accent);color:#0C0F1D;border-color:var(--accent);font-weight:500;}
     .ingredient-chip:hover:not(.selected){border-color:var(--accent);color:var(--accent);}
-    .ingredient-tap-hint{font-size:11px;color:var(--text3);opacity:.72;margin:-4px 0 10px;text-align:right;}
+    .ingredient-tap-hint{font-size:11px;color:var(--text3);opacity:.72;margin:-4px 0 10px;}
     /* ACTIONS */
     .search-actions{display:flex;gap:10px;align-items:center;margin-bottom:24px;flex-wrap:wrap;}
     .btn{padding:9px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;transition:all .2s;}
@@ -610,6 +610,7 @@
     #page-add-entry .entry-choices {
       display: flex; flex-direction: column; gap: 14px; margin-top: 24px;
     }
+    /* Grandes tuiles primaires */
     .entry-choice-btn {
       display: flex; align-items: center; gap: 16px;
       padding: 20px 22px; border-radius: var(--radius);
@@ -618,9 +619,42 @@
     }
     .entry-choice-btn:hover { border-color: var(--accent); background: var(--surface2); }
     .entry-choice-btn:active { transform: scale(.99); }
+    .entry-choice-btn.primary {
+      padding: 28px 26px;
+      background: var(--surface2);
+      border-color: var(--border);
+    }
+    .entry-choice-btn.primary:hover { border-color: var(--accent); background: #1e2545; }
     .entry-choice-icon { font-size: 32px; flex-shrink: 0; }
+    .entry-choice-btn.primary .entry-choice-icon { font-size: 42px; }
     .entry-choice-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .entry-choice-btn.primary .entry-choice-title { font-size: 19px; font-weight: 600; }
     .entry-choice-sub   { font-size: 13px; color: var(--text3); line-height: 1.4; }
+    .entry-choice-btn.primary .entry-choice-sub { font-size: 14px; color: var(--text2); }
+    /* Séparateur + ligne secondaire import */
+    .entry-divider { display: flex; align-items: center; gap: 11px; margin: 6px 0 2px; }
+    .entry-divider::before, .entry-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+    .entry-divider-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+    .entry-import-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-radius: 10px;
+      border: 1px dashed var(--border); background: transparent;
+      cursor: pointer; transition: all .2s; text-align: left; width: 100%;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .entry-import-link:hover { border-color: var(--accent); color: var(--accent); }
+    .entry-import-link .entry-import-icon { font-size: 18px; }
+    .entry-import-link .entry-import-label { font-size: 14px; color: var(--text2); }
+    .entry-import-link:hover .entry-import-label { color: var(--accent); }
+    /* Lien "voir les créations" */
+    .entry-see-creations {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 18px; padding: 0;
+      background: transparent; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      color: var(--text3); transition: color .15s;
+    }
+    .entry-see-creations:hover { color: var(--accent); }
 
     /* Sélecteur catalogue (recherche pour cloner) */
     .clone-search-wrap { position: relative; margin-top: 20px; }
@@ -760,7 +794,7 @@
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
 <button class="btn-scroll-top" id="btn-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<button class="btn-scroll-bottom" id="btn-scroll-bottom" onclick="window.scrollTo({top:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),behavior:'smooth'})" title="Aller en bas">⭣</button>
+<button class="btn-scroll-bottom" id="btn-scroll-bottom" onclick="window.scrollTo({top:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),behavior:'smooth'})" title="Aller en bas">↓</button>
 <button class="fab-update" id="fab-update" onclick="applyUpdate()">🔄 Mettre à jour</button>
 
 <div id="page-home" class="page active">
@@ -1034,35 +1068,29 @@
   <div class="section-title" style="margin-bottom:6px">Créer un cocktail</div>
   <p class="section-sub">Par où voulez-vous commencer ?</p>
   <div class="entry-choices">
-    <button class="entry-choice-btn" onclick="startFromScratch()">
+    <button class="entry-choice-btn primary" onclick="startFromScratch()">
       <span class="entry-choice-icon">🪄</span>
       <div>
         <div class="entry-choice-title">Créer de zéro</div>
         <div class="entry-choice-sub">Formulaire vierge — donnez libre cours à votre créativité</div>
       </div>
     </button>
-    <button class="entry-choice-btn" onclick="startFromCatalogue()">
+    <button class="entry-choice-btn primary" onclick="startFromCatalogue()">
       <span class="entry-choice-icon">🍸</span>
       <div>
         <div class="entry-choice-title">Adapter une recette existante</div>
         <div class="entry-choice-sub">Partez d'un cocktail du catalogue pour le personnaliser</div>
       </div>
     </button>
-    <button class="entry-choice-btn" onclick="navTo('import')">
-      <span class="entry-choice-icon">📥</span>
-      <div>
-        <div class="entry-choice-title">Importer une recette</div>
-        <div class="entry-choice-sub">Importez un code reçu pour ajouter une recette</div>
-      </div>
-    </button>
-    <button class="entry-choice-btn" onclick="showMyCreationsPanel()">
-      <span class="entry-choice-icon">✨</span>
-      <div>
-        <div class="entry-choice-title">Créations</div>
-        <div class="entry-choice-sub">Retrouvez et consultez vos recettes personnelles</div>
-      </div>
-    </button>
   </div>
+  <div class="entry-divider"><span class="entry-divider-label">ou</span></div>
+  <button class="entry-import-link" onclick="navTo('import')">
+    <span class="entry-import-icon">📥</span>
+    <span class="entry-import-label">Importer un code reçu</span>
+  </button>
+  <button class="entry-see-creations" onclick="goToMyCreations()">
+    ✦ Aller voir mes créations →
+  </button>
   <div id="clone-picker" style="display:none;margin-top:24px;">
     <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;">Choisissez une recette à adapter</div>
     <div class="clone-search-wrap">
@@ -1377,9 +1405,10 @@
   </div>
   <div class="bar-disclaimer" id="bar-disclaimer">
     <button class="disclaimer-hide-btn" onclick="hideDisclaimer('bar')">▲ cacher</button>
-    Certaines combinaisons d'ingrédients sont impossibles pour limiter les désastres 😵
+    Certaines combinaisons d'ingrédients sont impossibles pour limiter les désastres 😵<br>
+    <span style="font-size:11px;opacity:.7">La sélection est sauvegardée entre chaque session.</span>
   </div>
-  <div class="disclaimer-info-pill" id="bar-disclaimer-pill" onclick="showDisclaimer('bar')">ℹ️ info</div>
+  <div class="disclaimer-info-pill" id="bar-disclaimer-pill" onclick="showDisclaimer('bar')">▼</div>
   <div id="bar-families-container"></div>
   <button class="bar-reset-btn" id="bar-reset-btn" onclick="barResetStock()" style="margin-bottom:16px">🗑 Réinitialiser la sélection</button>
   <button class="bar-go-btn" id="bar-go-btn" onclick="barGoGenerate()">🪄 Laissons la magie opérer</button>
@@ -1399,34 +1428,34 @@
   <div class="gen-disclaimer" id="gen-disclaimer">
     <button class="disclaimer-hide-btn" onclick="hideDisclaimer('gen')">▲ cacher</button>
     ⚠️ Ces combinaisons sont générées aléatoirement — on décline toute responsabilité pour les résultats… surprenants 😅<br>
-    <span style="font-size:11px;opacity:.7">Cliquez 🔀 pour relancer un ingrédient, + pour en ajouter un ou ❌ pour supprimer</span>
+    <span style="font-size:11px;opacity:.7">Cliquez 🔀 pour relancer un ingrédient, ➕pour en ajouter un ou ❌ pour supprimer</span>
   </div>
-  <div class="disclaimer-info-pill" id="gen-disclaimer-pill" onclick="showDisclaimer('gen')">ℹ️ info</div>
+  <div class="disclaimer-info-pill" id="gen-disclaimer-pill" onclick="showDisclaimer('gen')">▼</div>
   <div id="gen-result-area" class="gen-result-area">
     <div class="gen-cat-block">
       <div class="gen-cat-label">🥃 Alcool de base</div>
       <div class="gen-items" id="gen-items-alcool"></div>
-      <button class="gen-add-btn" id="gen-addbtn-alcool" onclick="genAddItem('alcool')">+ ajouter</button>
+      <button class="gen-add-btn" id="gen-addbtn-alcool" onclick="genAddItem('alcool')">➕ ajouter</button>
     </div>
     <div class="gen-cat-block">
       <div class="gen-cat-label">🍋 Jus &amp; acidité</div>
       <div class="gen-items" id="gen-items-acide"></div>
-      <button class="gen-add-btn" id="gen-addbtn-acide" onclick="genAddItem('acide')">+ ajouter</button>
+      <button class="gen-add-btn" id="gen-addbtn-acide" onclick="genAddItem('acide')">➕ ajouter</button>
     </div>
     <div class="gen-cat-block">
       <div class="gen-cat-label">🍯 Sucrant</div>
       <div class="gen-items" id="gen-items-sucrant"></div>
-      <button class="gen-add-btn" id="gen-addbtn-sucrant" onclick="genAddItem('sucrant')">+ ajouter</button>
+      <button class="gen-add-btn" id="gen-addbtn-sucrant" onclick="genAddItem('sucrant')">➕ ajouter</button>
     </div>
     <div class="gen-cat-block">
       <div class="gen-cat-label">🫧 Diluant</div>
       <div class="gen-items" id="gen-items-diluant"></div>
-      <button class="gen-add-btn" id="gen-addbtn-diluant" onclick="genAddItem('diluant')">+ ajouter</button>
+      <button class="gen-add-btn" id="gen-addbtn-diluant" onclick="genAddItem('diluant')">➕ ajouter</button>
     </div>
     <div class="gen-cat-block">
       <div class="gen-cat-label">🌿 Herbes &amp; condiments</div>
       <div class="gen-items" id="gen-items-condiment"></div>
-      <button class="gen-add-btn" id="gen-addbtn-condiment" onclick="genAddItem('condiment')">+ ajouter</button>
+      <button class="gen-add-btn" id="gen-addbtn-condiment" onclick="genAddItem('condiment')">➕ ajouter</button>
     </div>
     <button class="gen-reroll-btn" onclick="barRegenerate()">🔀 Nouvelle combinaison</button>
     <div class="gen-actions">
@@ -2400,6 +2429,17 @@ var BAR_TAGLINES = [
   "🌪️ Tourbillon de saveurs",
   "🧙 L'alchimiste a la parole",
   "🚀 Mission cocktail lancée",
+"💥 Spoiler : ça va péter (en bouche)",
+"🎭 Tour de magie : abracadabreuvage",
+"🧭 Boussole pointée vers… le bar",
+"⛵️ À l’abordage des papilles !",
+"📊 Statistiquement… imprévisible",
+"🎴 Mélangez, c’est gagné (ou pas)",
+"🎯 On parie que c’est bon ?",
+"🔥 L’alchimie n’attend pas",
+"🧙‍♂️ Un sortilège… ou un cocktail ?",
+"🔮 La boule de cristal a soif",
+"🤷‍♂️ On verra bien…",
 ];
 
 function barRandTagline() {
@@ -3789,6 +3829,20 @@ function openPrefs() {
 }
 
 // Navigue vers un onglet spécifique du catalogue (utilisé depuis À propos)
+function goToMyCreations() {
+  navTo('catalogue');
+  // Attendre que la page soit rendue puis scroller sur la ligne "Mes listes"
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var target = document.getElementById('mylist-fav');
+      if (!target) return;
+      var topbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 58;
+      var top = target.getBoundingClientRect().top + window.scrollY - topbarH - 12;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    });
+  });
+}
+
 function goToCatalogueTab(val) {
   // Les valeurs spéciales sont maintenant des cards, pas des onglets
   var cardMap = { '__favs__': 'mylist-fav', '__tested__': 'mylist-tested', '__mycocktails__': 'mylist-creations' };
