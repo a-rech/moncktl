@@ -803,8 +803,7 @@
 <button class="btn-scroll-bottom" id="btn-scroll-bottom" onclick="window.scrollTo({top:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),behavior:'smooth'})" title="Aller en bas">↓</button>
 <button class="fab-update" id="fab-update" onclick="applyUpdate()">🔄 Mettre à jour</button>
 
-<div id="page-home" class="page active" style="position:relative;">
-  <button class="btn-lexique" onclick="openPrefs()" style="position:absolute;top:8px;left:0;margin:0;">⚙️ Paramètres</button>
+<div id="page-home" class="page active">
   <div class="hero">
     <h1>Shakers à la main,<br>votre bar <em>chez vous</em></h1>
     <p>Découvrez les cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
@@ -816,6 +815,7 @@
       <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créations</h3><p>Créez un nouveau cocktail ou importez celui d'un ami</p></div>
       <div class="hero-card" onclick="navTo('bar-stock')"><div class="icon">🧪</div><h3>Bar expérimental</h3><p>Générez une recette aléatoire avec les ingrédients de votre bar</p></div>
     </div>
+    <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Paramètres</button>
   </div>
 </div>
 
@@ -1407,7 +1407,7 @@
      ══════════════════════════════════════════════════════════════ -->
 <div id="page-bar-stock" class="page">
   <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:4px;min-height:36px;">
-    <button class="gen-nav-btn" onclick="gotoGenOrScroll()" id="btn-goto-gen">Générateur →</button>
+    <button class="gen-nav-btn" onclick="navTo('bar-gen')" id="btn-goto-gen" style="display:none">Générateur →</button>
   </div>
   <div class="bar-header">
     <div class="bar-title">🍹 Mon bar</div>
@@ -2689,23 +2689,10 @@ function barResetStock() {
 }
 
 function barRefreshGoBtn() {
+  var n = barGetChecked().length;
   var gotoGen = document.getElementById('btn-goto-gen');
-  if (!gotoGen) return;
-  // Toujours visible ; flèche et comportement dépendent de si on a déjà généré
-  gotoGen.textContent = _barHasGenerated ? 'Générateur →' : 'Générateur ⭣';
-}
-
-function gotoGenOrScroll() {
-  if (_barHasGenerated) {
-    navTo('bar-gen');
-  } else {
-    // Scroll jusqu'en bas de la page bar-stock
-    var page = document.getElementById('page-bar-stock');
-    if (page) {
-      var lastChild = page.lastElementChild;
-      if (lastChild) lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
-  }
+  // Afficher le lien "Générer" uniquement si on a déjà généré au moins une fois
+  if (gotoGen) gotoGen.style.display = (_barHasGenerated ? 'flex' : 'none');
 }
 
 // ── Génération ────────────────────────────────────────────────────────────
@@ -2877,7 +2864,8 @@ function barGoGenerate() {
   // Appelé depuis le gros bouton de bar-stock → navigue vers bar-gen, haut de page
   barGenerate();
   _barHasGenerated = true;
-  barRefreshGoBtn();
+  var gotoGen = document.getElementById('btn-goto-gen');
+  if (gotoGen) gotoGen.style.display = 'flex';
   var goBtn = document.getElementById('bar-go-btn');
   if (goBtn) goBtn.textContent = barRandTagline();
   navTo('bar-gen');
