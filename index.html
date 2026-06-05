@@ -73,7 +73,7 @@
     .page{display:none;padding:32px 24px;max-width:1100px;margin:0 auto;}
     .page.active{display:block;}
     /* HERO */
-    .hero{text-align:center;padding:48px 0 40px;}
+    .hero{text-align:center;padding:48px 0 40px;}\r\n    #page-home .hero{position:relative;}
     .hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,48px);font-weight:700;line-height:1.15;margin-bottom:12px;}
     .hero h1 em{color:var(--accent);font-style:italic;}
     .hero p{color:var(--text2);font-size:16px;max-width:480px;margin:0 auto 36px;}
@@ -321,6 +321,12 @@
     }
     .btn-lexique:hover { border-color: var(--accent); color: var(--accent); background: var(--surface2); }
 
+    /* ── SWIPE ANIMATION ──────────────────────────────────── */
+    @keyframes _swipeInLeft  { from { opacity:0; transform:translateX( 38px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes _swipeInRight { from { opacity:0; transform:translateX(-38px); } to { opacity:1; transform:translateX(0); } }
+    .swipe-in-left  { animation: _swipeInLeft  .22s cubic-bezier(.25,.46,.45,.94) both; }
+    .swipe-in-right { animation: _swipeInRight .22s cubic-bezier(.25,.46,.45,.94) both; }
+
     /* ── PROFIL GUSTATIF ───────────────────────────────── */
     .taste-profile { margin-top: 20px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
     .taste-profile-title { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--text3); font-weight: 500; margin-bottom: 12px; }
@@ -385,7 +391,7 @@
       font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text2);
       transition: all .2s;
     }
-    .prefs-home-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--surface2); }
+    .prefs-home-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--surface2); }\r\n    @media(max-width:700px){ #page-home .hero{padding-top:56px;} }
 
     /* ── PANNEAU PRÉFÉRENCES ───────────────────────────────── */
     .prefs-overlay {
@@ -788,7 +794,6 @@
   <div class="topbar-nav">
     <button class="nav-btn" onclick="navTo('search')">🍸<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
-    <button class="nav-btn" onclick="navTo('random')">🎲<span class="nav-label"> Hasard</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
     <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
   </div>
@@ -798,20 +803,19 @@
 <button class="btn-scroll-bottom" id="btn-scroll-bottom" onclick="window.scrollTo({top:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),behavior:'smooth'})" title="Aller en bas">↓</button>
 <button class="fab-update" id="fab-update" onclick="applyUpdate()">🔄 Mettre à jour</button>
 
-<div id="page-home" class="page active">
+<div id="page-home" class="page active" style="position:relative;">
+  <button class="btn-lexique" onclick="openPrefs()" style="position:absolute;top:8px;left:0;margin:0;">⚙️ Paramètres</button>
   <div class="hero">
     <h1>Shakers à la main,<br>votre bar <em>chez vous</em></h1>
     <p>Découvrez les cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
     <div class="hero-btns">
       <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails qui vous correspondent</p></div>
       <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés par catégories</p></div>
-      <div class="hero-card" onclick="navTo('random')"><div class="icon">🎲</div><h3>Hasard</h3><p>Un cocktail du catalogue choisi au hasard pour remplir votre verre</p></div>
     </div>
     <div class="hero-btns" style="gap:12px;margin-top:16px">
       <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créations</h3><p>Créez un nouveau cocktail ou importez celui d'un ami</p></div>
       <div class="hero-card" onclick="navTo('bar-stock')"><div class="icon">🧪</div><h3>Bar expérimental</h3><p>Générez une recette aléatoire avec les ingrédients de votre bar</p></div>
     </div>
-    <button class="prefs-home-btn" onclick="openPrefs()">⚙️ Préférences</button>
   </div>
 </div>
 
@@ -820,7 +824,7 @@
   <div class="prefs-panel" id="prefs-panel">
     <div class="prefs-handle"></div>
     <div class="prefs-header">
-      <span class="prefs-title">⚙️ Préférences</span>
+      <span class="prefs-title">⚙️ Paramètres</span>
       <button class="prefs-close" onclick="closePrefs()">✕</button>
     </div>
     <div class="prefs-tabs">
@@ -997,7 +1001,7 @@
 <div id="page-catalogue" class="page">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
     <button class="back-btn" onclick="navTo('home')" style="margin:0;">← Accueil</button>
-    <button class="btn-lexique" onclick="openLexique()">💡 Lexique</button>
+    <button class="btn-lexique" onclick="navTo('random')">🎲 Cocktail au hasard</button>
   </div>
   <div class="section-title">Catalogue</div>
   <p class="section-sub">Explorez toute la carte, filtrez par type ou alcool de base</p>
@@ -1054,7 +1058,7 @@
 </div>
 
 <div id="page-random" class="page">
-  <button class="back-btn" onclick="navTo('home')">← Accueil</button>
+  <button class="back-btn" onclick="navTo('catalogue')">← Catalogue</button>
   <div class="random-wrap">
     <div class="section-title">Cocktail aléatoire</div>
     <p class="section-sub">Pas d'inspiration ? Laissez le sort choisir pour vous</p>
@@ -1281,6 +1285,11 @@
 <div id="page-recipe" class="page">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
     <button class="back-btn" id="recipe-back-btn" onclick="goBack()" style="margin:0;">← Retour</button>
+    <span id="recipe-nav-group" style="display:inline-flex;align-items:center;gap:6px;visibility:hidden;">
+      <button id="recipe-nav-prev" onclick="_swipeNavigate(-1)" style="background:none;border:none;cursor:pointer;padding:4px 6px;font-size:15px;color:var(--text2);opacity:0.6;line-height:1;">‹</button>
+      <span id="recipe-nav-counter" style="font-size:12px;color:var(--text2);opacity:0.55;letter-spacing:0.03em;font-variant-numeric:tabular-nums;user-select:none;min-width:36px;text-align:center;"></span>
+      <button id="recipe-nav-next" onclick="_swipeNavigate(1)"  style="background:none;border:none;cursor:pointer;padding:4px 6px;font-size:15px;color:var(--text2);opacity:0.6;line-height:1;">›</button>
+    </span>
     <button class="btn-lexique" onclick="openLexique()">💡 Lexique</button>
   </div>
   <div id="recipe-content"></div>
@@ -1398,7 +1407,7 @@
      ══════════════════════════════════════════════════════════════ -->
 <div id="page-bar-stock" class="page">
   <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:4px;min-height:36px;">
-    <button class="gen-nav-btn" onclick="navTo('bar-gen')" id="btn-goto-gen" style="display:none">Générateur →</button>
+    <button class="gen-nav-btn" onclick="gotoGenOrScroll()" id="btn-goto-gen">Générateur →</button>
   </div>
   <div class="bar-header">
     <div class="bar-title">🍹 Mon bar</div>
@@ -1980,6 +1989,8 @@ function doSearch(silent) {
   }
 
   container.innerHTML = html;
+  // Stocker la liste ordonnée pour navigation swipe (même ordre que l'affichage)
+  window._searchSwipeList = sorted.map(function(x) { return x.c.id; });
   if (!silent) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1989,7 +2000,7 @@ function _searchCard(x, total) {
   var matchLabel = total > 1
     ? '<span style="color:' + (mc === total ? 'var(--accent)' : 'var(--text2)') + ';font-weight:600">✓ ' + mc + '/' + total + '</span>'
     : '';
-  return '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
+  return '<div class="recipe-card" data-swipe-list="search" data-id="' + c.id + '" onclick="_showFromGrid(event)">'
     + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
     + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + '</div>'
     + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + matchLabel + '</div>'
@@ -2139,13 +2150,15 @@ function renderCatalogueGrid(cocktails) {
     document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">🍸</div><p>Aucun cocktail pour ce filtre.</p></div>';
     return;
   }
+  // Stocker la liste pour que showRecipe puisse l'utiliser au clic
+  var idList = list.map(function(c) { return c.id; });
   var html = '<div class="results-grid">';
   list.forEach(function(c) {
     var stars = miniStarsHtml(c.id); // Mini étoiles si noté (vide sinon)
     var gico = '<span class="glass-card" title="' + c.glass + '">' + glassIcon(c.glass, 20, 28) + '</span>';
     var userBadge = c.userCreated ? '<span class="user-badge" title="Création">✨ Création</span>' : '';
     var creationBadge = c.userCreated ? '<span class="creation-badge">✨</span>' : '';
-    html += '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
+    html += '<div class="recipe-card" data-swipe-list="cat" data-id="' + c.id + '" onclick="_showFromGrid(event)">'
       + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + creationBadge + '</div>'
       + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + userBadge + '</div>'
       + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + gico + (stars ? stars : '') + '</div>'
@@ -2154,6 +2167,8 @@ function renderCatalogueGrid(cocktails) {
   });
   html += '</div>';
   document.getElementById('catalogue-results').innerHTML = html;
+  // Stocker la liste catalogue courante
+  window._catalogueSwipeList = idList;
 }
 
 // ── 6b. RECHERCHE DANS LE CATALOGUE ──────────────────────────────────────
@@ -2193,14 +2208,17 @@ function execCatSearch() {
   var container = document.getElementById('catalogue-results');
   if (results.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="big">🍸</div><p>Aucun cocktail trouvé pour « ' + query + ' ».</p></div>';
+    window._catalogueSwipeList = [];
   } else {
+    var idList = results.map(function(c) { return c.id; });
+    window._catalogueSwipeList = idList;
     var html = '<div class="results-grid">';
     results.forEach(function(c) {
       var stars = miniStarsHtml(c.id);
       var gico = '<span class="glass-card" title="' + c.glass + '">' + glassIcon(c.glass, 20, 28) + '</span>';
       var userBadge = c.userCreated ? '<span class="user-badge" title="Création">✨ Création</span>' : '';
       var creationBadge = c.userCreated ? '<span class="creation-badge">✨</span>' : '';
-      html += '<div class="recipe-card" onclick="showRecipe(' + c.id + ')">'
+      html += '<div class="recipe-card" data-swipe-list="cat" data-id="' + c.id + '" onclick="_showFromGrid(event)">'
         + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + creationBadge + '</div>'
         + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + userBadge + '</div>'
         + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + gico + (stars || '') + '</div>'
@@ -2225,8 +2243,13 @@ function clearCatSearch() {
 // Le bouton "Nouveau cocktail" rappelle simplement cette fonction.
 function pickRandom() {
   var c = COCKTAILS[Math.floor(Math.random() * COCKTAILS.length)];
+  // Créer une liste aléatoire complète (catalogue + créations) en mettant c en premier
+  var all = shuffle(COCKTAILS.slice());
+  var idx = all.findIndex ? all.findIndex(function(x) { return x.id === c.id; }) : (function(){ for(var i=0;i<all.length;i++) if(all[i].id===c.id) return i; return 0; })();
+  if (idx > 0) { all.splice(idx, 1); all.unshift(c); }
+  window._randomSwipeList = all.map(function(x) { return x.id; });
   var container = document.getElementById('random-recipe-container');
-  container.innerHTML = '<div class="recipe-card" onclick="showRecipe(' + c.id + ')" style="max-width:380px;margin:0 auto;">'
+  container.innerHTML = '<div class="recipe-card" data-swipe-list="random" data-id="' + c.id + '" onclick="_showFromGrid(event)" style="max-width:380px;margin:0 auto;">'
     + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
     + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + '</div>'
     + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span><span>🍸 ' + c.cat + '</span></div>'
@@ -2239,10 +2262,27 @@ function pickRandom() {
 // Construit la fiche complète d'un cocktail et navigue vers page-recipe.
 // Tous les blocs (ingrédients, étapes, étoiles, profil, notes) sont assemblés
 // en une seule chaîne HTML pour une injection unique dans le DOM (performance).
-function showRecipe(id) {
+
+// Contexte de navigation par swipe : liste courante et position
+var _swipeList = [];
+var _swipeIdx  = -1;
+
+function showRecipe(id, swipeList, animDir) {
   var c = COCKTAILS.filter(function(r) { return r.id === id; })[0];
   if (!c) return;
-  navTo('recipe');
+  // Mettre à jour le contexte swipe si une liste est fournie
+  if (swipeList && swipeList.length > 0) {
+    _swipeList = swipeList;
+    _swipeIdx  = swipeList.indexOf(id);
+    if (_swipeIdx === -1) { _swipeList = []; } // sécurité
+  }
+  // Si on est déjà sur page-recipe (navigation par swipe), ne pas repousser dans l'historique
+  var alreadyOnRecipe = document.getElementById('page-recipe').classList.contains('active');
+  if (alreadyOnRecipe) {
+    showPage('recipe');          // rafraîchit l'affichage sans toucher pageHistory
+  } else {
+    navTo('recipe');
+  }
   _scrollSave['recipe'] = 0; // la fiche repart toujours du haut
   var note = getNote(id);
   var ingHtml = '';
@@ -2307,7 +2347,30 @@ function showRecipe(id) {
     + userCreatedBadge(id)
     + buildShareButton(id)
     + buildAdaptButton(id);
-  document.getElementById('recipe-content').innerHTML = html;
+  var content = document.getElementById('recipe-content');
+  content.innerHTML = html;
+  // Animation de transition directionnelle
+  if (animDir) {
+    content.classList.remove('swipe-in-left', 'swipe-in-right');
+    void content.offsetWidth; // reflow pour relancer l'animation
+    content.classList.add(animDir === 'left' ? 'swipe-in-right' : 'swipe-in-left');
+  }
+  // Compteur discret (ex : 3 / 47)
+  var counter = document.getElementById('recipe-nav-counter');
+  var group   = document.getElementById('recipe-nav-group');
+  var btnPrev = document.getElementById('recipe-nav-prev');
+  var btnNext = document.getElementById('recipe-nav-next');
+  if (counter && group) {
+    if (_swipeList.length > 1 && _swipeIdx !== -1) {
+      counter.textContent = (_swipeIdx + 1) + ' / ' + _swipeList.length;
+      group.style.visibility = 'visible';
+      if (btnPrev) btnPrev.style.opacity = _swipeIdx === 0 ? '0.2' : '0.6';
+      if (btnNext) btnNext.style.opacity = _swipeIdx === _swipeList.length - 1 ? '0.2' : '0.6';
+    } else {
+      counter.textContent = '';
+      group.style.visibility = 'hidden';
+    }
+  }
   
   // Attacher l'event listener du bouton partage APRÈS l'insertion du HTML
   var shareBtn = document.getElementById('share-btn-' + id);
@@ -2318,6 +2381,76 @@ function showRecipe(id) {
     });
   }
 }
+
+// Dispatcher universel pour les recipe-card avec contexte swipe
+// Appelé depuis les onclick générés par renderCatalogueGrid, _searchCard, pickRandom
+function _showFromGrid(evt) {
+  // Ignorer si le clic est sur le bouton favori (heartBtn)
+  if (evt.target.closest && evt.target.closest('.heart-btn')) return;
+  var card = evt.currentTarget;
+  var id   = parseInt(card.dataset.id, 10);
+  var src  = card.dataset.swipeList;
+  var list;
+  if (src === 'cat')    list = window._catalogueSwipeList || [];
+  if (src === 'search') list = window._searchSwipeList   || [];
+  if (src === 'random') list = window._randomSwipeList   || [];
+  // Pour la recherche par ingrédients : reconstruire la liste étendue depuis l'état courant
+  if (src === 'search') list = _buildIngSwipeList(id, list);
+  showRecipe(id, list, null);
+}
+
+// Pour la recherche ingrédients : la liste est déjà dans l'ordre affiché,
+// showRecipe positionnera _swipeIdx sur la recette cliquée.
+function _buildIngSwipeList(clickedId, baseList) {
+  return baseList || [];
+}
+
+// Navigation swipe : charge la recette précédente ou suivante dans _swipeList
+function _swipeNavigate(dir) {
+  if (_swipeList.length < 2 || _swipeIdx === -1) return;
+  var next = _swipeIdx + dir;
+  if (next < 0 || next >= _swipeList.length) return; // pas de wrap autour
+  var nextId = _swipeList[next];
+  showRecipe(nextId, _swipeList, dir > 0 ? 'left' : 'right');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// ── Touch handlers pour swipe horizontal sur page-recipe ──────────────────
+(function() {
+  var _tx = 0, _ty = 0, _locked = false;
+  document.addEventListener('touchstart', function(e) {
+    var page = document.getElementById('page-recipe');
+    if (!page || !page.classList.contains('active')) return;
+    if (_swipeList.length < 2) return;
+    _tx = e.touches[0].clientX;
+    _ty = e.touches[0].clientY;
+    _locked = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    var page = document.getElementById('page-recipe');
+    if (!page || !page.classList.contains('active')) return;
+    if (_swipeList.length < 2 || _locked) return;
+    var dx = e.touches[0].clientX - _tx;
+    var dy = e.touches[0].clientY - _ty;
+    // Vérouiller uniquement si le geste est clairement horizontal (ratio 2:1)
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 2) {
+      _locked = true; // empêche toute réévaluation
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    var page = document.getElementById('page-recipe');
+    if (!page || !page.classList.contains('active')) return;
+    if (_swipeList.length < 2) return;
+    var dx = e.changedTouches[0].clientX - _tx;
+    var dy = e.changedTouches[0].clientY - _ty;
+    var absDx = Math.abs(dx), absDy = Math.abs(dy);
+    // Seuil : 60px minimum, dominance horizontale > 2:1
+    if (absDx < 60 || absDx < absDy * 2) return;
+    _swipeNavigate(dx < 0 ? 1 : -1); // gauche = suivant, droite = précédent
+  }, { passive: true });
+})();
 
 // Recalcule toutes les quantités d'ingrédients selon le nombre de portions choisi.
 // Les valeurs de base sont stockées en data-attributes sur chaque élément .ing-qty
@@ -2556,10 +2689,23 @@ function barResetStock() {
 }
 
 function barRefreshGoBtn() {
-  var n = barGetChecked().length;
   var gotoGen = document.getElementById('btn-goto-gen');
-  // Afficher le lien "Générer" uniquement si on a déjà généré au moins une fois
-  if (gotoGen) gotoGen.style.display = (_barHasGenerated ? 'flex' : 'none');
+  if (!gotoGen) return;
+  // Toujours visible ; flèche et comportement dépendent de si on a déjà généré
+  gotoGen.textContent = _barHasGenerated ? 'Générateur →' : 'Générateur ⭣';
+}
+
+function gotoGenOrScroll() {
+  if (_barHasGenerated) {
+    navTo('bar-gen');
+  } else {
+    // Scroll jusqu'en bas de la page bar-stock
+    var page = document.getElementById('page-bar-stock');
+    if (page) {
+      var lastChild = page.lastElementChild;
+      if (lastChild) lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }
 }
 
 // ── Génération ────────────────────────────────────────────────────────────
@@ -2731,8 +2877,7 @@ function barGoGenerate() {
   // Appelé depuis le gros bouton de bar-stock → navigue vers bar-gen, haut de page
   barGenerate();
   _barHasGenerated = true;
-  var gotoGen = document.getElementById('btn-goto-gen');
-  if (gotoGen) gotoGen.style.display = 'flex';
+  barRefreshGoBtn();
   var goBtn = document.getElementById('bar-go-btn');
   if (goBtn) goBtn.textContent = barRandTagline();
   navTo('bar-gen');
