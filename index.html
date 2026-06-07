@@ -1880,7 +1880,30 @@ function _restoreSearchState() {
         if (chip && !chip.classList.contains('excluded')) chip.classList.add('selected');
       });
       updateSearchButton();
-      doSearch(true);
+      // Si on revient depuis une fiche, réutiliser l'ordre mémorisé sans reshuffler
+      if (_searchRendered) {
+        var sr = _searchRendered;
+        var html = sr.recap
+          + '<div class="results-count">' + sr.sorted.length + ' cocktail' + (sr.sorted.length > 1 ? 's' : '') + ' trouvé' + (sr.sorted.length > 1 ? 's' : '') + '</div>';
+        if (!sr.isAnd && sr.total > 1 && sr.groups.full && sr.groups.partial) {
+          html += '<div style="font-size:13px;font-weight:600;color:var(--accent);margin:12px 0 6px">✓ Correspondance complète (' + sr.groups.full.length + ')</div>';
+          html += '<div class="results-grid">';
+          sr.groups.full.forEach(function(x) { html += _searchCard(x, sr.total); });
+          html += '</div>';
+          html += '<div style="font-size:13px;font-weight:600;color:var(--text2);margin:16px 0 6px">◐ Correspondance partielle (' + sr.groups.partial.length + ')</div>';
+          html += '<div class="results-grid">';
+          sr.groups.partial.forEach(function(x) { html += _searchCard(x, sr.total); });
+          html += '</div>';
+        } else {
+          html += '<div class="results-grid">';
+          sr.sorted.forEach(function(x) { html += _searchCard(x, sr.total); });
+          html += '</div>';
+        }
+        document.getElementById('search-results').innerHTML = html;
+        window._searchSwipeList = sr.sorted.map(function(x) { return x.c.id; });
+      } else {
+        doSearch(true);
+      }
     }
   } catch(e) {}
 }
@@ -1908,6 +1931,8 @@ function doSearch(silent) {
   var container = document.getElementById('search-results');
   var isAnd = searchMode === 'and';
 
+  // Recherche active (pas une restauration) → invalider l'ordre mémorisé
+  if (!silent) _searchRendered = null;
   _saveSearchState(); // persister avant d'afficher
 
   // Ingrédients exclus — filtrer dehors tout cocktail qui en contient un
@@ -1982,8 +2007,9 @@ function doSearch(silent) {
   }
 
   container.innerHTML = html;
-  // Stocker la liste ordonnée pour navigation swipe (même ordre que l'affichage)
+  // Stocker la liste ordonnée pour navigation swipe + restauration au retour
   window._searchSwipeList = sorted.map(function(x) { return x.c.id; });
+  _searchRendered = { sorted: sorted, groups: groups, total: total, isAnd: isAnd, recap: recap };
   if (!silent) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -2005,6 +2031,8 @@ function _searchCard(x, total) {
 // catMode : 'cat' = filtrage par type de cocktail, 'base' = par alcool de base
 var catMode = 'cat';
 var _catState = null; // Mémorise le filtre actif du catalogue {value, cardId|null}
+var _catRendered = null;  // Liste ordonnée des ids affichés dans la grille catalogue
+var _searchRendered = null; // {sorted, groups, total, isAnd, recap} sauvegardé après tri/shuffle
 
 // Bascule entre les deux modes de filtrage et recharge les onglets
 function setCatMode(mode) {
@@ -2072,7 +2100,13 @@ function loadCatalogueTabs() {
       var card = document.getElementById(stateCardId);
       if (card) {
         card.classList.add('active');
-        filterCatalogue(stateVal, null, true);
+        if (_catRendered) {
+          // Réutiliser l'ordre mémorisé sans reshuffler
+          var restoredList = _catRendered.map(function(id) { return COCKTAILS.find(function(c) { return c.id === id; }); }).filter(Boolean);
+          renderCatalogueGrid(restoredList);
+        } else {
+          filterCatalogue(stateVal, null, true);
+        }
       } else {
         renderCatalogueGrid(shuffle(COCKTAILS.slice()));
       }
@@ -2080,7 +2114,14 @@ function loadCatalogueTabs() {
       // Le filtre venait d'un onglet cat-tab → le remettre actif
       var savedTab = tabsContainer.querySelector('.cat-tab[data-val="' + stateVal + '"]');
       if (savedTab) {
-        filterCatalogue(stateVal, savedTab, true);
+        if (_catRendered) {
+          // Réutiliser l'ordre mémorisé sans reshuffler
+          savedTab.classList.add('active');
+          var restoredList = _catRendered.map(function(id) { return COCKTAILS.find(function(c) { return c.id === id; }); }).filter(Boolean);
+          renderCatalogueGrid(restoredList);
+        } else {
+          filterCatalogue(stateVal, savedTab, true);
+        }
       } else {
         renderCatalogueGrid(shuffle(COCKTAILS.slice()));
       }
@@ -2099,6 +2140,8 @@ function filterCatalogue(value, tabEl, skipScroll) {
   if (!_catState) _catState = { value: value, cardId: null };
   else _catState.value = value;
   if (tabEl) _catState.cardId = null; // onglet normal : pas de card active
+  // Clic utilisateur actif (pas une restauration) → invalider l'ordre mémorisé
+  if (!skipScroll) _catRendered = null;
   document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
   if (tabEl) tabEl.classList.add('active');
   // Si on clique un onglet normal (pas depuis une card), désactiver les cards
@@ -2189,8 +2232,9 @@ function renderCatalogueGrid(cocktails) {
   });
   html += '</div>';
   document.getElementById('catalogue-results').innerHTML = html;
-  // Stocker la liste catalogue courante
+  // Stocker la liste catalogue courante + ordre affiché pour restauration au retour
   window._catalogueSwipeList = idList;
+  _catRendered = idList;
 }
 
 // ── 6b. RECHERCHE DANS LE CATALOGUE ──────────────────────────────────────
@@ -3535,7 +3579,8 @@ function resetAllCatalogueFilters() {
   PF_OPEN = null;
   // Désactiver les cards Mes listes
   document.querySelectorAll('.my-list-card').forEach(function(c){ c.classList.remove('active'); });
-  _catState = null; // Réinitialise la mémoire du filtre actif
+  _catState = null;    // Réinitialise la mémoire du filtre actif
+  _catRendered = null; // Réinitialise l'ordre mémorisé
   // Mettre à jour le point indicateur du bouton filtres avancés
   var btnAdv = document.getElementById('btn-advanced-filters');
   if (btnAdv) btnAdv.classList.remove('has-active');
