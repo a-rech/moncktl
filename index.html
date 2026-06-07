@@ -94,6 +94,14 @@
     .ingredient-chip.selected{background:var(--accent);color:#0C0F1D;border-color:var(--accent);font-weight:500;}
     .ingredient-chip:hover:not(.selected){border-color:var(--accent);color:var(--accent);}
     .ingredient-tap-hint{font-size:11px;color:var(--text3);opacity:.72;margin:-4px 0 10px;}
+    .chip-mode-bar{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;}
+    .chip-mode-hint{font-size:11px;color:var(--text3);opacity:.8;}
+    .chip-mode-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--accent);background:rgba(100,220,180,.12);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .chip-mode-btn.chip-mode-excl{border-color:#e05555;background:rgba(220,60,60,.15);color:#e05555;}
+    .search-actions{margin:16px 0 8px;display:flex;flex-direction:column;gap:10px;}
+    .search-actions-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .search-actions-top #btn-reset-excl{padding:6px 12px;background:rgba(220,60,60,.15);color:#e05555;border:1px solid rgba(220,60,60,.3);border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;}
+    .search-actions-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
     /* ACTIONS */
     .search-actions{display:flex;gap:10px;align-items:center;margin-bottom:24px;flex-wrap:wrap;}
     .btn{padding:9px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;transition:all .2s;}
@@ -107,6 +115,7 @@
     /* CARDS */
     .results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
     .recipe-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .22s;box-shadow:0 2px 12px rgba(0,0,0,0.3);position:relative;}
+    .full-match-card{border-left:3px solid var(--accent);box-shadow:0 2px 16px rgba(100,220,180,0.18),0 2px 12px rgba(0,0,0,0.3);}
     .recipe-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--accent);}
     .recipe-card-img{height:130px;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--surface2);position:relative;}
     .recipe-card-body{padding:12px 14px 14px;}
@@ -798,7 +807,7 @@
     <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
   </div>
 </nav>
-<button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
+<button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher<span id="fab-live-count" style="display:none;margin-left:7px;font-size:12px;font-weight:500"><span id="fab-live-full" style="color:#0C0F1D;opacity:0.9"></span><span style="opacity:0.6"> / </span><span id="fab-live-partial" style="opacity:0.75"></span></span></button>
 <button class="btn-scroll-top" id="btn-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <button class="btn-scroll-bottom" id="btn-scroll-bottom" onclick="window.scrollTo({top:Math.max(document.body.scrollHeight,document.documentElement.scrollHeight),behavior:'smooth'})" title="Aller en bas">↓</button>
 <button class="fab-update" id="fab-update" onclick="applyUpdate()">🔄 Mettre à jour</button>
@@ -978,22 +987,32 @@
   </div>
   -->
 
-  <p class="ingredient-tap-hint">1 tap ✔ sélecction - 2 tap ✕ exclusion</p>
+  <!-- Haut : toggle mode + hint -->
+  <div class="chip-mode-bar">
+    <button class="chip-mode-btn" onclick="toggleChipMode()">✔ Sélection</button>
+    <span class="chip-mode-hint" id="chip-mode-hint">Tap = sélectionner · Basculer en mode ✕ pour exclure</span>
+  </div>
+
   <div class="families-grid" id="families-container"></div>
 
-  <!-- MODE DE RECHERCHE bas de page (désactivé — réactiver en décommentant)
-  <div class="search-mode-bar" id="mode-bar-bottom" style="margin-bottom:12px">
-    <span style="font-size:12px;color:var(--text2)">Mode :</span>
-    <button id="search-mode-or-bot"  onclick="setSearchMode('or')"  class="search-mode-btn active">Au moins un</button>
-    <button id="search-mode-and-bot" onclick="setSearchMode('and')" class="search-mode-btn">Tous les ingrédients</button>
-  </div>
-  -->
-
+  <!-- Bas : toggle mode + effacer exclusions + rechercher + réinitialiser -->
   <div class="search-actions">
-    <button class="btn btn-primary" id="btn-search" onclick="doSearch()" disabled>Rechercher</button>
-    <button class="btn btn-secondary" onclick="resetFilters()">Réinitialiser</button>
-    <button id="btn-reset-excl" onclick="resetExclusions()" style="display:none;padding:7px 12px;background:rgba(220,60,60,.15);color:#e05555;border:1px solid rgba(220,60,60,.3);border-radius:6px;font-size:12px;cursor:pointer">✕ Effacer exclusions</button>
-    <span class="selected-count" id="selected-count">Aucun ingrédient sélectionné</span>
+    <div class="search-actions-top">
+      <button class="chip-mode-btn" onclick="toggleChipMode()">✔ Sélection</button>
+      <button id="btn-reset-excl" onclick="resetExclusions()" style="display:none">✕ Effacer exclusions</button>
+    </div>
+    <div class="search-actions-bottom">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-search" onclick="doSearch()" disabled>🔍 Rechercher</button>
+        <span id="live-count" style="display:none;font-size:13px;color:var(--text2)">
+          <span id="live-count-full" style="color:var(--accent);font-weight:600"></span>
+          <span id="live-count-sep" style="color:var(--text3)"> / </span>
+          <span id="live-count-partial" style="color:var(--text2)"></span>
+        </span>
+      </div>
+      <button class="btn btn-secondary" onclick="resetFilters()">Réinitialiser</button>
+      <span class="selected-count" id="selected-count">Aucun ingrédient sélectionné</span>
+    </div>
   </div>
   <div id="search-results"></div>
 </div>
@@ -1753,6 +1772,7 @@ function goHome() { navTo('home'); }
 
 var searchMode = 'or'; // 'or' | 'and'
 var EXCL_KEY = 'moncktl_excl_v1'; // localStorage key pour les exclusions persistantes
+var chipMode = 'select'; // 'select' | 'exclude'
 
 // ── Synchronise les 4 boutons de mode (top + bottom) ──────────────────────
 function setSearchMode(mode) {
@@ -1777,6 +1797,23 @@ function _updateExclBtn() {
   if (btn) btn.style.display = _loadExclusions().length > 0 ? 'inline-flex' : 'none';
 }
 
+function _syncChipModeUI() {
+  var isExcl = chipMode === 'exclude';
+  document.querySelectorAll('.chip-mode-btn').forEach(function(btn) {
+    btn.textContent = isExcl ? '✕ Exclusion' : '✔ Sélection';
+    btn.classList.toggle('chip-mode-excl', isExcl);
+  });
+  var hint = document.getElementById('chip-mode-hint');
+  if (hint) hint.textContent = isExcl
+    ? 'Mode exclusion actif — tap pour exclure un ingrédient'
+    : 'Tap = sélectionner · Basculer en mode ✕ pour exclure';
+}
+
+function toggleChipMode() {
+  chipMode = (chipMode === 'select') ? 'exclude' : 'select';
+  _syncChipModeUI();
+}
+
 function resetExclusions() {
   localStorage.removeItem(EXCL_KEY);
   document.querySelectorAll('.ingredient-chip.excluded').forEach(function(c) { c.classList.remove('excluded'); });
@@ -1797,30 +1834,47 @@ function loadIngredientFamilies() {
     });
     container.innerHTML = html;
 
-    // ── Triple état cyclique au tap : neutre → sélectionné → exclu → neutre
+    // ── Mode sélection / exclusion piloté par chipMode
     container.addEventListener('click', function(e) {
       var chip = e.target.closest('.ingredient-chip');
       if (!chip) return;
       var excl = _loadExclusions();
       var item = chip.dataset.item || chip.textContent.trim();
+      var isSelected = chip.classList.contains('selected');
+      var isExcluded = chip.classList.contains('excluded');
 
-      if (!chip.classList.contains('selected') && !chip.classList.contains('excluded')) {
-        // neutre → sélectionné
-        chip.classList.add('selected');
-      } else if (chip.classList.contains('selected')) {
-        // sélectionné → exclu
-        chip.classList.remove('selected');
-        chip.classList.add('excluded');
-        if (excl.indexOf(item) === -1) excl.push(item);
-        _saveExclusions(excl);
+      if (chipMode === 'exclude') {
+        // Mode exclusion : tap → exclu (quelle que soit l'état actuel sauf déjà exclu → neutre)
+        if (isExcluded) {
+          // déjà exclu → neutre (désactiver l'exclusion)
+          chip.classList.remove('excluded');
+          var idx = excl.indexOf(item);
+          if (idx !== -1) excl.splice(idx, 1);
+          _saveExclusions(excl);
+        } else {
+          // neutre ou sélectionné → exclu
+          chip.classList.remove('selected');
+          chip.classList.add('excluded');
+          if (excl.indexOf(item) === -1) excl.push(item);
+          _saveExclusions(excl);
+        }
         _updateExclBtn();
       } else {
-        // exclu → neutre
-        chip.classList.remove('excluded');
-        var idx = excl.indexOf(item);
-        if (idx !== -1) excl.splice(idx, 1);
-        _saveExclusions(excl);
-        _updateExclBtn();
+        // Mode sélection
+        if (isExcluded) {
+          // exclu → neutre (l'exclusion est levée, priorité à l'intention utilisateur)
+          chip.classList.remove('excluded');
+          var idx = excl.indexOf(item);
+          if (idx !== -1) excl.splice(idx, 1);
+          _saveExclusions(excl);
+          _updateExclBtn();
+        } else if (isSelected) {
+          // sélectionné → neutre
+          chip.classList.remove('selected');
+        } else {
+          // neutre → sélectionné
+          chip.classList.add('selected');
+        }
       }
       updateSearchButton();
       _saveSearchState();
@@ -1838,14 +1892,54 @@ function loadIngredientFamilies() {
 }
 
 // Met à jour le bouton Rechercher et le FAB selon la sélection d'ingrédients
+function _chipToTagsGlobal(chip) { return (CHIP_TAGS && CHIP_TAGS[chip]) ? CHIP_TAGS[chip] : [chip]; }
+function _cocktailMatchesChipGlobal(cocktailTags, chip) {
+  return _chipToTagsGlobal(chip).some(function(t) { return cocktailTags.indexOf(t) !== -1; });
+}
+
 function updateSearchButton() {
-  var selected = document.querySelectorAll('.ingredient-chip.selected');
-  var has = selected.length > 0;
+  var selectedEls = document.querySelectorAll('.ingredient-chip.selected');
+  var has = selectedEls.length > 0;
   document.getElementById('btn-search').disabled = !has;
   document.getElementById('fab-search').disabled = !has;
   document.getElementById('selected-count').textContent = has
-    ? selected.length + ' ingrédient' + (selected.length > 1 ? 's' : '') + ' sélectionné' + (selected.length > 1 ? 's' : '')
+    ? selectedEls.length + ' ingrédient' + (selectedEls.length > 1 ? 's' : '') + ' sélectionné' + (selectedEls.length > 1 ? 's' : '')
     : 'Aucun ingrédient sélectionné';
+
+  // Compteur live ✓ full / ◐ partial
+  var liveWrap = document.getElementById('live-count');
+  if (!liveWrap) return;
+  if (!has) {
+    liveWrap.style.display = 'none';
+    var fabCount = document.getElementById('fab-live-count');
+    if (fabCount) fabCount.style.display = 'none';
+    return;
+  }
+
+  var selected = Array.from(selectedEls).map(function(c) { return c.dataset.item || c.textContent.trim(); });
+  var total = selected.length;
+  var excluded = _loadExclusions();
+
+  var fullCount = 0, partialCount = 0;
+  COCKTAILS.forEach(function(c) {
+    if (excluded.some(function(ex) { return _cocktailMatchesChipGlobal(c.tags, ex); })) return;
+    var mc = selected.filter(function(ing) { return _cocktailMatchesChipGlobal(c.tags, ing); }).length;
+    if (mc === total) fullCount++;
+    else if (mc > 0) partialCount++;
+  });
+
+  document.getElementById('live-count-full').textContent = '✓ ' + fullCount;
+  document.getElementById('live-count-partial').textContent = '◐ ' + (fullCount + partialCount);
+  liveWrap.style.display = 'inline-flex';
+  liveWrap.style.alignItems = 'center';
+
+  // Même compteur dans le bouton flottant
+  var fabCount = document.getElementById('fab-live-count');
+  if (fabCount) {
+    document.getElementById('fab-live-full').textContent = '✓ ' + fullCount;
+    document.getElementById('fab-live-partial').textContent = '◐ ' + (fullCount + partialCount);
+    fabCount.style.display = 'inline';
+  }
 }
 
 // Réinitialise les sélections (pas les exclusions)
@@ -1853,6 +1947,8 @@ function resetFilters() {
   document.querySelectorAll('.ingredient-chip.selected').forEach(function(c) { c.classList.remove('selected'); });
   document.getElementById('search-results').innerHTML = '';
   sessionStorage.removeItem('searchState');
+  // Repasser en mode sélection
+  if (chipMode !== 'select') { chipMode = 'select'; _syncChipModeUI(); }
   updateSearchButton();
 }
 
@@ -2027,7 +2123,8 @@ function _searchCard(x, total) {
     : '';
   var userBadge = c.userCreated ? '<span class="user-badge" title="Création">✨ Création</span>' : '';
   var creationBadge = c.userCreated ? '<span class="creation-badge">✨</span>' : '';
-  return '<div class="recipe-card" data-swipe-list="search" data-id="' + c.id + '" onclick="_showFromGrid(event)">'
+  var fullMatchClass = (mc === total && total > 1) ? ' full-match-card' : '';
+  return '<div class="recipe-card' + fullMatchClass + '" data-swipe-list="search" data-id="' + c.id + '" onclick="_showFromGrid(event)">'
     + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + creationBadge + '</div>'
     + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + userBadge + '</div>'
     + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + matchLabel + '</div>'
