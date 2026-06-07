@@ -2004,6 +2004,7 @@ function _searchCard(x, total) {
 // ── 6. CATALOGUE ──────────────────────────────────────────────────────────
 // catMode : 'cat' = filtrage par type de cocktail, 'base' = par alcool de base
 var catMode = 'cat';
+var _catState = null; // Mémorise le filtre actif du catalogue {value, cardId|null}
 
 // Bascule entre les deux modes de filtrage et recharge les onglets
 function setCatMode(mode) {
@@ -2062,7 +2063,31 @@ function loadCatalogueTabs() {
     if (!tab) return;
     filterCatalogue(tab.getAttribute('data-val'), tab);
   });
-  renderCatalogueGrid(shuffle(COCKTAILS.slice())); // Affichage initial mélangé
+  // Restaure le filtre actif si on revient sur le catalogue (ex: retour depuis une fiche)
+  if (_catState) {
+    var stateVal = _catState.value;
+    var stateCardId = _catState.cardId;
+    if (stateCardId) {
+      // Le filtre venait d'une card "Mes listes" → restaurer la card active
+      var card = document.getElementById(stateCardId);
+      if (card) {
+        card.classList.add('active');
+        filterCatalogue(stateVal, null, true);
+      } else {
+        renderCatalogueGrid(shuffle(COCKTAILS.slice()));
+      }
+    } else {
+      // Le filtre venait d'un onglet cat-tab → le remettre actif
+      var savedTab = tabsContainer.querySelector('.cat-tab[data-val="' + stateVal + '"]');
+      if (savedTab) {
+        filterCatalogue(stateVal, savedTab, true);
+      } else {
+        renderCatalogueGrid(shuffle(COCKTAILS.slice()));
+      }
+    }
+  } else {
+    renderCatalogueGrid(shuffle(COCKTAILS.slice())); // Affichage initial mélangé
+  }
   updateResetBtnVisibility();
 }
 
@@ -2070,6 +2095,10 @@ function loadCatalogueTabs() {
 // '__favs__' est une valeur spéciale qui déclenche le mode favoris.
 // '__mycocktails__' est une valeur spéciale qui déclenche le mode "Mes cocktails".
 function filterCatalogue(value, tabEl, skipScroll) {
+  // Mémorise le filtre actif (cardId sera mis à jour par filterCatalogueFromCard si appelé depuis une card)
+  if (!_catState) _catState = { value: value, cardId: null };
+  else _catState.value = value;
+  if (tabEl) _catState.cardId = null; // onglet normal : pas de card active
   document.querySelectorAll('.cat-tab').forEach(function(t) { t.classList.remove('active'); });
   if (tabEl) tabEl.classList.add('active');
   // Si on clique un onglet normal (pas depuis une card), désactiver les cards
@@ -3486,10 +3515,13 @@ function filterCatalogueFromCard(val, cardEl) {
   document.querySelectorAll('.my-list-card').forEach(function(c){ c.classList.remove('active'); });
   if (isAlreadyActive) {
     // Deuxième clic : retour à "Tous"
+    _catState = { value: 'all', cardId: null };
     var allTab = document.querySelector('#cat-tabs .cat-tab[data-val="all"]');
     if (allTab) filterCatalogue('all', allTab);
   } else {
     cardEl.classList.add('active');
+    // Mémorise l'id de la card active pour pouvoir la restaurer au retour
+    _catState = { value: val, cardId: cardEl.id };
     // Désactiver les onglets cat-tabs
     document.querySelectorAll('#cat-tabs .cat-tab').forEach(function(t){ t.classList.remove('active'); });
     filterCatalogue(val, null);
@@ -3503,6 +3535,7 @@ function resetAllCatalogueFilters() {
   PF_OPEN = null;
   // Désactiver les cards Mes listes
   document.querySelectorAll('.my-list-card').forEach(function(c){ c.classList.remove('active'); });
+  _catState = null; // Réinitialise la mémoire du filtre actif
   // Mettre à jour le point indicateur du bouton filtres avancés
   var btnAdv = document.getElementById('btn-advanced-filters');
   if (btnAdv) btnAdv.classList.remove('has-active');
