@@ -1938,12 +1938,18 @@ function doSearch(silent) {
   // Ingrédients exclus — filtrer dehors tout cocktail qui en contient un
   var excluded = _loadExclusions();
 
+  // Résoudre les chips en tags réels via CHIP_TAGS (ex: "Whisky" → ["Bourbon","Scotch",...])
+  function chipToTags(chip) { return (CHIP_TAGS && CHIP_TAGS[chip]) ? CHIP_TAGS[chip] : [chip]; }
+  function cocktailMatchesChip(cocktailTags, chip) {
+    return chipToTags(chip).some(function(t) { return cocktailTags.indexOf(t) !== -1; });
+  }
+
   // Calculer le score de chaque cocktail
   var scored = COCKTAILS.map(function(c) {
-    var mc = selected.filter(function(ing) { return c.tags.indexOf(ing) !== -1; }).length;
+    var mc = selected.filter(function(ing) { return cocktailMatchesChip(c.tags, ing); }).length;
     return { c: c, mc: mc };
   }).filter(function(x) {
-    if (excluded.some(function(ex) { return x.c.tags.indexOf(ex) !== -1; })) return false; // contient un ingrédient exclu
+    if (excluded.some(function(ex) { return cocktailMatchesChip(x.c.tags, ex); })) return false;
     return isAnd ? x.mc === total : x.mc > 0;
   });
 
@@ -2019,9 +2025,11 @@ function _searchCard(x, total) {
   var matchLabel = total > 1
     ? '<span style="color:' + (mc === total ? 'var(--accent)' : 'var(--text2)') + ';font-weight:600">✓ ' + mc + '/' + total + '</span>'
     : '';
+  var userBadge = c.userCreated ? '<span class="user-badge" title="Création">✨ Création</span>' : '';
+  var creationBadge = c.userCreated ? '<span class="creation-badge">✨</span>' : '';
   return '<div class="recipe-card" data-swipe-list="search" data-id="' + c.id + '" onclick="_showFromGrid(event)">'
-    + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + '</div>'
-    + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + '</div>'
+    + '<div class="recipe-card-img">' + c.emoji + heartBtn(c.id) + creationBadge + '</div>'
+    + '<div class="recipe-card-body"><div class="recipe-card-title">' + c.title + userBadge + '</div>'
     + '<div class="recipe-card-meta"><span>🕒 ' + c.prep + ' min</span><span>🥃 ' + c.baseAlcool + '</span>' + matchLabel + '</div>'
     + '<div class="recipe-card-tags"><span class="tag diff-' + c.diff + '">' + c.diff + '</span><span class="tag">' + c.cat + '</span></div>'
     + '</div></div>';
@@ -5994,16 +6002,174 @@ function showDataStatus(id, msg, ok) {
 }
 
 const FAMILIES = [
-  { id:'alcools', label:'Alcools forts', icon:'🥃', items:['Vodka','Rhum blanc','Rhum ambré','Rhum brun','Gin','Whisky bourbon','Scotch','Tequila','Mezcal','Cognac','Brandy','Cachaça','Pisco','Whisky irlandais','Absinthe'] },
-  { id:'liqueurs', label:'Liqueurs & Amers', icon:'🍶', items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de menthe','Limoncello','St-Germain','Curaçao bleu','Curaçao orange','Maraschino','Chartreuse verte','Chartreuse jaune','Grand Marnier','Cherry Brandy','Bénédictine','Crème de cacao','Galliano','Frangelico','Chambord'] },
-  { id:'vins', label:'Champagne & Vins', icon:'🥂', items:['Champagne','Prosecco','Vin rouge','Vin blanc sec','Vermouth dry','Vermouth rosso','Porto rouge'] },
-  { id:'jus', label:'Jus & Purées', icon:'🍊', items:["Jus de citron","Jus de citron vert","Jus d'orange","Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Purée de passion","Purée de pêche","Purée de mangue","Jus de tomate","Purée de fraise"] },
-  { id:'sodas', label:'Sodas & Tonics', icon:'🫧', items:['Coca-Cola','Eau gazeuse','Tonic water','Ginger beer','Ginger ale','Limonade','Schweppes agrumes'] },
-  { id:'sirops', label:'Sirops & Sucres', icon:'🍯', items:["Sirop de sucre de canne","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de miel","Sucre en poudre","Miel","Angostura bitters","Peychaud's bitters"] },
-  { id:'laitiers', label:'Laitiers & Divers', icon:'🥛', items:["Crème fraîche","Lait de coco","Crème de coco","Blanc d'œuf","Café espresso"] },
-  { id:'herbes', label:'Herbes & Fruits frais', icon:'🌿', items:["Menthe fraîche","Basilic","Citron vert frais","Citron jaune frais","Orange fraîche","Fraise fraîche","Framboise","Concombre","Ananas frais","Pomme","Piment jalapeño","Romarin"] },
-  { id:'epices', label:'Épices & Condiments', icon:'🌶️', items:["Sel","Tabasco","Sauce Worcestershire","Raifort","Cannelle","Clous de girofle","Anis étoilé","Noix de muscade","Poivre noir"] },
+  { id:'alcools', label:'Alcools forts', icon:'🥃', items:[
+    'Vodka','Rhum','Gin','Whisky','Tequila / Mezcal','Cognac / Brandy',
+    'Cachaça','Pisco','Absinthe'
+  ]},
+  { id:'liqueurs', label:'Liqueurs & Amers', icon:'🍶', items:[
+    'Cointreau / Triple sec','Amaretto','Baileys','Kahlúa / Café',
+    'Campari','Aperol','Midori','Crème de cassis','Crème de menthe',
+    'Crème de cacao','Crème de mûre','Limoncello','St-Germain',
+    'Maraschino','Chartreuse','Chambord','Cherry Brandy','Bénédictine',
+    'Galliano','Drambuie','Fernet-Branca','Suze','Lillet Blanc',
+    "Pimm's",'Falernum'
+  ]},
+  { id:'vins', label:'Champagne & Vins', icon:'🥂', items:[
+    'Champagne','Prosecco','Vin rouge','Vin blanc sec',
+    'Vermouth dry','Vermouth rouge','Porto'
+  ]},
+  { id:'jus', label:'Jus & Purées', icon:'🍊', items:[
+    'Jus de citron','Jus de citron vert',"Jus d'orange",
+    'Jus de cranberry',"Jus d'ananas",'Jus de pamplemousse','Jus de tomate',
+    'Purée de passion','Purée de pêche','Purée de mangue','Purée de fraise',
+    'Purée de litchi','Purée de melon','Purée de rhubarbe'
+  ]},
+  { id:'sodas', label:'Sodas & Tonics', icon:'🫧', items:[
+    'Coca-Cola','Eau gazeuse','Tonic','Ginger beer','Ginger ale',
+    'Limonade','Schweppes agrumes','Thé glacé'
+  ]},
+  { id:'sirops', label:'Sirops & Sucres', icon:'🍯', items:[
+    'Sirop de sucre','Sirop de grenadine','Orgeat',
+    'Sirop de fraise','Sirop de framboise',"Sirop d'agave",
+    'Sirop de miel','Sirop de gingembre','Sirop de lavande',
+    'Sirop de rose','Sirop de romarin','Sirop de sureau',
+    'Sirop de matcha','Sirop de kiwi','Sucre','Miel'
+  ]},
+  { id:'bitters', label:'Bitters', icon:'🧪', items:[
+    'Angostura bitters',"Peychaud's bitters",'Orange bitters','Mole bitters'
+  ]},
+  { id:'laitiers', label:'Laitiers & Œufs', icon:'🥛', items:[
+    'Crème','Lait / Crème de coco',"Blanc d'œuf",'Œuf','Café espresso'
+  ]},
+  { id:'herbes', label:'Herbes & Fruits frais', icon:'🌿', items:[
+    'Menthe fraîche','Basilic frais','Romarin frais',
+    'Citron vert frais','Citron jaune frais','Orange fraîche',
+    'Fraise fraîche','Framboise fraîche','Concombre frais',
+    'Gingembre frais','Mangue fraîche','Kiwi frais','Pomme','Piment jalapeño'
+  ]},
+  { id:'epices', label:'Épices & Condiments', icon:'🌶️', items:[
+    'Sel','Tabasco','Sauce Worcestershire','Raifort',
+    'Cannelle','Clous de girofle','Noix de muscade','Cacao en poudre',
+    "Eau de fleur d'oranger",'Glace pilée'
+  ]},
 ];
+
+// Mapping chip label → tags réels dans les recettes
+// Permet à une chip générique (ex: "Whisky") de couvrir plusieurs tags précis
+const CHIP_TAGS = {
+  'Vodka':                ['Vodka','Vodka au citron'],
+  'Rhum':                 ['Rhum blanc','Rhum ambré','Rhum brun','Rhum jamaïcain'],
+  'Gin':                  ['Gin'],
+  'Whisky':               ['Whisky bourbon','Bourbon','Scotch','Scotch whisky','Rye whiskey','Irish whiskey','Whisky irlandais','Whisky japonais'],
+  'Tequila / Mezcal':     ['Tequila','Tequila blanco','Tequila reposado','Mezcal'],
+  'Cognac / Brandy':      ['Cognac','Brandy','Calvados',"Eau-de-vie d'abricot"],
+  'Cachaça':              ['Cachaça'],
+  'Pisco':                ['Pisco'],
+  'Absinthe':             ['Absinthe'],
+  'Cointreau / Triple sec':['Cointreau','Triple sec','Curaçao','Curaçao bleu','Curaçao orange'],
+  'Amaretto':             ['Amaretto'],
+  'Baileys':              ['Baileys'],
+  'Kahlúa / Café':        ['Kahlúa','Liqueur de café'],
+  'Campari':              ['Campari'],
+  'Aperol':               ['Aperol'],
+  'Midori':               ['Midori'],
+  'Crème de cassis':      ['Crème de cassis'],
+  'Crème de menthe':      ['Crème de menthe','Crème de menthe verte'],
+  'Crème de cacao':       ['Crème de cacao','Crème de cacao blanc'],
+  'Crème de mûre':        ['Crème de mûre'],
+  'Limoncello':           ['Limoncello'],
+  'St-Germain':           ['St-Germain'],
+  'Maraschino':           ['Maraschino','Marasquin'],
+  'Chartreuse':           ['Chartreuse verte','Chartreuse jaune'],
+  'Chambord':             ['Chambord'],
+  'Cherry Brandy':        ['Cherry Brandy','Liqueur de cerise'],
+  'Bénédictine':          ['Bénédictine'],
+  'Galliano':             ['Galliano'],
+  'Drambuie':             ['Drambuie'],
+  'Fernet-Branca':        ['Fernet-Branca'],
+  'Suze':                 ['Suze ou Gentiane'],
+  'Lillet Blanc':         ['Lillet Blanc'],
+  "Pimm's":               ["Pimm's No.1"],
+  'Falernum':             ['Falernum Golden'],
+  'Champagne':            ['Champagne','Champagne brut'],
+  'Prosecco':             ['Prosecco'],
+  'Vin rouge':            ['Vin rouge','Stout'],
+  'Vin blanc sec':        ['Vin blanc sec','Xérès fino'],
+  'Vermouth dry':         ['Vermouth dry','Vermouth sec','Vermouth blanc','Vermouth blanc ou rouge'],
+  'Vermouth rouge':       ['Vermouth rosso','Vermouth rouge'],
+  'Porto':                ['Porto rouge','Porto ruby'],
+  'Jus de citron':        ['Jus de citron','Jus de yuzu'],
+  'Jus de citron vert':   ['Jus de citron vert'],
+  "Jus d'orange":         ["Jus d'orange"],
+  'Jus de cranberry':     ['Jus de cranberry'],
+  "Jus d'ananas":         ["Jus d'ananas"],
+  'Jus de pamplemousse':  ['Jus de pamplemousse'],
+  'Jus de tomate':        ['Jus de tomate'],
+  'Purée de passion':     ['Purée de passion','Purée de fruit de la passion'],
+  'Purée de pêche':       ['Purée de pêche','Purée de pêche blanche'],
+  'Purée de mangue':      ['Purée de mangue'],
+  'Purée de fraise':      ['Purée de fraise'],
+  'Purée de litchi':      ['Purée de litchi'],
+  'Purée de melon':       ['Purée de melon'],
+  'Purée de rhubarbe':    ['Purée de rhubarbe'],
+  'Coca-Cola':            ['Coca-Cola'],
+  'Eau gazeuse':          ['Eau gazeuse','Eau'],
+  'Tonic':                ['Tonic water','Tonic'],
+  'Ginger beer':          ['Ginger beer'],
+  'Ginger ale':           ['Ginger ale'],
+  'Limonade':             ['Limonade','Limonade artisanale','Limonade maison'],
+  'Schweppes agrumes':    ['Schweppes agrumes'],
+  'Thé glacé':            ['Thé glacé non sucré'],
+  'Sirop de sucre':       ['Sirop de sucre de canne'],
+  'Sirop de grenadine':   ['Sirop de grenadine'],
+  'Orgeat':               ["Sirop d'orgeat",'Orgeat'],
+  'Sirop de fraise':      ['Sirop de fraise'],
+  'Sirop de framboise':   ['Sirop de framboise'],
+  "Sirop d'agave":        ["Sirop d'agave"],
+  'Sirop de miel':        ['Sirop de miel'],
+  'Sirop de gingembre':   ['Sirop de gingembre'],
+  'Sirop de lavande':     ['Sirop de lavande'],
+  'Sirop de rose':        ['Sirop de rose'],
+  'Sirop de romarin':     ['Sirop de romarin'],
+  'Sirop de sureau':      ['Sirop de fleur de sureau'],
+  'Sirop de matcha':      ['Sirop de matcha'],
+  'Sirop de kiwi':        ['Sirop de kiwi'],
+  'Sucre':                ['Sucre en poudre'],
+  'Miel':                 ['Miel'],
+  'Angostura bitters':    ['Angostura bitters'],
+  "Peychaud's bitters":   ["Peychaud's bitters"],
+  'Orange bitters':       ['Orange bitters'],
+  'Mole bitters':         ['Mole bitters'],
+  'Crème':                ['Crème fraîche','Crème entière'],
+  'Lait / Crème de coco': ['Lait de coco','Crème de coco'],
+  "Blanc d'œuf":          ["Blanc d'œuf"],
+  'Œuf':                  ["Jaune d'œuf",'Œuf entier'],
+  'Café espresso':        ['Café espresso','Espresso froid'],
+  'Menthe fraîche':       ['Menthe fraîche'],
+  'Basilic frais':        ['Basilic','Basilic frais'],
+  'Romarin frais':        ['Romarin','Romarin frais'],
+  'Citron vert frais':    ['Citron vert frais'],
+  'Citron jaune frais':   ['Citron jaune frais','Citron frais','Citron'],
+  'Orange fraîche':       ['Orange fraîche','Orange'],
+  'Fraise fraîche':       ['Fraise fraîche','Fraises fraîches'],
+  'Framboise fraîche':    ['Framboise','Framboise fraîche'],
+  'Concombre frais':      ['Concombre','Concombre frais'],
+  'Gingembre frais':      ['Gingembre frais'],
+  'Mangue fraîche':       ['Mangue fraîche'],
+  'Kiwi frais':           ['Kiwi frais'],
+  'Pomme':                ['Pomme'],
+  'Piment jalapeño':      ['Piment jalapeño'],
+  'Sel':                  ['Sel','Sel de céleri'],
+  'Tabasco':              ['Tabasco'],
+  'Sauce Worcestershire': ['Sauce Worcestershire','Worcestershire sauce'],
+  'Raifort':              ['Raifort'],
+  'Cannelle':             ['Cannelle'],
+  'Clous de girofle':     ['Clous de girofle'],
+  'Noix de muscade':      ['Noix de muscade'],
+  'Cacao en poudre':      ['Cacao en poudre'],
+  "Eau de fleur d'oranger":["Eau de fleur d'oranger"],
+  'Glace pilée':          ['Glace pilée'],
+};
 
 const COCKTAILS = [
   // === RHUM ===
