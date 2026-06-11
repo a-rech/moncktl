@@ -507,6 +507,62 @@
       .prefs-overlay.open .prefs-panel { transform: translate(-50%, 0); }
       .prefs-handle { display: none; }
     }
+    /* ── MESSAGE DE BIENVENUE ────────────────────────────────────────── */
+    .welcome-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      z-index: 500; opacity: 0; pointer-events: none;
+      transition: opacity .25s; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .welcome-overlay.open { opacity: 1; pointer-events: auto; }
+    .welcome-modal {
+      background: var(--surface); border-radius: 20px; width: 100%; max-width: 500px;
+      max-height: 82vh; display: flex; flex-direction: column;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6); border: 1px solid var(--border);
+      transform: scale(.95) translateY(12px); transition: transform .25s cubic-bezier(.4,0,.2,1);
+    }
+    .welcome-overlay.open .welcome-modal { transform: scale(1) translateY(0); }
+    .welcome-modal-head {
+      padding: 22px 22px 0; display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0;
+    }
+    .welcome-modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.25; }
+    .welcome-modal-title span { color: var(--accent); }
+    .welcome-modal-close {
+      width: 30px; height: 30px; border-radius: 50%; background: var(--surface2);
+      border: none; cursor: pointer; font-size: 16px; color: var(--text2);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+    }
+    .welcome-modal-body { padding: 18px 22px; overflow-y: auto; flex: 1; }
+    .welcome-feature {
+      display: flex; gap: 13px; align-items: flex-start;
+      padding: 11px 0; border-bottom: 1px solid var(--border);
+    }
+    .welcome-feature:last-child { border-bottom: none; }
+    .welcome-feature-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; margin-top: 1px; }
+    .welcome-feature-text { flex: 1; }
+    .welcome-feature-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .welcome-feature-desc { font-size: 13px; color: var(--text2); line-height: 1.45; }
+    .welcome-feature-desc strong { color: var(--accent); font-weight: 500; }
+    .welcome-install-note {
+      margin: 18px 0 4px; padding: 13px 15px; background: rgba(212,170,74,.08);
+      border: 1px solid rgba(212,170,74,.25); border-radius: 12px;
+      font-size: 13px; color: var(--text2); line-height: 1.5;
+    }
+    .welcome-install-note strong { color: var(--accent); }
+    .welcome-modal-foot {
+      padding: 14px 22px 20px; display: flex; gap: 10px; flex-shrink: 0; border-top: 1px solid var(--border);
+    }
+    .welcome-btn-close {
+      flex: 1; padding: 11px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface2); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      font-weight: 500; color: var(--text2); cursor: pointer; transition: all .15s;
+    }
+    .welcome-btn-close:hover { border-color: var(--accent); color: var(--text); }
+    .welcome-btn-hide {
+      flex: 1.4; padding: 11px; border-radius: 12px; border: none;
+      background: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      font-weight: 600; color: #0C0F1D; cursor: pointer; transition: all .15s;
+    }
+    .welcome-btn-hide:hover { background: #c49a3a; }
     /* ── BAR EXPÉRIMENTAL ─────────────────────────────────────────────── */
     .bar-header { text-align:left; padding:28px 0 20px; }
     .bar-header .bar-title { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--text); }
@@ -801,7 +857,7 @@
 <nav class="topbar">
   <div class="topbar-logo" onclick="navTo('home')">Mon<span>Cocktail</span></div>
   <div class="topbar-nav">
-    <button class="nav-btn" onclick="navTo('search')">🍸<span class="nav-label"> Ingrédients</span></button>
+    <button class="nav-btn" onclick="navTo('search')">🍋<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
     <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
@@ -817,7 +873,7 @@
     <h1>Shakers à la main,<br>votre bar <em>chez vous</em></h1>
     <p>Découvrez les cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
     <div class="hero-btns">
-      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍸</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails qui vous correspondent</p></div>
+      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍋</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails qui vous correspondent</p></div>
       <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés par catégories</p></div>
     </div>
     <div class="hero-btns" style="gap:12px;margin-top:16px">
@@ -966,6 +1022,70 @@
       <div class="prefs-about-line"><span>Déjà testé</span><span class="prefs-about-val" id="about-tested-count" onclick="closePrefs();navTo('catalogue');setTimeout(function(){goToCatalogueTab('__tested__')},80)" style="cursor:pointer;text-decoration:underline dotted">—</span></div>
       <div class="prefs-about-line"><span>Notes</span><span class="prefs-about-val" id="about-notes-count">—</span></div>
       <!-- <div class="prefs-about-line"><span>Source</span><span class="prefs-about-val"><a href="https://github.com/a-rech/moncktl" target="_blank" style="color:var(--accent)">GitHub</a></span></div> -->
+      <div style="margin-top:18px;">
+        <button onclick="closePrefs();openWelcome();" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">💬 Revoir le message de bienvenue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGE DE BIENVENUE -->
+<div class="welcome-overlay" id="welcome-overlay" onclick="if(event.target===this)closeWelcome(false)">
+  <div class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-modal-head">
+      <div class="welcome-modal-title">Bienvenue sur<br>Mon<span>Cocktail</span> 🍸</div>
+      <button class="welcome-modal-close" onclick="closeWelcome(false)" aria-label="Fermer">✕</button>
+    </div>
+    <div class="welcome-modal-body">
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">📖</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Catalogue</div>
+          <div class="welcome-feature-desc">Parcourez l'ensemble des recettes, filtrez par catégorie, profil gustatif, alcool ou mot-clé.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🍋</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Recherche par ingrédients</div>
+          <div class="welcome-feature-desc">Cochez vos ingrédients préférés parmi 10 familles et trouvez instantanément les cocktails réalisables.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">⭐</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Favoris, notes & évaluations</div>
+          <div class="welcome-feature-desc">Sauvegardez vos cocktails préférés, rédigez des notes personnelles et attribuez des étoiles.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">✅</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Déjà testé</div>
+          <div class="welcome-feature-desc">Gardez un historique des cocktails que vous avez déjà essayés, consultable dans le catalogue.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">✨</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Créations personnalisées</div>
+          <div class="welcome-feature-desc">Créez vos propres recettes et partagez-les avec vos amis via <strong>QR code</strong>.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🧪</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Bar expérimental</div>
+          <div class="welcome-feature-desc">Déclarez les ingrédients de votre bar et laissez l'application générer une recette aléatoire compatible.</div>
+        </div>
+      </div>
+      <div class="welcome-install-note">
+        📱 <strong>Installer l'application</strong> sur votre téléphone ou bureau — rendez-vous dans <strong>⚙️ Paramètres</strong> en bas de la page d'accueil, onglet <strong>Installation</strong>.
+      </div>
+    </div>
+    <div class="welcome-modal-foot">
+      <button class="welcome-btn-close" onclick="closeWelcome(false)">Fermer</button>
+      <button class="welcome-btn-hide" onclick="closeWelcome(true)">Ne plus afficher</button>
     </div>
   </div>
 </div>
@@ -3232,10 +3352,23 @@ function hideDisclaimer(key) {}
 function showDisclaimer(key) {}
 function initDisclaimers() {}
 
+// ── MESSAGE DE BIENVENUE ──────────────────────────────────────────────────
+function openWelcome() {
+  var overlay = document.getElementById('welcome-overlay');
+  if (overlay) overlay.classList.add('open');
+}
+function closeWelcome(hide) {
+  if (hide) lsSet('mc_welcome_hide', true);
+  var overlay = document.getElementById('welcome-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   applyPrefs();
   loadUserCocktails(); // Fusionner les recettes utilisateur avec COCKTAILS // Appliquer les préférences sauvegardées
   initDisclaimers();
+  // Afficher le message de bienvenue si pas masqué
+  if (!lsGet('mc_welcome_hide', false)) openWelcome();
   // Fermer les dropdowns profil sur clic extérieur
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.pf-btn')) {
