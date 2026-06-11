@@ -2710,6 +2710,7 @@ function _swipeNavigate(dir) {
 (function() {
   var _tx = 0, _ty = 0, _locked = false;
   document.addEventListener('touchstart', function(e) {
+    if (document.getElementById('soiree-overlay')) return;
     var page = document.getElementById('page-recipe');
     if (!page || !page.classList.contains('active')) return;
     if (_swipeList.length < 2) return;
@@ -2719,6 +2720,7 @@ function _swipeNavigate(dir) {
   }, { passive: true });
 
   document.addEventListener('touchmove', function(e) {
+    if (document.getElementById('soiree-overlay')) return;
     var page = document.getElementById('page-recipe');
     if (!page || !page.classList.contains('active')) return;
     if (_swipeList.length < 2 || _locked) return;
@@ -2731,6 +2733,7 @@ function _swipeNavigate(dir) {
   }, { passive: true });
 
   document.addEventListener('touchend', function(e) {
+    if (document.getElementById('soiree-overlay')) return;
     var page = document.getElementById('page-recipe');
     if (!page || !page.classList.contains('active')) return;
     if (_swipeList.length < 2) return;
