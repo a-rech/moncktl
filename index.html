@@ -156,6 +156,9 @@
     .my-list-card.fav{--card-color:#E05C5C;}
     .my-list-card.tested{--card-color:#7B68EE;}
     .my-list-card.creations{--card-color:var(--accent);}
+    .my-list-card.bar-real{--card-color:#4DC8A8;}
+    .bar-catalogue-btn{display:block;width:100%;margin:0 0 32px;padding:12px;border-radius:12px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;}
+    .bar-catalogue-btn:hover{border-color:#4DC8A8;color:#4DC8A8;}
     .my-list-card:hover{border-color:var(--card-color,var(--accent));}
     .my-list-card.active{border-color:var(--card-color,var(--accent));}
     .my-list-card-count-row{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--card-color,var(--text3));}
@@ -449,6 +452,9 @@
     }
     .prefs-option:hover { border-color: var(--accent); color: var(--accent); }
     .prefs-option.active { background: var(--accent); border-color: var(--accent); color: #0C0F1D; }
+    .prefs-input-text{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;box-sizing:border-box;transition:border-color .15s;}
+    .prefs-input-text:focus{outline:none;border-color:var(--accent);}
+    #home-greeting{font-size:16px;font-weight:500;color:var(--accent);margin:-4px 0 14px;display:none;}
     .prefs-toggle-row {
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
     }
@@ -508,6 +514,31 @@
       .prefs-handle { display: none; }
     }
     /* ── MESSAGE DE BIENVENUE ────────────────────────────────────────── */
+    /* ── PANIER ───────────────────────────────────────────────────────── */
+    .nav-badge{position:absolute;top:1px;right:8px;background:var(--accent);color:#0C0F1D;border-radius:50%;min-width:16px;height:16px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 3px;line-height:1;pointer-events:none;}
+    .nav-badge.visible{display:flex;}
+    .panier-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;}
+    .panier-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:13px;color:var(--text2);}
+    .panier-tag-remove{cursor:pointer;opacity:.5;font-size:11px;transition:opacity .15s;}
+    .panier-tag-remove:hover{opacity:1;}
+    .panier-section-hd{display:flex;align-items:baseline;gap:8px;font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin:28px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+    .panier-cat-hd{font-size:12px;font-weight:600;color:var(--text2);margin:14px 0 5px;opacity:.8;}
+    .panier-ing-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+    .panier-ing-row.owned{opacity:.42;}
+    .panier-ing-row.owned .panier-ing-name{text-decoration:line-through;color:var(--text3);}
+    .panier-ing-check{width:17px;height:17px;flex-shrink:0;cursor:pointer;accent-color:var(--accent);}
+    .panier-ing-name{flex:1;font-size:14px;color:var(--text);}
+    .panier-ing-qty{font-size:13px;color:var(--accent);font-weight:500;white-space:nowrap;}
+    .panier-ing-row.owned .panier-ing-qty{color:var(--text3);}
+    .panier-clear-btn{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(224,92,92,.35);background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#E05C5C;cursor:pointer;margin-top:28px;margin-bottom:40px;transition:all .15s;}
+    .panier-tag-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;font-weight:600;padding:0 4px;line-height:1;transition:color .15s;}
+    .panier-tag-btn:hover{color:var(--accent);}
+    .panier-transfer-btn{flex-shrink:0;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;}
+    .panier-transfer-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .panier-action-row{display:flex;gap:10px;margin-top:24px;}
+    .panier-action-btn{flex:1;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;}
+    .panier-action-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .panier-clear-btn:hover{background:rgba(224,92,92,.12);}
     .welcome-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.75);
       z-index: 500; opacity: 0; pointer-events: none;
@@ -861,6 +892,7 @@
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
     <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
+    <button class="nav-btn" id="nav-btn-panier" onclick="navTo('panier')" style="position:relative">🛒<span class="nav-label"> Panier</span><span class="nav-badge" id="panier-badge"></span></button>
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher<span id="fab-live-count" style="display:none;margin-left:7px;font-size:12px;font-weight:500"><span id="fab-live-full" style="color:#0C0F1D;opacity:0.9"></span><span style="opacity:0.6"> / </span><span id="fab-live-partial" style="opacity:0.75"></span></span></button>
@@ -871,6 +903,7 @@
 <div id="page-home" class="page active">
   <div class="hero">
     <h1>Shakers à la main,<br>votre bar <em>chez vous</em></h1>
+    <p id="home-greeting"></p>
     <p>Découvrez les cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
     <div class="hero-btns">
       <div class="hero-card" onclick="navTo('search')"><div class="icon">🍋</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails qui vous correspondent</p></div>
@@ -893,14 +926,18 @@
       <button class="prefs-close" onclick="closePrefs()">✕</button>
     </div>
     <div class="prefs-tabs">
-      <button class="prefs-tab active" onclick="setPrefTab('affichage',this)">🖥 Affichage</button>
+      <button class="prefs-tab active" onclick="setPrefTab('affichage',this)">🖥 Préférences</button>
       <button class="prefs-tab" onclick="setPrefTab('install',this)">📱 Installation</button>
       <button class="prefs-tab" onclick="setPrefTab('donnees',this)">💾 Données</button>
       <button class="prefs-tab" onclick="setPrefTab('about',this)">ℹ️ À propos</button>
     </div>
 
-    <!-- Onglet Affichage -->
+    <!-- Onglet Préférences -->
     <div class="prefs-section active" id="prefs-affichage">
+      <div class="prefs-row">
+        <div class="prefs-label">Pseudo / Nom</div>
+        <input type="text" id="prefs-pseudo" class="prefs-input-text" placeholder="Votre nom ou pseudo…" oninput="savePseudo(this.value)" autocomplete="off">
+      </div>
       <div class="prefs-row">
         <div class="prefs-label">Taille de police</div>
         <div class="prefs-options">
@@ -1027,6 +1064,15 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="page-panier" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <button class="back-btn" onclick="navTo('home')" style="margin:0">← Accueil</button>
+  </div>
+  <div class="section-title">🛒 Panier</div>
+  <p class="section-sub" style="margin-bottom:8px">Planifiez votre soirée : ajoutez des recettes depuis les fiches cocktail pour regrouper ici tous les ingrédients à acheter.</p>
+  <div id="panier-content"></div>
 </div>
 
 <!-- MESSAGE DE BIENVENUE -->
@@ -1165,6 +1211,10 @@
       <div class="my-list-card-count-row"><span class="my-list-card-icon">✨</span><span id="mylist-creations-count">0</span></div>
       <div class="my-list-card-label">Créations</div>
     </div>
+    <div class="my-list-card bar-real" id="mylist-barreal" onclick="filterCatalogueFromCard('__barrealisable__',this)">
+      <div class="my-list-card-count-row"><span class="my-list-card-icon">🧪</span><span id="mylist-barreal-count">0</span></div>
+      <div class="my-list-card-label">Mon bar</div>
+    </div>
   </div>
   <!-- Filtres : hint + barre mode + bouton avancé -->
   <p class="pf-hint">Cliquez sur 🎛️ pour ouvrir les filtre avancés</p>
@@ -1189,6 +1239,9 @@
         🍾 Alcool<span class="pf-btn-count" id="pf-count-a" style="display:none">0</span>
         <div class="pf-dropdown" id="pf-drop-a" onclick="event.stopPropagation()"></div>
       </button>
+    </div>
+    <div style="text-align:right;margin-top:2px;margin-bottom:10px;">
+      <button onclick="navTo('bar-stock')" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">⚙️ Modifier mon bar →</button>
     </div>
   </div>
   <div id="cat-tabs"></div>
@@ -1557,7 +1610,8 @@
     <button class="bar-reset-btn" id="bar-reset-btn" onclick="barResetStock()">🗑 Réinitialiser la sélection</button>
   </div>
   <button class="bar-go-btn" id="bar-go-btn" onclick="barGoGenerate()">🪄 Laissons la magie opérer</button>
-  <p style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:32px">Appuyez pour générer une recette expérimentale </p>
+  <p style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:16px">Appuyez pour générer une recette expérimentale </p>
+  <button class="bar-catalogue-btn" onclick="goToCatalogueBarFilter()">🍸 Voir les cocktails réalisables →</button>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
@@ -1876,11 +1930,12 @@ function showPage(pageId) {
     window.scrollTo(0, 0);
   }
   // Chargement différé : les données ne sont générées qu'au premier affichage
-  if (pageId === 'search')   loadIngredientFamilies();
+  if (pageId === 'search')    loadIngredientFamilies();
   if (pageId === 'catalogue') loadCatalogueTabs();
-  if (pageId === 'random')   pickRandom();
-  if (pageId === 'lexique')  renderLexique();
+  if (pageId === 'random')    pickRandom();
+  if (pageId === 'lexique')   renderLexique();
   if (pageId === 'bar-stock') loadBarStock();
+  if (pageId === 'panier')    renderPanierPage();
   requestAnimationFrame(updateScrollShortcuts);
 }
 
@@ -2291,10 +2346,12 @@ function loadCatalogueTabs() {
   var elFavCount = document.getElementById('mylist-fav-count');
   var elTestedCount = document.getElementById('mylist-tested-count');
   var elCreationsCount = document.getElementById('mylist-creations-count');
+  var elBarrealCount = document.getElementById('mylist-barreal-count');
   if (elFavCount) elFavCount.textContent = favCount;
   var testedCount = pfBase.filter(function(c) { return isTested(c.id); }).length;
   if (elTestedCount) elTestedCount.textContent = testedCount;
   if (elCreationsCount) elCreationsCount.textContent = userCount;
+  if (elBarrealCount) elBarrealCount.textContent = getRealisableCocktails().length;
   
   var html = '<div class="cat-tab active" data-val="all">Tous (' + pfBase.length + ')</div>';
   
@@ -2407,6 +2464,21 @@ function filterCatalogue(value, tabEl, skipScroll) {
       document.getElementById('catalogue-results').innerHTML = '<div class="empty-state"><div class="big">✦</div><p>Vous n&#39;avez pas encore créé de cocktail.<br>Cliquez sur "Créer" pour en ajouter un !</p></div>';
     } else {
       renderCatalogueGrid(shuffle(myCocktails));
+    }
+    if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateResetBtnVisibility();
+    return;
+  }
+
+  if (value === '__barrealisable__') {
+    var realCocktails = getRealisableCocktails();
+    if (realCocktails.length === 0) {
+      var emptyMsg = barGetChecked().length === 0
+        ? '<div class="empty-state"><div class="big">🧪</div><p>Votre bar est vide.<br><button onclick="navTo(\'bar-stock\')" style="margin-top:12px;padding:10px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:13px;color:var(--accent);cursor:pointer;font-weight:500;">⚙️ Renseigner mon bar →</button></p></div>'
+        : '<div class="empty-state"><div class="big">🧪</div><p>Aucun cocktail entièrement réalisable<br>avec vos ingrédients actuels.<br><button onclick="navTo(\'bar-stock\')" style="margin-top:12px;padding:10px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:13px;color:var(--accent);cursor:pointer;font-weight:500;">⚙️ Modifier mon bar →</button></p></div>';
+      document.getElementById('catalogue-results').innerHTML = emptyMsg;
+    } else {
+      renderCatalogueGrid(realCocktails);
     }
     if (!skipScroll) document.getElementById('catalogue-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
     updateResetBtnVisibility();
@@ -2568,13 +2640,13 @@ function showRecipe(id, swipeList, animDir) {
     if (_swipeIdx === -1) { _swipeList = []; } // sécurité
   }
   // Si on est déjà sur page-recipe (navigation par swipe), ne pas repousser dans l'historique
+  _scrollSave['recipe'] = 0; // la fiche repart toujours du haut — doit précéder navTo/showPage
   var alreadyOnRecipe = document.getElementById('page-recipe').classList.contains('active');
   if (alreadyOnRecipe) {
     showPage('recipe');          // rafraîchit l'affichage sans toucher pageHistory
   } else {
     navTo('recipe');
   }
-  _scrollSave['recipe'] = 0; // la fiche repart toujours du haut
   var note = getNote(id);
   var ingHtml = '';
   c.ingredients.forEach(function(ing) {
@@ -2621,7 +2693,8 @@ function showRecipe(id, swipeList, animDir) {
     + '<div class="recipe-section-title" style="margin-top:4px">INGRÉDIENTS</div>'
     + '<ul class="ingredients-list" id="ingredients-list-' + id + '">' + ingHtml + '</ul>'
     + '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">'
-    + '<button onclick="copyIngredients(' + id + ')" id="copy-ing-btn-' + id + '" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">📋 Copier la liste</button>'
+    + (function(){ var inp = isInPanier(id); return '<button onclick="addToPanier('+id+')" id="panier-ing-btn-'+id+'" style="padding:7px 16px;background:transparent;border:1px solid '+(inp?'var(--accent)':'var(--border)')+';border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;color:'+(inp?'var(--accent)':'var(--text2)')+'\">'+(inp?'✓ Dans le panier':'🛒 Ajouter au panier')+'</button>'; })()
+    + '<button onclick="navTo(\'panier\')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🛍️ Voir le panier</button>'
     + '<button onclick="enterSoireeMode(' + id + ')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
     + '</div>'
     + '</div>'
@@ -2885,6 +2958,258 @@ function barGetCustom() { return lsGet(BAR_CUSTOM_KEY, {}); }
 function barSetCustom(obj) { lsSet(BAR_CUSTOM_KEY, obj); }
 
 // ── Construction de la page bar-stock ────────────────────────────────────
+
+// ── FILTRE "RÉALISABLE AVEC MON BAR" ──────────────────────────────────────
+function barIngNorm(s) {
+  return (s || '').toLowerCase()
+    .replace(/[àâä]/g,'a').replace(/[éèêë]/g,'e').replace(/[îï]/g,'i')
+    .replace(/[ôö]/g,'o').replace(/[ùûü]/g,'u').replace(/[ç]/g,'c')
+    .replace(/[œ]/g,'oe').replace(/['']/g,"'").trim();
+}
+var BAR_UNIVERSALS = ['eau','eau chaude','eau froide','glace pilee','glacons'];
+function isIngInBar(ingName, checkedNorm) {
+  // Gérer les alternatives "X ou Y"
+  if (ingName.indexOf(' ou ') !== -1) {
+    return ingName.split(' ou ').some(function(p) { return isIngInBar(p.trim(), checkedNorm); });
+  }
+  var n = barIngNorm(ingName);
+  if (BAR_UNIVERSALS.indexOf(n) !== -1) return true;
+  for (var i = 0; i < checkedNorm.length; i++) {
+    var b = checkedNorm[i];
+    if (n === b) return true;
+    // Correspondance partielle : mot-clé ≥5 chars sur borne de mot (ex: "bourbon" dans "whisky bourbon")
+    var shorter = n.length <= b.length ? n : b;
+    var longer  = n.length <= b.length ? b : n;
+    if (shorter.length >= 5) {
+      var idx = longer.indexOf(shorter);
+      if (idx !== -1) {
+        var before = idx === 0 || !/[a-z0-9]/.test(longer[idx - 1]);
+        var after  = (idx + shorter.length >= longer.length) || !/[a-z0-9]/.test(longer[idx + shorter.length]);
+        if (before && after) return true;
+      }
+    }
+  }
+  return false;
+}
+function getRealisableCocktails() {
+  var checkedNorm = barGetChecked().map(barIngNorm);
+  if (checkedNorm.length === 0) return [];
+  return COCKTAILS.filter(function(c) {
+    return c.ingredients.every(function(ing) { return isIngInBar(ing[0], checkedNorm); });
+  });
+}
+function goToCatalogueBarFilter() {
+  _catState = { value: '__barrealisable__', cardId: 'mylist-barreal' };
+  _catRendered = null;
+  navTo('catalogue');
+}
+
+// ── PANIER ─────────────────────────────────────────────────────────────────────────────
+function getPanier() {
+  return (lsGet('mc_panier', []) || []).map(function(e) {
+    return (typeof e === 'object' && e !== null) ? e : { id: e, portions: 1 };
+  });
+}
+function setPanier(p)   { lsSet('mc_panier', p); }
+function isInPanier(id) { return getPanier().some(function(e) { return e.id === id; }); }
+function addToPanier(id) {
+  var p = getPanier(), idx = -1;
+  p.forEach(function(e, i) { if (e.id === id) idx = i; });
+  if (idx !== -1) { p.splice(idx, 1); } else {
+    var sel = document.getElementById('portions-selector');
+    p.push({ id: id, portions: sel ? (parseInt(sel.value, 10) || 1) : 1 });
+  }
+  setPanier(p); updateRecipePanierBtn(id); updatePanierBadge();
+}
+function removeFromPanier(id) {
+  setPanier(getPanier().filter(function(e) { return e.id !== id; }));
+  updateRecipePanierBtn(id); updatePanierBadge(); renderPanierPage();
+}
+function clearPanier() {
+  lsSet('mc_panier', []); lsSet('mc_panier_override', []);
+  updatePanierBadge(); renderPanierPage();
+}
+function setPanierPortions(id, delta) {
+  var p = getPanier();
+  var entry = p.filter(function(e) { return e.id === id; })[0];
+  if (!entry) return;
+  entry.portions = Math.max(1, (entry.portions || 1) + delta);
+  setPanier(p); renderPanierPage();
+}
+function updatePanierBadge() {
+  var count = getPanier().length;
+  var badge = document.getElementById('panier-badge');
+  if (badge) { badge.textContent = count; badge.classList.toggle('visible', count > 0); }
+}
+function updateRecipePanierBtn(id) {
+  var btn = document.getElementById('panier-ing-btn-' + id);
+  if (!btn) return;
+  var inp = isInPanier(id);
+  btn.textContent       = inp ? '✓ Dans le panier' : '🛒 Ajouter au panier';
+  btn.style.borderColor = inp ? 'var(--accent)' : '';
+  btn.style.color       = inp ? 'var(--accent)' : '';
+}
+function getPanierOverride() { return lsGet('mc_panier_override', []) || []; }
+function togglePanierOverride(key) {
+  var ov = getPanierOverride(), i = ov.indexOf(key);
+  if (i !== -1) { ov.splice(i, 1); } else { ov.push(key); }
+  lsSet('mc_panier_override', ov); renderPanierPage();
+}
+function findBarCategory(ingName) {
+  var n = barIngNorm(ingName);
+  for (var ci = 0; ci < BAR_CATS.length; ci++) {
+    var cat = BAR_CATS[ci];
+    for (var ii = 0; ii < cat.items.length; ii++) {
+      var b = barIngNorm(cat.items[ii]);
+      if (n === b) return cat;
+      var shorter = n.length <= b.length ? n : b;
+      var longer  = n.length <= b.length ? b : n;
+      if (shorter.length >= 5) {
+        var idx = longer.indexOf(shorter);
+        if (idx !== -1) {
+          var before = idx === 0 || !/[a-z0-9]/.test(longer[idx-1]);
+          var after  = (idx+shorter.length >= longer.length) || !/[a-z0-9]/.test(longer[idx+shorter.length]);
+          if (before && after) return cat;
+        }
+      }
+    }
+  }
+  return { label: 'Divers', icon: '🧩' };
+}
+function buildPanierListText(groups) {
+  var panier = getPanier();
+  var titles = panier.map(function(e) {
+    var c = COCKTAILS.filter(function(x) { return x.id === e.id; })[0];
+    if (!c) return '';
+    return (e.portions > 1 ? e.portions + '× ' : '') + c.title;
+  }).filter(Boolean);
+  var lines = ['🛒 Liste de courses'];
+  if (titles.length) lines.push(titles.join(', '));
+  lines.push('');
+  groups.forEach(function(group) {
+    lines.push(group.label);
+    group.items.forEach(function(ing) {
+      lines.push('• ' + ing.displayName + (ing.qtyStr ? ' — ' + ing.qtyStr : ''));
+    });
+    lines.push('');
+  });
+  lines.push('Généré avec MonCocktail 🍸');
+  return lines.join('\n').trim();
+}
+function copyPanierList() {
+  var btn = document.getElementById('panier-copy-btn');
+  var text = buildPanierListText(window._panierToBuyGroups || []);
+  var flash = function() {
+    if (btn) { btn.textContent = '✓ Copié !'; setTimeout(function() { if (btn) btn.textContent = '📋 Copier'; }, 2000); }
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(flash).catch(function() {
+      var ta = document.createElement('textarea'); ta.value = text;
+      ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta); flash();
+    });
+  } else {
+    var ta = document.createElement('textarea'); ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta); flash();
+  }
+}
+function sharePanierList() {
+  var text = buildPanierListText(window._panierToBuyGroups || []);
+  if (navigator.share) { navigator.share({ title: 'Ma liste de courses', text: text }).catch(function(){}); }
+  else { copyPanierList(); }
+}
+function renderPanierPage() {
+  var el = document.getElementById('panier-content');
+  if (!el) return;
+  var entries = getPanier();
+  if (entries.length === 0) {
+    window._panierToBuyGroups = [];
+    el.innerHTML = '<div class="empty-state" style="padding-top:32px"><div class="big">🛒</div>'
+      + '<p>Votre panier est vide.<br><span style="font-size:13px;color:var(--text3)">Ouvrez une fiche recette et appuyez<br>sur “Ajouter au panier”.</span></p></div>';
+    return;
+  }
+  var map = {}, recetteTags = [], ov = getPanierOverride();
+  entries.forEach(function(entry) {
+    var c = COCKTAILS.filter(function(x) { return x.id === entry.id; })[0];
+    if (!c) return;
+    var mult = entry.portions / (c.portions || 1);
+    var label = entry.portions > 1 ? entry.portions + ' ' + c.title : c.title;
+    recetteTags.push(
+      '<span class="panier-tag">'
+      + '<button class="panier-tag-btn" onclick="setPanierPortions(' + entry.id + ',-1)">−</button>'
+      + '<span style="padding:0 2px">' + label + '</span>'
+      + '<button class="panier-tag-btn" onclick="setPanierPortions(' + entry.id + ',1)">+</button>'
+      + '<span class="panier-tag-remove" onclick="removeFromPanier(' + entry.id + ')">✕</span>'
+      + '</span>'
+    );
+    (c.ingredients || []).forEach(function(ing) {
+      var name = ing[0], qty = ing[1], unit = (ing[2] || '').trim();
+      if (!name) return;
+      var key = barIngNorm(name);
+      if (!map[key]) map[key] = { displayName: name, qtyByUnit: {} };
+      if (typeof qty === 'number' && qty > 0) {
+        map[key].qtyByUnit[unit] = (map[key].qtyByUnit[unit] || 0) + qty * mult;
+      } else { map[key].qtyByUnit[''] = map[key].qtyByUnit[''] || null; }
+    });
+  });
+  Object.values(map).forEach(function(ing) {
+    ing.qtyStr = Object.keys(ing.qtyByUnit).map(function(u) {
+      var q = ing.qtyByUnit[u];
+      if (q === null || q === undefined) return u || 'q.s.';
+      return (Math.round(q * 10) / 10) + (u ? ' ' + u : '');
+    }).join(' + ');
+  });
+  var checkedNorm = barGetChecked().map(barIngNorm);
+  var toBuy = [], owned = [];
+  Object.values(map).forEach(function(ing) {
+    var key = barIngNorm(ing.displayName);
+    var inBar = isIngInBar(ing.displayName, checkedNorm) && ov.indexOf(key) === -1;
+    (inBar ? owned : toBuy).push(ing);
+  });
+  function groupByCat(ings) {
+    var cats = {}, order = [];
+    ings.forEach(function(ing) {
+      var cat = findBarCategory(ing.displayName);
+      var k = cat.icon + ' ' + cat.label;
+      if (!cats[k]) { cats[k] = { label: k, items: [] }; order.push(k); }
+      cats[k].items.push(ing);
+    });
+    return order.map(function(k) { return cats[k]; });
+  }
+  var toBuyGroups = groupByCat(toBuy);
+  window._panierToBuyGroups = toBuyGroups;
+  function renderSection(title, groups, isOwned) {
+    if (!groups.length) return '';
+    var total = groups.reduce(function(n, g) { return n + g.items.length; }, 0);
+    var html = '<div class="panier-section-hd">' + title + ' <span style="font-weight:400;opacity:.6">(' + total + ')</span></div>';
+    groups.forEach(function(group) {
+      html += '<div class="panier-cat-hd">' + group.label + '</div>';
+      group.items.forEach(function(ing) {
+        var key = barIngNorm(ing.displayName);
+        var safeKey = key.replace(/"/g, '&quot;');
+        html += '<div class="panier-ing-row' + (isOwned ? ' owned' : '') + '">';
+        if (!isOwned) html += '<input type="checkbox" class="panier-ing-check" onchange="var r=this.parentElement;r.style.opacity=this.checked?\'0.35\':\'1\'">';
+        html += '<span class="panier-ing-name">' + ing.displayName + '</span>';
+        html += '<span class="panier-ing-qty">' + ing.qtyStr + (isOwned ? ' \u2713' : '') + '</span>';
+        if (isOwned) html += '<button class="panier-transfer-btn" data-ovkey="' + safeKey + '" onclick="togglePanierOverride(this.dataset.ovkey)">\u2192 Acheter</button>';
+        html += '</div>';
+      });
+    });
+    return html;
+  }
+  var html = '<div class="panier-tags">' + recetteTags.join('') + '</div>';
+  html += renderSection('🛍️ À acheter', toBuyGroups, false);
+  html += renderSection('✅ Déjà dans le bar', groupByCat(owned), true);
+  if (toBuy.length > 0) {
+    html += '<div class="panier-action-row">'
+      + '<button class="panier-action-btn" id="panier-copy-btn" onclick="copyPanierList()">📋 Copier</button>'
+      + '<button class="panier-action-btn" id="panier-share-btn" onclick="sharePanierList()">📤 Partager</button>'
+      + '</div>';
+  }
+  html += '<button class="panier-clear-btn" onclick="clearPanier()">🗑️ Vider le panier</button>';
+  el.innerHTML = html;
+}
 
 function loadBarStock() {
   if (BAR_STOCK_BUILT) return;
@@ -3368,6 +3693,8 @@ function closeWelcome(hide) {
 
 window.addEventListener('DOMContentLoaded', function() {
   applyPrefs();
+  updateHomeGreeting();
+  updatePanierBadge();
   loadUserCocktails(); // Fusionner les recettes utilisateur avec COCKTAILS // Appliquer les préférences sauvegardées
   initDisclaimers();
   // Afficher le message de bienvenue si pas masqué
@@ -4187,6 +4514,25 @@ function loadPrefs() {
 
 function savePrefs(p) { lsSet('mc_prefs', p); }
 
+// ── PSEUDO UTILISATEUR ────────────────────────────────────────────────────
+function savePseudo(val) {
+  lsSet('mc_pseudo', val.trim());
+  updateHomeGreeting();
+}
+function updateHomeGreeting() {
+  var pseudo = (lsGet('mc_pseudo', '') || '').trim();
+  var el = document.getElementById('home-greeting');
+  if (!el) return;
+  if (pseudo) {
+    var h = new Date().getHours();
+    var salut = h >= 5 && h < 18 ? 'Bonjour' : 'Bonsoir';
+    el.textContent = salut + ', ' + pseudo + ' 🍸';
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 // Applique toutes les préférences au démarrage
 function applyPrefs() {
   var p = loadPrefs();
@@ -4239,6 +4585,9 @@ function openPrefs() {
   var overlay = document.getElementById('prefs-overlay');
   overlay.classList.add('open');
   syncPrefUI(loadPrefs());
+  // Pseudo
+  var pseudoInput = document.getElementById('prefs-pseudo');
+  if (pseudoInput) pseudoInput.value = lsGet('mc_pseudo', '') || '';
   // Stats À propos
   document.getElementById('about-recipe-count').textContent = COCKTAILS.length + ' cocktails';
   var favs = lsGet('mc_favs', []);
@@ -4281,7 +4630,7 @@ function goToMyCreations() {
 
 function goToCatalogueTab(val) {
   // Les valeurs spéciales sont maintenant des cards, pas des onglets
-  var cardMap = { '__favs__': 'mylist-fav', '__tested__': 'mylist-tested', '__mycocktails__': 'mylist-creations' };
+  var cardMap = { '__favs__': 'mylist-fav', '__tested__': 'mylist-tested', '__mycocktails__': 'mylist-creations', '__barrealisable__': 'mylist-barreal' };
   if (cardMap[val]) {
     var card = document.getElementById(cardMap[val]);
     if (card) filterCatalogueFromCard(val, card);
@@ -4562,7 +4911,7 @@ function updateGlassPreview() {
 function resetAddForm() {
   document.getElementById('f-emoji').value    = '🍸';
   document.getElementById('f-title').value    = '';
-  document.getElementById('f-creator').value  = '';
+  document.getElementById('f-creator').value  = lsGet('mc_pseudo', '') || '';
   document.getElementById('f-cat').value      = '';
   document.getElementById('f-base').value     = '';
   document.getElementById('f-diff').value     = 'moyen';
