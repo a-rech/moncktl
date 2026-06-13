@@ -539,6 +539,8 @@
     .panier-action-btn{flex:1;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;}
     .panier-action-btn:hover{border-color:var(--accent);color:var(--accent);}
     .panier-clear-btn:hover{background:rgba(224,92,92,.12);}
+    .panier-toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:600;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);}
+    .panier-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
     .welcome-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.75);
       z-index: 500; opacity: 0; pointer-events: none;
@@ -1067,6 +1069,7 @@
 </div>
 
 <div id="page-panier" class="page">
+  <div id="panier-toast" class="panier-toast"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <button class="back-btn" onclick="navTo('home')" style="margin:0">← Accueil</button>
   </div>
@@ -1240,11 +1243,11 @@
         <div class="pf-dropdown" id="pf-drop-a" onclick="event.stopPropagation()"></div>
       </button>
     </div>
-    <div style="text-align:right;margin-top:2px;margin-bottom:10px;">
-      <button onclick="navTo('bar-stock')" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">⚙️ Modifier mon bar →</button>
-    </div>
   </div>
   <div id="cat-tabs"></div>
+  <div id="bar-hint" style="display:none;margin:10px 0 4px;text-align:right;">
+    <button onclick="navTo('bar-stock')" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text3)'">⚙️ Modifier mon bar →</button>
+  </div>
   <div id="catalogue-results" style="margin-top:12px"></div>
   <button id="btn-reset-filters" onclick="resetAllCatalogueFilters()">↺ Réinitialiser</button>
 </div>
@@ -2471,6 +2474,8 @@ function filterCatalogue(value, tabEl, skipScroll) {
   }
 
   if (value === '__barrealisable__') {
+    var barHint = document.getElementById('bar-hint');
+    if (barHint) barHint.style.display = 'block';
     var realCocktails = getRealisableCocktails();
     if (realCocktails.length === 0) {
       var emptyMsg = barGetChecked().length === 0
@@ -2851,22 +2856,64 @@ var BAR_STOCK_BUILT = false;               // Guard : construire le DOM une seul
 // ── Données du bar : catégories et pools ─────────────────────────────────
 
 var BAR_CATS = [
-  { id:'alcools',  label:'Alcools forts',       icon:'🥃',
-    items:['Vodka','Rhum blanc','Rhum ambré','Gin','Whisky bourbon','Scotch whisky','Tequila blanco','Mezcal','Cognac','Armagnac','Pisco','Cachaça'] },
-  { id:'liqueurs', label:'Liqueurs & Amers',    icon:'🍶',
-    items:['Cointreau','Triple sec','Amaretto','Baileys','Kahlúa','Campari','Aperol','Midori','Crème de cassis','Crème de mûre','Crème de menthe','Crème de cacao','St-Germain','Grand Marnier','Chambord','Chartreuse verte','Drambuie','Frangelico','Galliano','Luxardo Maraschino','Cynar','Fernet-Branca',"Pimm's",'Limoncello','Passoã','Blue Curaçao','Malibu','Licor 43'] },
-  { id:'vins',     label:'Vins & Bulles',        icon:'🥂',
-    items:['Champagne','Prosecco','Cava','Crémant','Vermouth dry','Vermouth rosso','Vermouth blanc','Porto ruby','Porto tawny','Lillet blanc','Lillet rosé','Xérès fino','Xérès amontillado'] },
-  { id:'jus',      label:'Jus & Purées',         icon:'🍊',
-    items:["Jus de citron","Jus de citron vert","Jus d'orange","Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Jus de pomme","Jus de mangue","Jus de tomate","Jus de pastèque","Purée de passion","Purée de pêche","Purée de fraise","Purée de mangue","Purée de framboise","Purée de litchi","Purée de coco"] },
-  { id:'sodas',    label:'Sodas & Tonics',        icon:'🫧',
-    items:['Coca-Cola','Pepsi','Eau gazeuse','Tonic water','Ginger beer','Ginger ale','Limonade','Soda citron','Soda orange','Eau de coco','Lait de coco','Crème de coco'] },
-  { id:'sirops',   label:'Sirops & Sucres',       icon:'🍯',
-    items:["Sirop de sucre de canne","Sirop simple (1:1)","Sirop de grenadine","Sirop d'orgeat","Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de lavande","Sirop de rose","Sirop de vanille","Sirop de caramel","Sirop de cerise","Sirop de pêche","Miel","Sucre en poudre","Angostura bitters","Peychaud's bitters","Orange bitters","Cardamome bitters"] },
-  { id:'herbes',   label:'Herbes & Fruits frais', icon:'🌿',
-    items:["Menthe fraîche","Basilic","Romarin","Thym","Coriandre","Citron vert frais","Citron jaune frais","Orange fraîche","Pamplemousse frais","Fraise fraîche","Framboise fraîche","Mûre fraîche","Myrtille","Cerise fraîche","Concombre","Ananas frais","Pastèque fraîche","Raisin frais","Jalapeño","Gingembre frais"] },
-  { id:'epices',   label:'Épices & Condiments',   icon:'🌶️',
-    items:["Sel","Fleur de sel","Sel fumé","Tabasco","Sauce Worcestershire","Cannelle","Noix de muscade","Poivre noir","Cardamome","Clou de girofle","Anis étoilé","Curcuma","Piment de Cayenne","Zeste de citron","Zeste d'orange","Blanc d'œuf","Crème épaisse","Lait entier"] },
+  { id:'alcools', label:'Alcools forts', icon:'🥃',
+    items:['Vodka',
+           'Rhum blanc','Rhum ambré','Rhum brun','Rhum jamaïcain',
+           'Gin',
+           'Whisky bourbon','Rye whiskey','Scotch whisky','Irish whiskey','Whisky japonais',
+           'Tequila blanco','Tequila reposado','Mezcal',
+           'Cognac','Armagnac','Calvados','Brandy',"Eau-de-vie d'abricot",
+           'Pisco','Cachaça','Absinthe'] },
+  { id:'liqueurs', label:'Liqueurs & Amers', icon:'🍶',
+    items:['Cointreau','Triple sec','Curaçao orange','Blue Curaçao',
+           'Amaretto','Baileys','Kahlúa','Liqueur de café',
+           'Campari','Aperol','Amer','Suze ou Gentiane','Cynar','Fernet-Branca',
+           'Midori','Crème de cassis','Crème de mûre','Crème de menthe','Crème de cacao',
+           'St-Germain','Grand Marnier','Chambord','Chartreuse verte','Chartreuse jaune',
+           'Drambuie','Frangelico','Galliano','Luxardo Maraschino','Marasquin',
+           'Cherry Brandy','Liqueur de cerise','Bénédictine',
+           "Pimm's No.1",'Limoncello','Passoã','Malibu','Licor 43','Falernum Golden'] },
+  { id:'vins', label:'Vins, Bières & Bulles', icon:'🥂',
+    items:['Champagne','Prosecco','Cava','Crémant',
+           'Vermouth dry','Vermouth sec','Vermouth rosso','Vermouth rouge','Vermouth blanc',
+           'Porto ruby','Porto rouge','Porto tawny',
+           'Lillet blanc','Lillet rosé',
+           'Xérès fino','Xérès amontillado',
+           'Vin blanc sec','Vin rouge','Stout'] },
+  { id:'jus', label:'Jus & Purées', icon:'🍊',
+    items:["Jus de citron","Jus de yuzu","Jus de citron vert","Jus d'orange",
+           "Jus de cranberry","Jus d'ananas","Jus de pamplemousse","Jus de pomme","Jus de mangue","Jus de tomate","Jus de pastèque",
+           "Purée de passion","Purée de fruit de la passion",
+           "Purée de pêche","Purée de fraise","Purée de framboise","Purée de mangue",
+           "Purée de litchi","Purée de melon","Purée de rhubarbe","Purée de coco"] },
+  { id:'sodas', label:'Sodas & Tonics', icon:'🫧',
+    items:['Coca-Cola','Pepsi','Eau gazeuse',
+           'Tonic water','Ginger beer','Ginger ale',
+           'Limonade','Soda citron','Soda orange',
+           'Schweppes agrumes','Thé glacé non sucré',
+           'Eau de coco','Lait de coco','Crème de coco'] },
+  { id:'sirops', label:'Sirops, Sucres & Bitters', icon:'🍯',
+    items:["Sirop de sucre de canne","Sirop simple (1:1)","Sirop de grenadine","Sirop d'orgeat",
+           "Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de miel",
+           "Sirop de lavande","Sirop de rose","Sirop de vanille","Sirop de caramel","Sirop de cerise","Sirop de pêche",
+           "Sirop de gingembre","Sirop de romarin","Sirop de matcha","Sirop de kiwi","Sirop de fleur de sureau",
+           "Miel","Sucre en poudre",
+           "Angostura bitters","Peychaud's bitters","Orange bitters","Cardamome bitters","Mole bitters"] },
+  { id:'herbes', label:'Herbes & Fruits frais', icon:'🌿',
+    items:["Menthe fraîche","Basilic","Romarin","Thym","Coriandre",
+           "Citron vert frais","Citron jaune frais","Citron frais","Orange fraîche","Pamplemousse frais",
+           "Fraise fraîche","Fraises fraîches","Framboise fraîche","Mûre fraîche","Myrtille","Cerise fraîche","Cerise au marasquin",
+           "Concombre","Ananas frais","Pastèque fraîche","Raisin frais",
+           "Mangue fraîche","Kiwi frais","Pomme",
+           "Jalapeño","Gingembre frais"] },
+  { id:'epices', label:'Épices & Condiments', icon:'🌶️',
+    items:["Sel","Sel de céleri","Fleur de sel","Sel fumé",
+           "Tabasco","Sauce Worcestershire","Worcestershire sauce","Raifort",
+           "Cannelle","Noix de muscade","Poivre noir","Cardamome","Clous de girofle","Anis étoilé","Curcuma","Piment de Cayenne",
+           "Zeste de citron","Zeste d'orange",
+           "Blanc d'œuf","Jaune d'œuf","Œuf entier",
+           "Crème fraîche","Crème entière","Crème épaisse","Lait entier",
+           "Café espresso","Espresso froid","Cacao en poudre","Eau de fleur d'oranger"] },
 ];
 
 // ── Règles de compatibilité ───────────────────────────────────────────────
@@ -3026,7 +3073,7 @@ function removeFromPanier(id) {
   updateRecipePanierBtn(id); updatePanierBadge(); renderPanierPage();
 }
 function clearPanier() {
-  lsSet('mc_panier', []); lsSet('mc_panier_override', []);
+  lsSet('mc_panier', []); lsSet('mc_panier_override', []); lsSet('mc_panier_skip', []);
   updatePanierBadge(); renderPanierPage();
 }
 function setPanierPortions(id, delta) {
@@ -3050,10 +3097,38 @@ function updateRecipePanierBtn(id) {
   btn.style.color       = inp ? 'var(--accent)' : '';
 }
 function getPanierOverride() { return lsGet('mc_panier_override', []) || []; }
+function getPanierSkip()     { return lsGet('mc_panier_skip',     []) || []; }
+function showPanierToast(msg) {
+  var t = document.getElementById('panier-toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._panierToastTimer);
+  window._panierToastTimer = setTimeout(function() { t.classList.remove('show'); }, 2400);
+}
+function addIngredientToBar(name) {
+  var checked = barGetChecked();
+  if (checked.indexOf(name) === -1) { checked.push(name); barSetChecked(checked); }
+  skipPanierIngredient(barIngNorm(name)); // déplace vers "Déjà dans le bar" + re-render
+  showPanierToast(name + ' ajouté au bar ✓');
+}
 function togglePanierOverride(key) {
   var ov = getPanierOverride(), i = ov.indexOf(key);
   if (i !== -1) { ov.splice(i, 1); } else { ov.push(key); }
-  lsSet('mc_panier_override', ov); renderPanierPage();
+  lsSet('mc_panier_override', ov);
+  // Si on force vers "À acheter", retirer de skip si présent
+  var sk = getPanierSkip(), si = sk.indexOf(key);
+  if (si !== -1) { sk.splice(si, 1); lsSet('mc_panier_skip', sk); }
+  renderPanierPage();
+}
+function skipPanierIngredient(key) {
+  // Si l'ingrédient avait été forcé vers "À acheter", annuler d'abord
+  var ov = getPanierOverride(), i = ov.indexOf(key);
+  if (i !== -1) { ov.splice(i, 1); lsSet('mc_panier_override', ov); }
+  // Ajouter au skip pour forcer vers "Déjà dans le bar"
+  var sk = getPanierSkip();
+  if (sk.indexOf(key) === -1) { sk.push(key); lsSet('mc_panier_skip', sk); }
+  renderPanierPage();
 }
 function findBarCategory(ingName) {
   var n = barIngNorm(ingName);
@@ -3162,9 +3237,10 @@ function renderPanierPage() {
   });
   var checkedNorm = barGetChecked().map(barIngNorm);
   var toBuy = [], owned = [];
+  var skip = getPanierSkip();
   Object.values(map).forEach(function(ing) {
     var key = barIngNorm(ing.displayName);
-    var inBar = isIngInBar(ing.displayName, checkedNorm) && ov.indexOf(key) === -1;
+    var inBar = (isIngInBar(ing.displayName, checkedNorm) || skip.indexOf(key) !== -1) && ov.indexOf(key) === -1;
     (inBar ? owned : toBuy).push(ing);
   });
   function groupByCat(ings) {
@@ -3189,9 +3265,10 @@ function renderPanierPage() {
         var key = barIngNorm(ing.displayName);
         var safeKey = key.replace(/"/g, '&quot;');
         html += '<div class="panier-ing-row' + (isOwned ? ' owned' : '') + '">';
-        if (!isOwned) html += '<input type="checkbox" class="panier-ing-check" onchange="var r=this.parentElement;r.style.opacity=this.checked?\'0.35\':\'1\'">';
+        if (!isOwned) html += '<input type="checkbox" class="panier-ing-check" data-ingname="' + ing.displayName.replace(/"/g, '&quot;') + '" onchange="if(this.checked)addIngredientToBar(this.dataset.ingname)">';
         html += '<span class="panier-ing-name">' + ing.displayName + '</span>';
         html += '<span class="panier-ing-qty">' + ing.qtyStr + (isOwned ? ' \u2713' : '') + '</span>';
+        if (!isOwned) html += '<button class="panier-transfer-btn" data-ovkey="' + safeKey + '" onclick="skipPanierIngredient(this.dataset.ovkey)">\u2713 Retirer</button>';
         if (isOwned) html += '<button class="panier-transfer-btn" data-ovkey="' + safeKey + '" onclick="togglePanierOverride(this.dataset.ovkey)">\u2192 Acheter</button>';
         html += '</div>';
       });
@@ -4029,10 +4106,16 @@ function togglePfLevel(key, val, cbEl) {
   cbEl.parentElement.classList.toggle('checked', cbEl.checked);
   updatePfButtonStates();
   var activeTabWasHidden = refreshTabCounts();
-  // Réapplique le filtre actif
+  // Réapplique le filtre actif (onglet ou card "Mes listes")
   var activeTab = document.querySelector('#cat-tabs .cat-tab.active');
   if (activeTabWasHidden) activeTab = document.querySelector('#cat-tabs .cat-tab[data-val="all"]');
-  if (activeTab) filterCatalogue(activeTab.getAttribute('data-val'), activeTab, true);
+  if (activeTab) {
+    filterCatalogue(activeTab.getAttribute('data-val'), activeTab, true);
+  } else {
+    var cardMap = { 'mylist-fav': '__favs__', 'mylist-tested': '__tested__', 'mylist-creations': '__mycocktails__', 'mylist-barreal': '__barrealisable__' };
+    var activeCard = document.querySelector('.my-list-card.active');
+    if (activeCard && cardMap[activeCard.id]) filterCatalogue(cardMap[activeCard.id], null, true);
+  }
   updateResetBtnVisibility();
 }
 
@@ -4057,8 +4140,10 @@ function refreshTabCounts() {
   var elFavCount = document.getElementById('mylist-fav-count');
   var elTestedCount = document.getElementById('mylist-tested-count');
   var elCreationsCount = document.getElementById('mylist-creations-count');
+  var elBarrealCount = document.getElementById('mylist-barreal-count');
   if (elFavCount) elFavCount.textContent = pfBase.filter(function(c){ return isFav(c.id); }).length;
   if (elTestedCount) elTestedCount.textContent = pfBase.filter(function(c){ return isTested(c.id); }).length;
+  if (elBarrealCount) elBarrealCount.textContent = applyProfileFilters(getRealisableCocktails()).length;
   if (elCreationsCount) {
     var uc = pfBase.filter(function(c){ return c.userCreated === true; }).length;
     elCreationsCount.textContent = uc;
@@ -4149,6 +4234,8 @@ function resetAllCatalogueFilters() {
   document.querySelectorAll('.my-list-card').forEach(function(c){ c.classList.remove('active'); });
   _catState = null;    // Réinitialise la mémoire du filtre actif
   _catRendered = null; // Réinitialise l'ordre mémorisé
+  var barHint = document.getElementById('bar-hint');
+  if (barHint) barHint.style.display = 'none';
   // Mettre à jour le point indicateur du bouton filtres avancés
   var btnAdv = document.getElementById('btn-advanced-filters');
   if (btnAdv) btnAdv.classList.remove('has-active');
