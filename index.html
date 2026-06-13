@@ -524,8 +524,8 @@
     .panier-section-hd{display:flex;align-items:baseline;gap:8px;font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin:28px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
     .panier-cat-hd{font-size:12px;font-weight:600;color:var(--text2);margin:14px 0 5px;opacity:.8;}
     .panier-ing-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
-    .panier-ing-row.owned{opacity:.42;}
-    .panier-ing-row.owned .panier-ing-name{text-decoration:line-through;color:var(--text3);}
+    .panier-ing-row.owned .panier-ing-name{color:var(--text3);}
+    .panier-ing-row.owned .panier-ing-qty{color:var(--text3);opacity:.55;}
     .panier-ing-check{width:17px;height:17px;flex-shrink:0;cursor:pointer;accent-color:var(--accent);}
     .panier-ing-name{flex:1;font-size:14px;color:var(--text);}
     .panier-ing-qty{font-size:13px;color:var(--accent);font-weight:500;white-space:nowrap;}
@@ -899,7 +899,7 @@
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
     <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
-    <button class="nav-btn" id="nav-btn-panier" onclick="navTo('panier')" style="position:relative">🛒<span class="nav-label"> Panier</span><span class="nav-badge" id="panier-badge"></span></button>
+    <button class="nav-btn" id="nav-btn-panier" onclick="navTo('panier')" style="position:relative">🥂<span class="nav-label"> Soirée</span><span class="nav-badge" id="panier-badge"></span></button>
   </div>
 </nav>
 <button class="fab-search" id="fab-search" onclick="doSearch()" disabled>🔍 Rechercher<span id="fab-live-count" style="display:none;margin-left:7px;font-size:12px;font-weight:500"><span id="fab-live-full" style="color:#0C0F1D;opacity:0.9"></span><span style="opacity:0.6"> / </span><span id="fab-live-partial" style="opacity:0.75"></span></span></button>
@@ -1084,7 +1084,7 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <button class="back-btn" onclick="navTo('home')" style="margin:0">← Accueil</button>
   </div>
-  <div class="section-title">🛒 Panier</div>
+  <div class="section-title">🥂 Soirée</div>
   <p class="section-sub" style="margin-bottom:8px">Planifiez votre soirée : ajoutez des recettes depuis les fiches cocktail pour regrouper ici tous les ingrédients à acheter.</p>
   <div id="panier-content"></div>
 </div>
@@ -2709,8 +2709,8 @@ function showRecipe(id, swipeList, animDir) {
     + '<div class="recipe-section-title" style="margin-top:4px">INGRÉDIENTS</div>'
     + '<ul class="ingredients-list" id="ingredients-list-' + id + '">' + ingHtml + '</ul>'
     + '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">'
-    + (function(){ var inp = isInPanier(id); return '<button onclick="addToPanier('+id+')" id="panier-ing-btn-'+id+'" style="padding:7px 16px;background:transparent;border:1px solid '+(inp?'var(--accent)':'var(--border)')+';border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;color:'+(inp?'var(--accent)':'var(--text2)')+'\">'+(inp?'✓ Dans le panier':'🛒 Ajouter au panier')+'</button>'; })()
-    + '<button onclick="navTo(\'panier\')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🛍️ Voir le panier</button>'
+    + (function(){ var inp = isInPanier(id); return '<button onclick="addToPanier('+id+')" id="panier-ing-btn-'+id+'" style="padding:7px 16px;background:transparent;border:1px solid '+(inp?'var(--accent)':'var(--border)')+';border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;color:'+(inp?'var(--accent)':'var(--text2)')+'\">'+(inp?'✓ Dans la soirée':'🥂 Ajouter à la soirée')+'</button>'; })()
+    + '<button onclick="navTo(\'panier\')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🥂 Voir la soirée</button>'
     + '<button onclick="enterSoireeMode(' + id + ')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
     + '</div>'
     + '</div>'
@@ -3103,7 +3103,7 @@ function updateRecipePanierBtn(id) {
   var btn = document.getElementById('panier-ing-btn-' + id);
   if (!btn) return;
   var inp = isInPanier(id);
-  btn.textContent       = inp ? '✓ Dans le panier' : '🛒 Ajouter au panier';
+  btn.textContent       = inp ? '✓ Dans la soirée' : '🥂 Ajouter à la soirée';
   btn.style.borderColor = inp ? 'var(--accent)' : '';
   btn.style.color       = inp ? 'var(--accent)' : '';
 }
@@ -3190,7 +3190,7 @@ function buildPanierListText(groups) {
     if (!c) return '';
     return (e.portions > 1 ? e.portions + '× ' : '') + c.title;
   }).filter(Boolean);
-  var lines = ['🛒 Liste de courses'];
+  var lines = ['🥂 Ma soirée — courses'];
   if (titles.length) lines.push(titles.join(', '));
   lines.push('');
   groups.forEach(function(group) {
@@ -3223,7 +3223,7 @@ function copyPanierList() {
 }
 function sharePanierList() {
   var text = buildPanierListText(window._panierToBuyGroups || []);
-  if (navigator.share) { navigator.share({ title: 'Ma liste de courses', text: text }).catch(function(){}); }
+  if (navigator.share) { navigator.share({ title: 'Ma soirée', text: text }).catch(function(){}); }
   else { copyPanierList(); }
 }
 function renderPanierPage() {
@@ -3233,12 +3233,12 @@ function renderPanierPage() {
   var mode = window._panierMode || 'list';
   if (entries.length === 0) {
     window._panierToBuyGroups = [];
-    el.innerHTML = '<div class="empty-state" style="padding-top:32px"><div class="big">🛒</div>'
-      + '<p>Votre panier est vide.<br><span style="font-size:13px;color:var(--text3)">Ouvrez une fiche recette et appuyez<br>sur “Ajouter au panier”.</span></p></div>';
+    el.innerHTML = '<div class="empty-state" style="padding-top:32px"><div class="big">🥂</div>'
+      + '<p>Votre soirée est vide.<br><span style="font-size:13px;color:var(--text3)">Ouvrez une fiche recette et appuyez<br>sur “Ajouter au panier”.</span></p></div>';
     return;
   }
   var toggleHtml = '<div class="panier-mode-toggle">'
-    + '<button class="panier-mode-btn' + (mode === 'list' ? ' active' : '') + '" onclick="setPanierMode(\'list\')">🛒 Courses</button>'
+    + '<button class="panier-mode-btn' + (mode === 'list' ? ' active' : '') + '" onclick="setPanierMode(\'list\')">🛍️ Courses</button>'
     + '<button class="panier-mode-btn' + (mode === 'recipes' ? ' active' : '') + '" onclick="setPanierMode(\'recipes\')">🍸 Recettes du soir</button>'
     + '</div>';
   // ── Mode recettes ──────────────────────────────────────────────
@@ -3324,7 +3324,7 @@ function renderPanierPage() {
       group.items.forEach(function(ing) {
         var key = barIngNorm(ing.displayName);
         var safeKey = key.replace(/"/g, '&quot;');
-        html += '<div class="panier-ing-row' + (isOwned ? ' owned' : '') + '>';
+        html += '<div class="panier-ing-row' + (isOwned ? ' owned' : '') + '">';
         if (!isOwned) html += '<input type="checkbox" class="panier-ing-check" data-ingname="' + ing.displayName.replace(/"/g, '&quot;') + '" onchange="if(this.checked)addIngredientToBar(this.dataset.ingname)">';
         html += '<span class="panier-ing-name">' + ing.displayName + '</span>';
         html += '<span class="panier-ing-qty">' + ing.qtyStr + (isOwned ? ' ✓' : '') + '</span>';
@@ -3344,7 +3344,7 @@ function renderPanierPage() {
       + '<button class="panier-action-btn" id="panier-share-btn" onclick="sharePanierList()">📤 Partager</button>'
       + '</div>';
   }
-  html += '<button class="panier-clear-btn" onclick="clearPanier()">🗑️ Vider le panier</button>';
+  html += '<button class="panier-clear-btn" onclick="clearPanier()">🗑️ Vider la soirée</button>';
   el.innerHTML = html;
 }
 
