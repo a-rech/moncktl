@@ -352,6 +352,10 @@
     .taste-bar-fill.bitter { background: linear-gradient(90deg, #4a7c59, #7ab893); }
     .taste-bar-fill.alco   { background: linear-gradient(90deg, #4a5c9c, #7a8fd4); }
     .taste-val { font-size: 11px; color: var(--text3); width: 58px; text-align: right; flex-shrink: 0; }
+    .bar-coverage-line{font-size:12px;color:var(--text2);padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:2px 0;line-height:1.5;}
+    .bar-coverage-ok{color:var(--accent);font-weight:500;}
+    .bar-coverage-n{font-weight:600;color:var(--accent);}
+    .bar-coverage-missing{color:var(--text3);}
 
     /* ── PAGE LEXIQUE ──────────────────────────────────── */
     #page-lexique .back-btn { margin-bottom: 8px; }
@@ -601,7 +605,7 @@
       font-weight: 600; color: #0C0F1D; cursor: pointer; transition: all .15s;
     }
     .welcome-btn-hide:hover { background: #c49a3a; }
-    /* ── BAR EXPÉRIMENTAL ─────────────────────────────────────────────── */
+    /* ── MON BAR ─────────────────────────────────────────────── */
     .bar-header { text-align:left; padding:28px 0 20px; }
     .bar-header .bar-title { font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:var(--text); }
     .bar-header .bar-sub { color:var(--text2); font-size:13px; margin-top:6px; }
@@ -898,7 +902,7 @@
     <button class="nav-btn" onclick="navTo('search')">🍋<span class="nav-label"> Ingrédients</span></button>
     <button class="nav-btn" onclick="navTo('catalogue')">📖<span class="nav-label"> Catalogue</span></button>
     <button class="nav-btn" onclick="navTo('add-entry')">✨<span class="nav-label"> Créations</span></button>
-    <button class="nav-btn" onclick="navTo('bar-stock')">🧪<span class="nav-label"> Expérimental</span></button>    
+    <button class="nav-btn" onclick="navTo('bar-stock')">🍶<span class="nav-label"> Mon bar</span></button>    
     <button class="nav-btn" id="nav-btn-panier" onclick="navTo('panier')" style="position:relative">🥂<span class="nav-label"> Soirée</span><span class="nav-badge" id="panier-badge"></span></button>
   </div>
 </nav>
@@ -913,20 +917,20 @@
     <p id="home-greeting"></p>
     <p>Découvrez les cocktails avec vos ingrédients préférés, explorez le catalogue ou laissez le hasard remplir votre verre.</p>
     <div class="hero-btns">
-      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍋</div><h3>Par ingrédients</h3><p>Sélectionnez vos ingrédients préférés et découvrez les cocktails qui vous correspondent</p></div>
-      <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez tous les cocktails classés par catégories</p></div>
+      <div class="hero-card" onclick="navTo('search')"><div class="icon">🍋</div><h3>Par ingrédients</h3><p>Cochez vos ingrédients et découvrez tous les cocktails que vous pouvez réaliser</p></div>
+      <div class="hero-card" onclick="navTo('catalogue')"><div class="icon">📖</div><h3>Catalogue</h3><p>Parcourez toutes les recettes, filtrez et retrouvez les cocktails de votre bar</p></div>
     </div>
     <div class="hero-btns" style="gap:12px;margin-top:16px">
-      <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créations</h3><p>Créez un nouveau cocktail ou importez celui d'un ami</p></div>
-      <div class="hero-card" onclick="navTo('bar-stock')"><div class="icon">🧪</div><h3>Bar expérimental</h3><p>Générez une recette aléatoire avec les ingrédients de votre bar</p></div>
+      <div class="hero-card" onclick="navTo('add-entry')"><div class="icon">✨</div><h3>Créations</h3><p>Créez un cocktail, importez la recette d'un ami ou partagez la vôtre par QR code</p></div>
+      <div class="hero-card" onclick="navTo('bar-stock')"><div class="icon">🍶</div><h3>Mon Bar</h3><p>Déclarez vos ingrédients et générez une recette aléatoire avec votre bar</p></div>
     </div>
-    <button class="prefs-home-btn" onclick="openPrefs()" style="min-width:220px;margin-top:24px;">⚙️ Paramètres</button>
-    <div id="ce-soir-section" style="display:none;margin-top:16px;width:100%;">
+    <div id="ce-soir-section" style="display:none;margin-top:24px;width:100%;">
       <button class="ce-soir-btn" onclick="goToPanierRecettes()">
         <span>🍸 Ce soir — <span id="ce-soir-label"></span></span>
         <span style="opacity:.45;font-size:20px;font-weight:300">›</span>
       </button>
     </div>
+    <button class="prefs-home-btn" onclick="openPrefs()" style="min-width:220px;margin-top:16px;">⚙️ Paramètres</button>
   </div>
 </div>
 
@@ -969,10 +973,10 @@
       </div>
       <div class="prefs-toggle-row">
         <div>
-          <div class="prefs-toggle-label">Afficher le profil gustatif</div>
-          <div class="prefs-toggle-sub">Barres sucrosité / amertume / alcool sur chaque fiche</div>
+          <div class="prefs-toggle-label">Indicateur bar sur les fiches</div>
+          <div class="prefs-toggle-sub">Affiche les ingrédients disponibles dans votre bar sur chaque recette</div>
         </div>
-        <button class="toggle-switch on" id="toggle-taste" onclick="togglePref('taste',this)"></button>
+        <button class="toggle-switch on" id="toggle-bar-coverage" onclick="togglePref('barCoverage',this)"></button>
       </div>
     </div>
 
@@ -1101,42 +1105,42 @@
         <div class="welcome-feature-icon">📖</div>
         <div class="welcome-feature-text">
           <div class="welcome-feature-title">Catalogue</div>
-          <div class="welcome-feature-desc">Parcourez l'ensemble des recettes, filtrez par catégorie, profil gustatif, alcool ou mot-clé.</div>
+          <div class="welcome-feature-desc">Parcourez toutes les recettes, filtrez par type, alcool ou profil gustatif. Activez <strong>Mon bar</strong> pour voir les cocktails réalisables.</div>
         </div>
       </div>
       <div class="welcome-feature">
         <div class="welcome-feature-icon">🍋</div>
         <div class="welcome-feature-text">
           <div class="welcome-feature-title">Recherche par ingrédients</div>
-          <div class="welcome-feature-desc">Cochez vos ingrédients préférés parmi 10 familles et trouvez instantanément les cocktails réalisables.</div>
+          <div class="welcome-feature-desc">Cochez vos ingrédients préférés pour trouver instantanément les cocktails qui vous correspondent.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🍶</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Mon bar</div>
+          <div class="welcome-feature-desc">Déclarez votre stock d'ingrédients. Les fiches recette indique ce que vous avez déjà et ce qu'il manque. Générez aussi une recette aléatoire compatible.</div>
+        </div>
+      </div>
+      <div class="welcome-feature">
+        <div class="welcome-feature-icon">🥂</div>
+        <div class="welcome-feature-text">
+          <div class="welcome-feature-title">Soirée</div>
+          <div class="welcome-feature-desc">Planifiez votre soirée : ajoutez des recettes au panier, obtenez la liste de courses, cochez ce que vous achetez pour enrichir votre bar, et retrouvez toutes vos recettes du soir en un tap.</div>
         </div>
       </div>
       <div class="welcome-feature">
         <div class="welcome-feature-icon">⭐</div>
         <div class="welcome-feature-text">
           <div class="welcome-feature-title">Favoris, notes & évaluations</div>
-          <div class="welcome-feature-desc">Sauvegardez vos cocktails préférés, rédigez des notes personnelles et attribuez des étoiles.</div>
-        </div>
-      </div>
-      <div class="welcome-feature">
-        <div class="welcome-feature-icon">✅</div>
-        <div class="welcome-feature-text">
-          <div class="welcome-feature-title">Déjà testé</div>
-          <div class="welcome-feature-desc">Gardez un historique des cocktails que vous avez déjà essayés, consultable dans le catalogue.</div>
+          <div class="welcome-feature-desc">Sauvegardez vos coups de cœur, marquez les cocktails déjà testés, rédigez des notes personnelles et attribuez des étoiles.</div>
         </div>
       </div>
       <div class="welcome-feature">
         <div class="welcome-feature-icon">✨</div>
         <div class="welcome-feature-text">
           <div class="welcome-feature-title">Créations personnalisées</div>
-          <div class="welcome-feature-desc">Créez vos propres recettes et partagez-les avec vos amis via <strong>QR code</strong>.</div>
-        </div>
-      </div>
-      <div class="welcome-feature">
-        <div class="welcome-feature-icon">🧪</div>
-        <div class="welcome-feature-text">
-          <div class="welcome-feature-title">Bar expérimental</div>
-          <div class="welcome-feature-desc">Déclarez les ingrédients de votre bar et laissez l'application générer une recette aléatoire compatible.</div>
+          <div class="welcome-feature-desc">Créez vos propres recettes et partagez-les avec vos amis via <strong>QR code</strong>. Importez celles de vos proches.</div>
         </div>
       </div>
       <div class="welcome-install-note">
@@ -1616,16 +1620,16 @@
     <button class="back-btn" onclick="navTo('home')" style="margin:0;">← Accueil</button>
     <button class="gen-nav-btn" onclick="gotoGenOrScroll()" id="btn-goto-gen">Générateur →</button>
   </div>
-  <div class="section-title">Mon bar 🍹</div>
-  <p class="section-sub">Cochez tout ce que vous avez à disposition — le générateur vous proposera un cocktail expérimental aléatoire 🎰</p>
+  <div class="section-title">Mon bar 🍶</div>
+  <p class="section-sub">Cochez tout ce que vous avez à disposition - le générateur vous proposera un cocktail expérimental aléatoire 🎰 ou regardez les cocktails classiques réalisables 🍸 - Le bar sert également à préparer vos soirées 🥂</p>
   <div id="bar-families-container"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px;">
     <span style="font-size:11px;color:var(--text3)">Sélection sauvegardée entre chaque session ✅</span>
     <button class="bar-reset-btn" id="bar-reset-btn" onclick="barResetStock()">🗑 Réinitialiser la sélection</button>
   </div>
-  <button class="bar-go-btn" id="bar-go-btn" onclick="barGoGenerate()">🪄 Laissons la magie opérer</button>
-  <p style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:16px">Appuyez pour générer une recette expérimentale </p>
-  <button class="bar-catalogue-btn" onclick="goToCatalogueBarFilter()">🍸 Voir les cocktails réalisables →</button>
+     <button class="bar-go-btn" id="bar-go-btn">Appuyez pour générer une recette expérimentale 🎰</button>
+  <p style="text-align:center;font-size:11px;color:var(--text3);margin-bottom:16px"> </p>
+  <button class="bar-catalogue-btn" onclick="goToCatalogueBarFilter()">🍸 Voir les cocktails classiques réalisables →</button>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
@@ -1699,7 +1703,7 @@
     14. Lexique (LEXIQUE, openLexique, setLexTab, renderLexique, toggleLexItem)
     15. Données statiques (FAMILIES, COCKTAILS)
     16. Initialisation (window.onload)
-    17. Bar Expérimental (barGoGenerate, barPool, barGenerate, genRerollItem…)
+    17. Mon bar (barGoGenerate, barPool, barGenerate, genRerollItem…)
    ════════════════════════════════════════════════════════════════════════════ */
 
 // ── 1. HELPERS localStorage ───────────────────────────────────────────────
@@ -2567,7 +2571,7 @@ function execCatSearch() {
     navTo('add-entry');
     return;
   }
-  // 🧪 Easter egg : accès au bar expérimental
+  // 🍶 Easter egg : accès a Mon bar
   if (query.toLowerCase() === 'bar') {
     document.getElementById('cat-search-input').value = '';
     document.getElementById('cat-search-clear').style.display = 'none';
@@ -2708,15 +2712,15 @@ function showRecipe(id, swipeList, animDir) {
     + '<div>'
     + '<div class="recipe-section-title" style="margin-top:4px">INGRÉDIENTS</div>'
     + '<ul class="ingredients-list" id="ingredients-list-' + id + '">' + ingHtml + '</ul>'
-    + '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">'
-    + (function(){ var inp = isInPanier(id); return '<button onclick="addToPanier('+id+')" id="panier-ing-btn-'+id+'" style="padding:7px 16px;background:transparent;border:1px solid '+(inp?'var(--accent)':'var(--border)')+';border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;color:'+(inp?'var(--accent)':'var(--text2)')+'\">'+(inp?'✓ Dans la soirée':'🥂 Ajouter à la soirée')+'</button>'; })()
-    + '<button onclick="navTo(\'panier\')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🥂 Voir la soirée</button>'
-    + '<button onclick="enterSoireeMode(' + id + ')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
-    + '</div>'
+    + getBarCoverageHtml(c)
     + '</div>'
     + '<div>'
     + '<div class="recipe-section-title">PRÉPARATION</div>'
     + '<ol class="steps-list">' + stepsHtml + '</ol>'
+    + '<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">'
+    + '<button onclick="enterSoireeMode(' + id + ')" style="padding:7px 16px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s">🔥 Agrandir la recette</button>'
+    + (function(){ var inp = isInPanier(id); return '<button onclick="addToPanier('+id+')" id="panier-ing-btn-'+id+'" style="padding:7px 16px;background:transparent;border:1px solid '+(inp?'var(--accent)':'var(--border)')+';border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;color:'+(inp?'var(--accent)':'var(--text2)')+'\">'+(inp?'✓ Dans la soirée':'🥂 Ajouter à la soirée')+'</button>'; })()
+    + '</div>'
     + '</div></div>'
     + buildTasteProfile(id)
     + '<div class="notes-block">'
@@ -2854,7 +2858,7 @@ function updateQuantities(id) {
 }
 
 
-// ── 17. BAR EXPÉRIMENTAL ──────────────────────────────────────────────────
+// ── 17. MON BAR  ──────────────────────────────────────────────────
 // Easter egg : accessible via "bar" dans la recherche catalogue.
 // Deux pages : bar-stock (sélection ingrédients) + bar-gen (générateur).
 // Les sélections cochées persistent en localStorage (BAR_STOCK_KEY).
@@ -2869,7 +2873,7 @@ var BAR_STOCK_BUILT = false;               // Guard : construire le DOM une seul
 var BAR_CATS = [
   { id:'alcools', label:'Alcools forts', icon:'🥃',
     items:['Vodka',
-           'Rhum blanc','Rhum ambré','Rhum brun','Rhum jamaïcain',
+           'Rhum blanc','Rhum ambré','Rhum brun',
            'Gin',
            'Whisky bourbon','Rye whiskey','Scotch whisky','Irish whiskey','Whisky japonais',
            'Tequila blanco','Tequila reposado','Mezcal',
@@ -2886,8 +2890,8 @@ var BAR_CATS = [
            "Pimm's No.1",'Limoncello','Passoã','Malibu','Licor 43','Falernum Golden'] },
   { id:'vins', label:'Vins, Bières & Bulles', icon:'🥂',
     items:['Champagne','Prosecco','Cava','Crémant',
-           'Vermouth dry','Vermouth sec','Vermouth rosso','Vermouth rouge','Vermouth blanc',
-           'Porto ruby','Porto rouge','Porto tawny',
+           'Vermouth rouge','Vermouth blanc',
+           'Porto rouge','Porto tawny',
            'Lillet blanc','Lillet rosé',
            'Xérès fino','Xérès amontillado',
            'Vin blanc sec','Vin rouge','Stout'] },
@@ -2908,23 +2912,22 @@ var BAR_CATS = [
            "Sirop de fraise","Sirop de framboise","Sirop d'agave","Sirop de miel",
            "Sirop de lavande","Sirop de rose","Sirop de vanille","Sirop de caramel","Sirop de cerise","Sirop de pêche",
            "Sirop de gingembre","Sirop de romarin","Sirop de matcha","Sirop de kiwi","Sirop de fleur de sureau",
-           "Miel","Sucre en poudre",
-           "Angostura bitters","Peychaud's bitters","Orange bitters","Cardamome bitters","Mole bitters"] },
+           "Miel","Sucre en poudre","Angostura bitters"] },
   { id:'herbes', label:'Herbes & Fruits frais', icon:'🌿',
-    items:["Menthe fraîche","Basilic","Romarin","Thym","Coriandre",
-           "Citron vert frais","Citron jaune frais","Citron frais","Orange fraîche","Pamplemousse frais",
-           "Fraise fraîche","Fraises fraîches","Framboise fraîche","Mûre fraîche","Myrtille","Cerise fraîche","Cerise au marasquin",
-           "Concombre","Ananas frais","Pastèque fraîche","Raisin frais",
-           "Mangue fraîche","Kiwi frais","Pomme",
-           "Jalapeño","Gingembre frais"] },
+    items:["Menthe","Basilic","Romarin","Thym","Coriandre",
+           "Citron vert","Citron jaune","","Pamplemousse",
+           "Fraises","Framboises","Mûre","Myrtille","Cerises","Cerises au marasquin",
+           "Concombre","Ananas","Pastèque","Raisin",
+           "Mangue fraîche","Kiwi","Pomme",
+           "Jalapeño","Gingembre"] },
   { id:'epices', label:'Épices & Condiments', icon:'🌶️',
     items:["Sel","Sel de céleri","Fleur de sel","Sel fumé",
-           "Tabasco","Sauce Worcestershire","Worcestershire sauce","Raifort",
+           "Tabasco","Sauce Worcestershire","Raifort",
            "Cannelle","Noix de muscade","Poivre noir","Cardamome","Clous de girofle","Anis étoilé","Curcuma","Piment de Cayenne",
            "Zeste de citron","Zeste d'orange",
            "Blanc d'œuf","Jaune d'œuf","Œuf entier",
-           "Crème fraîche","Crème entière","Crème épaisse","Lait entier",
-           "Café espresso","Espresso froid","Cacao en poudre","Eau de fleur d'oranger"] },
+           "Crème fraîche","Lait entier",
+           "Café espresso","Cacao en poudre"] },
 ];
 
 // ── Règles de compatibilité ───────────────────────────────────────────────
@@ -2956,6 +2959,7 @@ var INCOMPAT = [
   { trigger:'Cynar',          exclude:["Sirop de fraise","Sirop de framboise","Purée de pêche","Purée de litchi","Baileys"] },
   // Whisky / boisé
   { trigger:'Whisky',         exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Sirop de framboise","Purée de mangue","Purée de litchi","Lait de coco","Crème de coco","Midori","Passoã","Blue Curaçao"] },
+  { trigger:'whiskey',        exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Sirop de framboise","Purée de mangue","Purée de litchi","Lait de coco","Crème de coco","Midori","Passoã","Blue Curaçao"] },
   { trigger:'Scotch',         exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Sirop de framboise","Purée de mangue","Purée de litchi","Midori","Passoã"] },
   { trigger:'Rye whiskey',    exclude:["Coca-Cola","Pepsi","Limonade","Sirop de fraise","Purée de mangue","Midori"] },
   // Fumé / terreux
@@ -2976,32 +2980,12 @@ var INCOMPAT = [
   // Porto
   { trigger:'Porto',          exclude:["Tabasco","Sauce Worcestershire","Coca-Cola","Ginger beer","Tonic water","Jus de citron vert"] },
   // Malibu / noix de coco sucrée
-  { trigger:'Malibu',         exclude:["Tabasco","Sauce Worcestershire","Jus de tomate","Fernet-Branca","Cynar","Campari","Vermouth dry"] },
+  { trigger:'Malibu',         exclude:["Tabasco","Sauce Worcestershire","Jus de tomate","Fernet-Branca","Cynar","Campari","Vermouth"] },
 ];
 
 // Messages rigolos pour le gros bouton
 var BAR_TAGLINES = [
-  "🪄 Laissons la magie opérer",
-  "🎲 Le hasard a du goût… parfois",
-  "🔬 Expérience en cours…",
-  "🌀 Ça va être… intéressant",
-  "⚗️ La science du cocktail",
-  "🃏 Tirage au sort spiritueux",
-  "🎰 Jackpot ou désastre ?",
-  "🌪️ Tourbillon de saveurs",
-  "🧙 L'alchimiste a la parole",
-  "🚀 Mission cocktail lancée",
-"💥 Spoiler : ça va péter (en bouche)",
-"🎭 Tour de magie : abracadabreuvage",
-"🧭 Boussole pointée vers… le bar",
-"⛵️ À l’abordage des papilles !",
-"📊 Statistiquement… imprévisible",
-"🎴 Mélangez, c’est gagné (ou pas)",
-"🎯 On parie que c’est bon ?",
-"🔥 L’alchimie n’attend pas",
-"🧙‍♂️ Un sortilège… ou un cocktail ?",
-"🔮 La boule de cristal a soif",
-"🤷‍♂️ On verra bien…",
+  "Appuyez pour générer une recette expérimentale 🎰"
 ];
 
 function barRandTagline() {
@@ -3348,6 +3332,35 @@ function renderPanierPage() {
   el.innerHTML = html;
 }
 
+// ── INDICATEUR BAR SUR LES FICHES ─────────────────────────────────────────
+var BAR_ESSENTIELS_NORM = [
+  'eau','eau chaude','eau froide','glace pilee','glacons','glaçons',
+  'sel','fleur de sel','sel fume','sucre en poudre','poivre noir'
+];
+function getBarCoverageHtml(c) {
+  if (!loadPrefs().barCoverage) return '';
+  var checked = barGetChecked();
+  if (checked.length === 0) return '';
+  var checkedNorm = checked.map(barIngNorm);
+  // Exclure les essentiels et universels
+  var ings = (c.ingredients || []).filter(function(ing) {
+    var n = barIngNorm(ing[0]);
+    return BAR_ESSENTIELS_NORM.indexOf(n) === -1 && BAR_UNIVERSALS.indexOf(n) === -1;
+  });
+  if (ings.length === 0) return '';
+  var have    = ings.filter(function(ing) { return  isIngInBar(ing[0], checkedNorm); });
+  var missing = ings.filter(function(ing) { return !isIngInBar(ing[0], checkedNorm); });
+  if (have.length === ings.length) {
+    return '<div class="bar-coverage-line"><span class="bar-coverage-ok">✓ Tous les ingrédients disponibles dans votre bar</span></div>';
+  }
+  var names = missing.slice(0, 4).map(function(i) { return i[0]; }).join(', ');
+  if (missing.length > 4) names += '\u2026';
+  return '<div class="bar-coverage-line">'
+    + '🍶 <span class="bar-coverage-n">' + have.length + '/' + ings.length + '</span> ingrédients dans votre bar'
+    + ' · manque\u00a0: <span class="bar-coverage-missing">' + names + '</span>'
+    + '</div>';
+}
+
 function loadBarStock() {
   if (BAR_STOCK_BUILT) return;
   BAR_STOCK_BUILT = true;
@@ -3472,41 +3485,57 @@ var _barHasGenerated = false;
 // qty peut être un nombre ou une string (ex: "2-3")
 var GEN_QTY = {
   // Alcools forts
-  'Vodka':4,'Rhum blanc':4,'Rhum ambré':4,'Rhum vieux':4,'Gin':4,'Gin London Dry':4,
-  'Whisky bourbon':4,'Scotch whisky':4,'Rye whiskey':4,'Tequila blanco':4,'Tequila reposado':4,
-  'Mezcal':4,'Cognac':4,'Armagnac':4,'Pisco':4,'Cachaça':5,'Vodka aromatisée':4,'Gin floral':4,
+  'Vodka':4,'Rhum blanc':4,'Rhum ambré':4,'Rhum vieux':4,'Rhum brun':4,'Rhum jamaïcain':4,
+  'Gin':4,'Gin London Dry':4,
+  'Whisky bourbon':4,'Scotch whisky':4,'Rye whiskey':4,'Irish whiskey':4,'Whisky japonais':4,
+  'Tequila blanco':4,'Tequila reposado':4,'Mezcal':4,
+  'Cognac':4,'Armagnac':4,'Calvados':4,'Brandy':4,"Eau-de-vie d'abricot":3,
+  'Pisco':4,'Cachaça':5,'Absinthe':1,
   // Liqueurs & Amers
-  'Cointreau':2,'Triple sec':2,'Amaretto':3,'Baileys':4,'Kahlúa':3,'Campari':3,'Aperol':6,
+  'Cointreau':2,'Triple sec':2,'Curaçao orange':2,'Blue Curaçao':2,
+  'Amaretto':3,'Baileys':4,'Kahlúa':3,'Liqueur de café':3,
+  'Campari':3,'Aperol':6,'Amer':3,'Suze ou Gentiane':2,'Cynar':3,'Fernet-Branca':2,
   'Midori':2,'Crème de cassis':2,'Crème de mûre':2,'Crème de menthe':2,'Crème de cacao':2,
-  "St-Germain":2,'Grand Marnier':2,'Chambord':2,'Chartreuse verte':2,'Chartreuse jaune':2,
-  'Drambuie':2,'Frangelico':2,'Galliano':2,'Luxardo Maraschino':2,'Cynar':3,'Fernet-Branca':2,
-  "Pimm's":5,'Limoncello':3,'Passoã':3,'Blue Curaçao':2,'Malibu':4,'Licor 43':2,
-  // Vins & Bulles
-  'Champagne':9,'Prosecco':9,'Cava':9,'Crémant':9,'Vermouth dry':3,'Vermouth rosso':3,
-  'Vermouth blanc':3,'Porto ruby':3,'Porto tawny':3,'Lillet blanc':3,'Lillet rosé':3,
+  'St-Germain':2,'Grand Marnier':2,'Chambord':2,'Chartreuse verte':2,'Chartreuse jaune':2,
+  'Drambuie':2,'Frangelico':2,'Galliano':2,'Luxardo Maraschino':2,'Marasquin':1.5,
+  'Cherry Brandy':2,'Liqueur de cerise':2,'Bénédictine':2,
+  "Pimm's":5,"Pimm's No.1":5,'Limoncello':3,'Passoã':3,'Malibu':4,'Licor 43':2,'Falernum Golden':2,
+  // Vins, Bières & Bulles
+  'Champagne':9,'Prosecco':9,'Cava':9,'Crémant':9,
+  'Vermouth blanc':3,'Vermouth sec':3,'Vermouth rouge':3,
+  'Porto tawny':3,'Porto rouge':3,
+  'Lillet blanc':3,'Lillet rosé':3,
   'Xérès fino':3,'Xérès amontillado':3,
+  'Vin blanc sec':9,'Vin rouge':9,'Stout':15,
   // Jus & Purées
-  'Jus de citron':2,'Jus de citron vert':2,"Jus d'orange":6,"Jus de cranberry":6,
-  "Jus d'ananas":6,'Jus de pamplemousse':6,'Jus de pomme':6,'Jus de mangue':6,
-  'Jus de tomate':10,'Jus de pastèque':6,'Purée de passion':3,'Purée de pêche':3,
-  'Purée de fraise':3,'Purée de mangue':3,'Purée de framboise':3,'Purée de litchi':3,
-  'Purée de coco':3,
-  // Sodas & Tonics (remplissage = quantité libre → on met une valeur indicative)
+  'Jus de citron':2,'Jus de citron vert':2,'Jus de yuzu':2,
+  "Jus d'orange":6,"Jus de cranberry":6,"Jus d'ananas":6,
+  'Jus de pamplemousse':6,'Jus de pomme':6,'Jus de mangue':6,
+  'Jus de tomate':10,'Jus de pastèque':6,
+  'Purée de passion':3,'Purée de fruit de la passion':3,'Purée de pêche':3,
+  'Purée de fraise':3,'Purée de mangue':3,'Purée de framboise':3,
+  'Purée de litchi':3,'Purée de melon':3,'Purée de rhubarbe':3,'Purée de coco':3,
+  // Sodas & Tonics
   'Coca-Cola':10,'Pepsi':10,'Eau gazeuse':10,'Tonic water':10,'Tonic premium':10,
   'Ginger beer':10,'Ginger ale':10,'Limonade':10,'Soda citron':10,'Soda orange':10,
+  'Schweppes agrumes':10,'Thé glacé non sucré':10,
   'Eau de coco':6,'Lait de coco':6,'Crème de coco':4,
-  // Sirops & Sucres
+  // Sirops, Sucres & Bitters
   'Sirop de sucre de canne':2,'Sirop simple (1:1)':2,'Sirop de grenadine':2,
-  "Sirop d'orgeat":2,'Sirop de fraise':2,'Sirop de framboise':2,"Sirop d'agave":2,
+  "Sirop d'orgeat":2,'Orgeat':2,
+  'Sirop de fraise':2,'Sirop de framboise':2,"Sirop d'agave":2,
   'Sirop de lavande':1,'Sirop de rose':1,'Sirop de vanille':1,'Sirop de caramel':2,
-  'Sirop de cerise':2,'Sirop de pêche':2,'Miel':1,'Miel liquide':1,'Sucre en poudre':1,
-  'Angostura bitters':0.5,"Peychaud's bitters":0.5,'Orange bitters':0.5,'Cardamome bitters':0.5,
-  // Herbes & Fruits frais (unités différentes, gérées via GEN_UNIT)
-  'Menthe fraîche':4,'Basilic':4,'Romarin':1,'Thym':2,'Coriandre':4,
-  'Citron vert frais':0.5,'Citron jaune frais':0.5,'Orange fraîche':0.5,
-  'Pamplemousse frais':0.25,'Fraise fraîche':3,'Framboise fraîche':4,'Mûre fraîche':4,
-  'Myrtille':8,'Cerise fraîche':3,'Concombre':3,'Ananas frais':2,'Pastèque fraîche':2,
-  'Raisin frais':6,'Jalapeño':2,'Gingembre frais':2,
+  'Sirop de cerise':2,'Sirop de pêche':2,
+  'Sirop de miel':1.5,'Sirop de gingembre':1.5,'Sirop de romarin':1,
+  'Sirop de matcha':1,'Sirop de kiwi':1.5,'Sirop de fleur de sureau':1.5,
+  'Miel':1,'Miel liquide':1,'Sucre en poudre':1,
+  'Angostura bitters':0.5,"Peychaud's bitters":0.5,'Orange bitters':0.5,'Mole bitters':0.5,
+  // Herbes & Fruits frais
+  'Menthe':4,'Basilic':4,'Romarin':1,'Thym':2,'Coriandre':4,
+  'Citron vert':0.5,'Citron jaune':0.5,'Orange':0.5,
+  'Pamplemousse':0.25,'Fraises':3,'Framboises':4,'Mûre':4,
+  'Myrtille':8,'Cerises':3,'Concombre':3,'Ananas':2,'Pastèque':2,
+  'Raisin':6,'Jalapeño':2,'Gingembre':2,
   // Épices & Condiments
   'Sel':1,'Fleur de sel':1,'Sel fumé':1,'Tabasco':4,'Sauce Worcestershire':4,
   'Cannelle':1,'Noix de muscade':1,'Poivre noir':2,'Cardamome':1,'Clou de girofle':1,
@@ -3520,15 +3549,15 @@ var GEN_UNIT = {
   // Jus & purées → cl
   // Sodas → cl
   // Sirops → cl sauf bitters en trait
-  'Angostura bitters':'trait',"Peychaud's bitters":"trait",'Orange bitters':'trait','Cardamome bitters':'trait',
+  'Angostura bitters':'trait',"Peychaud's bitters":"trait",'Orange bitters':'trait','Mole bitters':'trait',
   'Sucre en poudre':'càc','Miel':'càc','Miel liquide':'càc',
   // Herbes → feuilles, brins, tranches, pièces
   'Menthe fraîche':'feuilles','Basilic':'feuilles','Romarin':'brin','Thym':'brin','Coriandre':'brins',
-  'Citron vert frais':'tranche','Citron jaune frais':'tranche','Orange fraîche':'tranche',
-  'Pamplemousse frais':'tranche','Fraise fraîche':'pièces','Framboise fraîche':'pièces',
-  'Mûre fraîche':'pièces','Myrtille':'pièces','Cerise fraîche':'pièces',
-  'Concombre':'tranches','Ananas frais':'tranches','Pastèque fraîche':'cubes',
-  'Raisin frais':'grains','Jalapeño':'rondelles','Gingembre frais':'cm',
+  'Citron vert':'tranche','Citron jaune':'tranche','Orange':'tranche',
+  'Pamplemousse':'tranche','Fraises':'pièces','Framboise':'pièces',
+  'Mûre':'pièces','Myrtille':'pièces','Cerises':'pièces',
+  'Concombre':'tranches','Ananas':'tranches','Pastèque':'cubes',
+  'Raisin':'grains','Jalapeño':'rondelles','Gingembre':'cm',
   // Épices → pincée, trait, càc
   'Sel':'pincée','Fleur de sel':'pincée','Sel fumé':'pincée',
   'Tabasco':'traits','Sauce Worcestershire':'traits',
@@ -3787,7 +3816,7 @@ function genOpenInForm() {
   var firstAlcool = (_genState.alcool || [])[0] || '';
   var titleSuggestion = firstAlcool ? 'Mon ' + firstAlcool.toLowerCase() + ' expérimental' : 'Cocktail expérimental';
   var fakeRecipe = {
-    emoji:      '🧪',
+    emoji:      '🍶',
     title:      titleSuggestion,
     creator:    '',
     cat:        'Signature',
@@ -3805,7 +3834,7 @@ function genOpenInForm() {
   resetAddForm();
   fillFormFromCocktail(fakeRecipe);
   var badge = document.getElementById('form-source-badge');
-  badge.textContent = '🧪 Depuis le Bar expérimental';
+  badge.textContent = '🍶 Depuis le Bar';
   badge.style.display = 'inline-flex';
   document.getElementById('form-title-label').textContent = 'Créer depuis le bar';
   navTo('add-form');
@@ -4653,7 +4682,7 @@ function buildTasteProfile(id) {
 
 // ── PRÉFÉRENCES ───────────────────────────────────────────────────────────
 // Thème par défaut : sombre (cohérent avec la palette MonCocktail)
-var PREFS_DEFAULT = { fontSize: 16, theme: 'dark', taste: true };
+var PREFS_DEFAULT = { fontSize: 16, theme: 'dark', taste: true, barCoverage: true };
 
 function loadPrefs() {
   try { return Object.assign({}, PREFS_DEFAULT, JSON.parse(localStorage.getItem('mc_prefs') || '{}')); }
@@ -4684,11 +4713,10 @@ function updateHomeGreeting() {
 // Applique toutes les préférences au démarrage
 function applyPrefs() {
   var p = loadPrefs();
-  // Zoom global — scale tout proportionnellement (14→0.875, 16→1, 18→1.125, 20→1.25)
   document.documentElement.style.setProperty('--font-zoom', (p.fontSize / 16).toFixed(4));
   applyTheme(p.theme);
-  // Profil gustatif
-  document.documentElement.style.setProperty('--taste-display', p.taste ? 'block' : 'none');
+  // Profil gustatif toujours actif
+  document.documentElement.style.setProperty('--taste-display', 'block');
 }
 
 function applyTheme(theme) {
@@ -4725,8 +4753,8 @@ function syncPrefUI(p) {
   document.querySelectorAll('[data-theme]').forEach(function(b) {
     b.classList.toggle('active', b.dataset.theme === p.theme);
   });
-  var tt = document.getElementById('toggle-taste');
-  if (tt) tt.classList.toggle('on', p.taste);
+  var tbc = document.getElementById('toggle-bar-coverage');
+  if (tbc) tbc.classList.toggle('on', p.barCoverage !== false);
 }
 
 function openPrefs() {
@@ -6746,7 +6774,7 @@ const FAMILIES = [
   ]},
   { id:'vins', label:'Champagne & Vins', icon:'🥂', items:[
     'Champagne','Prosecco','Vin rouge','Vin blanc sec',
-    'Vermouth dry','Vermouth rouge','Porto'
+    'Vermouth blanc','Vermouth rouge','Porto'
   ]},
   { id:'jus', label:'Jus & Purées', icon:'🍊', items:[
     'Jus de citron','Jus de citron vert',"Jus d'orange",
@@ -6772,10 +6800,10 @@ const FAMILIES = [
     'Crème','Lait / Crème de coco',"Blanc d'œuf",'Œuf','Café espresso'
   ]},
   { id:'herbes', label:'Herbes & Fruits frais', icon:'🌿', items:[
-    'Menthe fraîche','Basilic frais','Romarin frais',
-    'Citron vert frais','Citron jaune frais','Orange fraîche',
-    'Fraise fraîche','Framboise fraîche','Concombre frais',
-    'Gingembre frais','Mangue fraîche','Kiwi frais','Pomme','Piment jalapeño'
+    'Menthe','Basilic','Romarin',
+    'Citron vert','Citron jaune','Orange',
+    'Fraises','Framboises','Concombre',
+    'Gingembre','Mangue','Kiwi','Pomme','Piment jalapeño'
   ]},
   { id:'epices', label:'Épices & Condiments', icon:'🌶️', items:[
     'Sel','Tabasco','Sauce Worcestershire','Raifort',
@@ -6825,7 +6853,7 @@ const CHIP_TAGS = {
   'Prosecco':             ['Prosecco'],
   'Vin rouge':            ['Vin rouge','Stout'],
   'Vin blanc sec':        ['Vin blanc sec','Xérès fino'],
-  'Vermouth dry':         ['Vermouth dry','Vermouth sec','Vermouth blanc','Vermouth blanc ou rouge'],
+  'Vermouth blanc':       ['Vermouth dry','Vermouth sec','Vermouth blanc'],
   'Vermouth rouge':       ['Vermouth rosso','Vermouth rouge'],
   'Porto':                ['Porto rouge','Porto ruby'],
   'Jus de citron':        ['Jus de citron','Jus de yuzu'],
@@ -6875,18 +6903,18 @@ const CHIP_TAGS = {
   "Blanc d'œuf":          ["Blanc d'œuf"],
   'Œuf':                  ["Jaune d'œuf",'Œuf entier'],
   'Café espresso':        ['Café espresso','Espresso froid'],
-  'Menthe fraîche':       ['Menthe fraîche'],
-  'Basilic frais':        ['Basilic','Basilic frais'],
-  'Romarin frais':        ['Romarin','Romarin frais'],
-  'Citron vert frais':    ['Citron vert frais'],
-  'Citron jaune frais':   ['Citron jaune frais','Citron frais','Citron'],
-  'Orange fraîche':       ['Orange fraîche','Orange'],
-  'Fraise fraîche':       ['Fraise fraîche','Fraises fraîches'],
-  'Framboise fraîche':    ['Framboise','Framboise fraîche'],
-  'Concombre frais':      ['Concombre','Concombre frais'],
-  'Gingembre frais':      ['Gingembre frais'],
-  'Mangue fraîche':       ['Mangue fraîche'],
-  'Kiwi frais':           ['Kiwi frais'],
+  'Menthe':               ['Menthe','Menthe fraîche'],
+  'Basilic':              ['Basilic','Basilic frais'],
+  'Romarin':              ['Romarin','Romarin frais'],
+  'Citron vert':   	  ['Citron vert'],
+  'Citron jaune':         ['Citron jaune','Citron'],
+  'Orange':               ['Orange fraîche','Orange'],
+  'Fraises':              ['Fraises','Fraises fraîches'],
+  'Framboise':            ['Framboise','Framboise fraîche'],
+  'Concombre':            ['Concombre','Concombre frais'],
+  'Gingembre':            ['Gingembre','Gingembre frais'],
+  'Mangue':               ['Mangue','Mangue fraîche'],
+  'Kiwi':                 ['Kiwi','Kiwi frais'],
   'Pomme':                ['Pomme'],
   'Piment jalapeño':      ['Piment jalapeño'],
   'Sel':                  ['Sel','Sel de céleri'],
@@ -6904,8 +6932,8 @@ const CHIP_TAGS = {
 const COCKTAILS = [
   // === RHUM ===
   {id:1,title:"Mojito",emoji:"🍹",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:5,glass:"Highball",portions:1,
-   ingredients:[["Rhum blanc",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe fraîche",8,"feuilles"],["Eau gazeuse",10,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Rhum blanc","Jus de citron vert","Sirop de sucre de canne","Menthe fraîche","Eau gazeuse"],
+   ingredients:[["Rhum blanc",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe",8,"feuilles"],["Eau gazeuse",10,"cl"],["Citron vert",0.5,""]],
+   tags:["Rhum blanc","Jus de citron vert","Sirop de sucre de canne","Menthe","Eau gazeuse"],
    steps:["Déposez la menthe, le jus de citron vert et le sirop dans le verre. Écrasez doucement au muddler sans déchirer les feuilles.","Remplissez le verre de glace pilée.","Versez le rhum blanc.","Complétez avec l'eau gazeuse et remuez délicatement.","Décorez d'un brin de menthe et d'une rondelle de citron vert."]},
 
   {id:2,title:"Daiquiri",emoji:"🍸",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"facile",prep:3,glass:"Coupe",portions:1,
@@ -6919,12 +6947,12 @@ const COCKTAILS = [
    steps:["Mettez tous les ingrédients dans un blender avec 200 g de glace pilée.","Mixez jusqu'à obtenir une texture onctueuse.","Versez dans un grand verre ou tiki mug.","Décorez d'une tranche d'ananas et d'une cerise."]},
 
   {id:4,title:"Cuba Libre",emoji:"🥤",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:2,glass:"Highball",portions:1,
-   ingredients:[["Rhum blanc",5,"cl"],["Coca-Cola",15,"cl"],["Jus de citron vert",1,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Rhum blanc","Coca-Cola","Jus de citron vert","Citron vert frais"],
+   ingredients:[["Rhum blanc",5,"cl"],["Coca-Cola",15,"cl"],["Jus de citron vert",1,"cl"],["Citron vert",0.5,""]],
+   tags:["Rhum blanc","Coca-Cola","Jus de citron vert","Citron vert"],
    steps:["Remplissez un grand verre de glaçons.","Versez le rhum et le jus de citron vert.","Complétez avec le Coca-Cola bien frais.","Remuez légèrement, décorez d'une rondelle de citron vert."]},
 
   {id:5,title:"Dark & Stormy",emoji:"⛈️",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:3,glass:"Highball",portions:1,
-   ingredients:[["Rhum ambré",6,"cl"],["Ginger beer",12,"cl"],["Jus de citron vert",1.5,"cl"],["Citron vert frais",0.5,""]],
+   ingredients:[["Rhum ambré",6,"cl"],["Ginger beer",12,"cl"],["Jus de citron vert",1.5,"cl"],["Citron vert",0.5,""]],
    tags:["Rhum ambré","Ginger beer","Jus de citron vert"],
    steps:["Remplissez un highball de glaçons.","Versez le ginger beer.","Faites glisser délicatement le rhum sur le dessus.","Ajoutez le jus de citron vert, décorez d'une rondelle."]},
 
@@ -6954,8 +6982,8 @@ const COCKTAILS = [
    steps:["Shaker les ingrédients (sauf la muscade) avec de la glace.","Verser sur glace dans un tiki mug.","Saupoudrer de noix de muscade fraîchement râpée."]},
 
   {id:11,title:"Strawberry Daiquiri",emoji:"🍓",cat:"Frozen",baseAlcool:"Rhum",diff:"facile",prep:5,glass:"Coupe",portions:1,
-   ingredients:[["Rhum blanc",5,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de fraise",2,"cl"],["Fraise fraîche",6,"pièces"]],
-   tags:["Rhum blanc","Jus de citron vert","Sirop de fraise","Fraise fraîche","Purée de fraise"],
+   ingredients:[["Rhum blanc",5,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de fraise",2,"cl"],["Fraises",6,"pièces"]],
+   tags:["Rhum blanc","Jus de citron vert","Sirop de fraise","Fraises","Purée de fraise"],
    steps:["Mettez tous les ingrédients dans un blender avec 200 g de glace pilée.","Mixez jusqu'à texture lisse.","Versez dans une coupe.","Décorez d'une fraise fraîche sur le bord."]},
 
   {id:12,title:"Hemingway Daiquiri",emoji:"📖",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"moyen",prep:4,glass:"Coupe",portions:1,
@@ -6964,26 +6992,26 @@ const COCKTAILS = [
    steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement 12 secondes.","Double-filtrez dans une coupe froide.","Décorez d'un zeste de citron vert — sans sucre ajouté."]},
 
   {id:13,title:"Rum Old Fashioned",emoji:"🍂",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"moyen",prep:5,glass:"Rocks",portions:1,
-   ingredients:[["Rhum ambré",6,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Orange fraîche",1,"zeste"]],
+   ingredients:[["Rhum ambré",6,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Orange",1,"zeste"]],
    tags:["Rhum ambré","Sirop de sucre de canne","Angostura bitters"],
    steps:["Versez sirop et bitters dans un verre rocks.","Ajoutez un gros glaçon.","Versez le rhum ambré.","Remuez 20 secondes. Pressez et déposez un zeste d'orange."]},
 
   {id:14,title:"El Presidente",emoji:"🎩",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"moyen",prep:4,glass:"Coupe",portions:1,
-   ingredients:[["Rhum blanc",4.5,"cl"],["Vermouth dry",2.25,"cl"],["Curaçao orange",1,"cl"],["Sirop de grenadine",0.5,"cl"]],
-   tags:["Rhum blanc","Vermouth dry","Curaçao orange","Sirop de grenadine"],
+   ingredients:[["Rhum blanc",4.5,"cl"],["Vermouth blanc",2.25,"cl"],["Curaçao orange",1,"cl"],["Sirop de grenadine",0.5,"cl"]],
+   tags:["Rhum blanc","Vermouth blanc","Curaçao orange","Sirop de grenadine"],
    steps:["Mélangez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez 30 secondes.","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange."]},
 
 {id:91,title:"Mojito Fraise-Basilic",emoji:"🍓",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:5,glass:"Highball",portions:1,
- ingredients:[["Rhum blanc",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Fraise fraîche",4,"pièces"],["Menthe fraîche",6,"feuilles"],["Basilic frais",4,"feuilles"],["Eau gazeuse",10,"cl"]],
- tags:["Rhum blanc","Jus de citron vert","Sirop de sucre de canne","Fraise fraîche","Menthe fraîche","Basilic frais","Eau gazeuse"],
+ ingredients:[["Rhum blanc",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Fraises",4,"pièces"],["Menthe",6,"feuilles"],["Basilic",4,"feuilles"],["Eau gazeuse",10,"cl"]],
+ tags:["Rhum blanc","Jus de citron vert","Sirop de sucre de canne","Fraises","Menthe","Basilic","Eau gazeuse"],
  steps:["Écrasez les fraises, le basilic et la menthe avec le jus de citron vert et le sirop dans un verre.","Remplissez le verre de glaçons.","Versez le rhum blanc.","Complétez avec l'eau gazeuse et mélangez délicatement.","Décorez avec une fraise et une feuille de basilic."]},
 {id:92,title:"Daiquiri Rhubarbe",emoji:"🌱",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"moyen",prep:4,glass:"Coupe",portions:1,
  ingredients:[["Rhum blanc",6,"cl"],["Purée de rhubarbe",2,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"]],
  tags:["Rhum blanc","Purée de rhubarbe","Jus de citron vert","Sirop de sucre de canne"],
  steps:["Shaker tous les ingrédients avec de la glace.","Filtrez dans une coupe froide.","Décorez d'une fine rondelle de citron vert."]},
 {id:93,title:"Punch Fleur de Sureau",emoji:"🌸",cat:"Bowls & Punchs",baseAlcool:"Rhum",diff:"facile",prep:10,glass:"Punch bowl",portions:6,
- ingredients:[["Rhum blanc",20,"cl"],["Sirop de fleur de sureau",10,"cl"],["Jus de citron vert",8,"cl"],["Jus d'ananas",20,"cl"],["Eau gazeuse",30,"cl"],["Menthe fraîche",1,"bouquet"]],
- tags:["Rhum blanc","Sirop de fleur de sureau","Jus de citron vert","Jus d'ananas","Eau gazeuse","Menthe fraîche"],
+ ingredients:[["Rhum blanc",20,"cl"],["Sirop de fleur de sureau",10,"cl"],["Jus de citron vert",8,"cl"],["Jus d'ananas",20,"cl"],["Eau gazeuse",30,"cl"],["Menthe",1,"bouquet"]],
+ tags:["Rhum blanc","Sirop de fleur de sureau","Jus de citron vert","Jus d'ananas","Eau gazeuse","Menthe"],
  steps:["Mélangez tous les ingrédients sauf l'eau gazeuse dans un punch bowl.","Ajoutez beaucoup de glaçons.","Complétez avec l'eau gazeuse au moment de servir.","Décorez de menthe fraîche et de rondelles d'ananas."]},
 
   // === VODKA ===
@@ -6993,8 +7021,8 @@ const COCKTAILS = [
    steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans un verre à martini froid.","Décorez d'un zeste de citron vert flambé."]},
 
   {id:16,title:"Moscow Mule",emoji:"🐎",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Mug en cuivre",portions:1,
-   ingredients:[["Vodka",5,"cl"],["Ginger beer",12,"cl"],["Jus de citron vert",2,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Vodka","Ginger beer","Jus de citron vert","Citron vert frais"],
+   ingredients:[["Vodka",5,"cl"],["Ginger beer",12,"cl"],["Jus de citron vert",2,"cl"],["Citron vert",0.5,""]],
+   tags:["Vodka","Ginger beer","Jus de citron vert","Citron vert"],
    steps:["Remplissez un mug en cuivre de glaçons.","Versez la vodka et le jus de citron vert.","Complétez avec le ginger beer.","Remuez doucement, décorez d'une rondelle de citron vert."]},
 
   {id:17,title:"Bloody Mary",emoji:"🍅",cat:"Longdrinks",baseAlcool:"Vodka",diff:"moyen",prep:5,glass:"Highball",portions:1,
@@ -7003,13 +7031,13 @@ const COCKTAILS = [
    steps:["Roulez le contenu entre deux verres (ne pas shaker) pour préserver la texture.","Versez dans un highball rempli de glaçons.","Ajustez les assaisonnements à votre goût.","Décorez d'une tige de céleri, citron et olives."]},
 
   {id:18,title:"Screwdriver",emoji:"🔧",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:2,glass:"Highball",portions:1,
-   ingredients:[["Vodka",5,"cl"],["Jus d'orange",15,"cl"],["Orange fraîche",1,"rondelle"]],
-   tags:["Vodka","Jus d'orange","Orange fraîche"],
+   ingredients:[["Vodka",5,"cl"],["Jus d'orange",15,"cl"],["Orange",1,"rondelle"]],
+   tags:["Vodka","Jus d'orange","Orange"],
    steps:["Remplissez un highball de glaçons.","Versez la vodka puis le jus d'orange frais.","Remuez délicatement.","Décorez d'une rondelle d'orange."]},
 
   {id:19,title:"Vodka Tonic",emoji:"🫧",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:2,glass:"Highball",portions:1,
-   ingredients:[["Vodka",5,"cl"],["Tonic water",15,"cl"],["Citron jaune frais",2,"tranches"]],
-   tags:["Vodka","Tonic water","Citron jaune frais"],
+   ingredients:[["Vodka",5,"cl"],["Tonic water",15,"cl"],["Citron jaune",2,"tranches"]],
+   tags:["Vodka","Tonic water","Citron jaune"],
    steps:["Remplissez un highball de glaçons.","Versez la vodka.","Complétez avec le tonic en versant sur le dos d'une cuillère.","Décorez de tranches de citron."]},
 
   {id:20,title:"Sex on the Beach",emoji:"🏖️",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Highball",portions:1,
@@ -7043,8 +7071,8 @@ const COCKTAILS = [
    steps:["Remplissez un highball de glaçons.","Versez vodka, curaçao et jus de citron.","Complétez avec la limonade.","Décorez d'une cerise et d'une rondelle de citron."]},
 
   {id:26,title:"Caipiroska",emoji:"🌿",cat:"Shortdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Rocks",portions:1,
-   ingredients:[["Vodka",6,"cl"],["Citron vert frais",1,"entier"],["Sucre en poudre",2,"c.à.c"]],
-   tags:["Vodka","Citron vert frais","Sucre en poudre"],
+   ingredients:[["Vodka",6,"cl"],["Citron vert",1,"entier"],["Sucre en poudre",2,"c.à.c"]],
+   tags:["Vodka","Citron vert","Sucre en poudre"],
    steps:["Coupez le citron vert en quartiers, placez dans le verre.","Ajoutez le sucre et écrasez vigoureusement au muddler.","Remplissez de glace pilée.","Versez la vodka et mélangez bien."]},
 
   {id:27,title:"Pornstar Martini",emoji:"✨",cat:"Shortdrinks",baseAlcool:"Vodka",diff:"moyen",prep:5,glass:"Martini",portions:1,
@@ -7053,8 +7081,8 @@ const COCKTAILS = [
    steps:["Shaker vodka, purée de passion, St-Germain et jus de citron avec de la glace.","Filtrer dans un verre à martini froid.","Servir avec un mini verre de prosecco à côté.","Décorer d'une demi-fève de vanille."]},
 
   {id:28,title:"Vodka Martini",emoji:"🫒",cat:"Shortdrinks",baseAlcool:"Vodka",diff:"moyen",prep:4,glass:"Martini",portions:1,
-   ingredients:[["Vodka",7,"cl"],["Vermouth dry",1.5,"cl"]],
-   tags:["Vodka","Vermouth dry"],
+   ingredients:[["Vodka",7,"cl"],["Vermouth blanc",1.5,"cl"]],
+   tags:["Vodka","Vermouth blanc"],
    steps:["Verser vodka et vermouth dans un verre à mélange avec de la glace.","Remuer 30 secondes — ne pas shaker.","Filtrer dans un verre à martini glacé.","Garnir d'une olive ou d'un zeste de citron."]},
 
   {id:29,title:"Kamikaze",emoji:"💥",cat:"Shots & Pousse-café",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Shot",portions:1,
@@ -7062,8 +7090,8 @@ const COCKTAILS = [
    tags:["Vodka","Triple sec","Jus de citron vert"],
    steps:["Versez les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans un verre à shot."]},
 {id:94,title:"Vodka Spritz",emoji:"🍊",cat:"Apéritifs",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Ballon",portions:1,
- ingredients:[["Vodka",5,"cl"],["Aperol",4,"cl"],["Tonic water",10,"cl"],["Orange fraîche",1,"rondelle"]],
- tags:["Vodka","Aperol","Tonic water","Orange fraîche"],
+ ingredients:[["Vodka",5,"cl"],["Aperol",4,"cl"],["Tonic water",10,"cl"],["Orange",1,"rondelle"]],
+ tags:["Vodka","Aperol","Tonic water","Orange"],
  steps:["Remplissez un verre ballon de glaçons.","Versez la vodka et l'Aperol.","Complétez avec le tonic.","Décorez d'une rondelle d'orange."]},
 {id:95,title:"Vodka Litchi-Gingembre",emoji:"🍈",cat:"Longdrinks",baseAlcool:"Vodka",diff:"moyen",prep:5,glass:"Highball",portions:1,
  ingredients:[["Vodka",5,"cl"],["Purée de litchi",4,"cl"],["Jus de citron vert",1.5,"cl"],["Sirop de gingembre",1,"cl"],["Eau gazeuse",8,"cl"]],
@@ -7072,13 +7100,13 @@ const COCKTAILS = [
 
   // === GIN ===
   {id:30,title:"Gin & Tonic",emoji:"🍋",cat:"Longdrinks",baseAlcool:"Gin",diff:"facile",prep:2,glass:"Copa (ballon)",portions:1,
-   ingredients:[["Gin",5,"cl"],["Tonic water",15,"cl"],["Citron jaune frais",2,"tranches"],["Romarin",1,"brin"]],
-   tags:["Gin","Tonic water","Citron jaune frais","Romarin"],
+   ingredients:[["Gin",5,"cl"],["Tonic water",15,"cl"],["Citron jaune",2,"tranches"],["Romarin",1,"brin"]],
+   tags:["Gin","Tonic water","Citron jaune","Romarin"],
    steps:["Remplissez un verre ballon de glaçons.","Versez le gin.","Complétez avec le tonic bien froid en versant sur le dos d'une cuillère.","Décorez de tranches de citron et d'un brin de romarin."]},
 
   {id:31,title:"Negroni",emoji:"🟠",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Rocks",portions:1,
-   ingredients:[["Gin",3,"cl"],["Campari",3,"cl"],["Vermouth rosso",3,"cl"],["Orange fraîche",1,"zeste"]],
-   tags:["Gin","Campari","Vermouth rosso"],
+   ingredients:[["Gin",3,"cl"],["Campari",3,"cl"],["Vermouth rouge",3,"cl"],["Orange",1,"zeste"]],
+   tags:["Gin","Campari","Vermouth rouge"],
    steps:["Versez les trois ingrédients dans un verre rocks avec de la glace.","Remuez pendant 20 secondes.","Décorez d'un zeste d'orange pressé sur le bord du verre."]},
 
   {id:32,title:"Tom Collins",emoji:"🍃",cat:"Longdrinks",baseAlcool:"Gin",diff:"facile",prep:4,glass:"Collins",portions:1,
@@ -7087,8 +7115,8 @@ const COCKTAILS = [
    steps:["Shaker gin, jus de citron et sirop avec de la glace.","Verser sur glace dans un verre collins.","Compléter avec l'eau gazeuse.","Décorer d'une rondelle de citron."]},
 
   {id:33,title:"Martini Gin",emoji:"🍸",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:4,glass:"Martini",portions:1,
-   ingredients:[["Gin",6,"cl"],["Vermouth dry",1.5,"cl"]],
-   tags:["Gin","Vermouth dry"],
+   ingredients:[["Gin",6,"cl"],["Vermouth blanc",1.5,"cl"]],
+   tags:["Gin","Vermouth blanc"],
    steps:["Versez gin et vermouth dans un verre à mélange avec de la glace.","Remuez 30 secondes.","Filtrez dans un verre à martini bien glacé.","Décorez d'une olive ou d'un zeste de citron."]},
 
   {id:34,title:"Gimlet",emoji:"💚",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Coupe",portions:1,
@@ -7140,13 +7168,13 @@ const COCKTAILS = [
  tags:["Gin","Sirop de lavande","Jus de citron","Blanc d'œuf"],
  steps:["Dry shake : tous les ingrédients sans glace pour monter le blanc d'œuf.","Ajouter la glace et shaker à nouveau.","Filtrer dans une coupe froide.","Décorer d'une branche de lavande fraîche."]},
 {id:97,title:"Gin Yuzu-Basilic",emoji:"🌿",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:5,glass:"Rocks",portions:1,
- ingredients:[["Gin",6,"cl"],["Jus de yuzu",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Basilic frais",6,"feuilles"]],
- tags:["Gin","Jus de yuzu","Sirop de sucre de canne","Basilic frais"],
+ ingredients:[["Gin",6,"cl"],["Jus de yuzu",2.5,"cl"],["Sirop de sucre de canne",2,"cl"],["Basilic",6,"feuilles"]],
+ tags:["Gin","Jus de yuzu","Sirop de sucre de canne","Basilic"],
  steps:["Écrasez légèrement le basilic dans le shaker.","Ajoutez les autres ingrédients et de la glace.","Shaker vigoureusement.","Filtrez dans un verre rocks sur un gros glaçon.","Décorez d'une feuille de basilic."]},
 
   // === WHISKY ===
   {id:43,title:"Old Fashioned",emoji:"🥃",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:5,glass:"Rocks",portions:1,
-   ingredients:[["Whisky bourbon",6,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Orange fraîche",1,"zeste"]],
+   ingredients:[["Whisky bourbon",6,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Orange",1,"zeste"]],
    tags:["Whisky bourbon","Sirop de sucre de canne","Angostura bitters"],
    steps:["Versez sirop et bitters dans un verre rocks.","Ajoutez un gros glaçon.","Versez le bourbon.","Remuez 20 secondes.","Pressez un zeste d'orange sur le verre et décorez-en le bord."]},
 
@@ -7156,18 +7184,18 @@ const COCKTAILS = [
    steps:["Dry shake : tous les ingrédients sans glace 10 secondes.","Ajouter la glace et shaker à nouveau.","Filtrer dans un verre rocks sur glaçons.","Déposer quelques gouttes d'Angostura sur la mousse."]},
 
   {id:45,title:"Manhattan",emoji:"🌃",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:4,glass:"Coupe",portions:1,
-   ingredients:[["Whisky bourbon",5,"cl"],["Vermouth rosso",2.5,"cl"],["Angostura bitters",2,"traits"]],
-   tags:["Whisky bourbon","Vermouth rosso","Angostura bitters"],
+   ingredients:[["Whisky bourbon",5,"cl"],["Vermouth rouge",2.5,"cl"],["Angostura bitters",2,"traits"]],
+   tags:["Whisky bourbon","Vermouth rouge","Angostura bitters"],
    steps:["Versez bourbon, vermouth et bitters dans un verre à mélange avec de la glace.","Remuez 30 secondes.","Filtrez dans une coupe froide.","Décorez d'une cerise au marasquin."]},
 
   {id:46,title:"Boulevardier",emoji:"🎩",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:4,glass:"Rocks",portions:1,
-   ingredients:[["Whisky bourbon",4.5,"cl"],["Campari",3,"cl"],["Vermouth rosso",3,"cl"]],
-   tags:["Whisky bourbon","Campari","Vermouth rosso"],
+   ingredients:[["Whisky bourbon",4.5,"cl"],["Campari",3,"cl"],["Vermouth rouge",3,"cl"]],
+   tags:["Whisky bourbon","Campari","Vermouth rouge"],
    steps:["Verser tous les ingrédients dans un verre rocks avec un gros glaçon.","Remuer 20 secondes.","Décorer d'un zeste d'orange. Le cousin alcoolisé du Negroni."]},
 
   {id:47,title:"Mint Julep",emoji:"🌾",cat:"Longdrinks",baseAlcool:"Whisky",diff:"moyen",prep:5,glass:"Julep cup",portions:1,
-   ingredients:[["Whisky bourbon",6,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe fraîche",10,"feuilles"]],
-   tags:["Whisky bourbon","Sirop de sucre de canne","Menthe fraîche"],
+   ingredients:[["Whisky bourbon",6,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe",10,"feuilles"]],
+   tags:["Whisky bourbon","Sirop de sucre de canne","Menthe"],
    steps:["Déposer la menthe dans le verre et verser le sirop.","Écraser très délicatement pour libérer les huiles sans déchirer les feuilles.","Remplir de glace pilée.","Verser le bourbon et remuer jusqu'à ce que le givre apparaisse.","Garnir d'un gros bouquet de menthe."]},
 
   {id:48,title:"Irish Coffee",emoji:"☘️",cat:"Chauds",baseAlcool:"Whisky",diff:"facile",prep:5,glass:"Verre à pied",portions:1,
@@ -7200,8 +7228,8 @@ const COCKTAILS = [
    tags:["Whisky bourbon","Sirop de sucre de canne","Peychaud's bitters","Absinthe"],
    steps:["Rincer un verre rocks avec l'absinthe, jeter l'excédent.","Mélanger bourbon, sirop et bitters avec glace dans un verre à mélange.","Remuer 30 secondes.","Filtrer dans le verre rincé sans glaçon.","Presser un zeste de citron par-dessus — ne pas le mettre dans le verre."]},
 {id:98,title:"Blood and Sand",emoji:"🍊",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:4,glass:"Coupe",portions:1,
- ingredients:[["Scotch whisky",4,"cl"],["Jus d'orange",4,"cl"],["Vermouth rosso",2,"cl"],["Liqueur de cerise",1,"cl"]],
- tags:["Scotch whisky","Jus d'orange","Vermouth rosso","Liqueur de cerise"],
+ ingredients:[["Scotch whisky",4,"cl"],["Jus d'orange",4,"cl"],["Vermouth rouge",2,"cl"],["Liqueur de cerise",1,"cl"]],
+ tags:["Scotch whisky","Jus d'orange","Vermouth rouge","Liqueur de cerise"],
  steps:["Shaker tous les ingrédients avec de la glace.","Filtrez dans une coupe froide.","Décorez d'une cerise au marasquin."]},
 {id:99,title:"Matcha-Hai",emoji:"🍵",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:5,glass:"Rocks",portions:1,
  ingredients:[["Whisky japonais",5,"cl"],["Sirop de matcha",2,"cl"],["Jus de citron",1.5,"cl"],["Eau gazeuse",5,"cl"]],
@@ -7230,8 +7258,8 @@ const COCKTAILS = [
    steps:["Shaker tous les ingrédients avec de la glace.","Filtrer dans un verre rocks sur glaçons.","Décorer d'une rondelle de citron vert. Version sans triple sec, plus pure."]},
 
   {id:58,title:"Mezcal Negroni",emoji:"🔥",cat:"Shortdrinks",baseAlcool:"Tequila",diff:"moyen",prep:4,glass:"Rocks",portions:1,
-   ingredients:[["Mezcal",3,"cl"],["Campari",3,"cl"],["Vermouth rosso",3,"cl"]],
-   tags:["Mezcal","Campari","Vermouth rosso"],
+   ingredients:[["Mezcal",3,"cl"],["Campari",3,"cl"],["Vermouth rouge",3,"cl"]],
+   tags:["Mezcal","Campari","Vermouth rouge"],
    steps:["Versez les trois ingrédients dans un verre rocks avec un gros glaçon.","Remuez 20 secondes.","Décorez d'un zeste d'orange. La touche fumée du mezcal réinvente le Negroni."]},
 
   {id:59,title:"Spicy Margarita",emoji:"🌶️",cat:"Shortdrinks",baseAlcool:"Tequila",diff:"moyen",prep:5,glass:"Rocks",portions:1,
@@ -7240,12 +7268,12 @@ const COCKTAILS = [
    steps:["Écraser les rondelles de jalapeño dans le shaker.","Ajouter tous les ingrédients et la glace.","Shaker vigoureusement, double-filtrer.","Servir sur glaçons dans un verre au bord salé."]},
 
   {id:60,title:"Caipirinha",emoji:"🇧🇷",cat:"Shortdrinks",baseAlcool:"Autre",diff:"facile",prep:3,glass:"Rocks",portions:1,
-   ingredients:[["Cachaça",6,"cl"],["Citron vert frais",1,"entier"],["Sucre en poudre",2,"c.à.c"]],
-   tags:["Cachaça","Citron vert frais","Sucre en poudre"],
+   ingredients:[["Cachaça",6,"cl"],["Citron vert",1,"entier"],["Sucre en poudre",2,"c.à.c"]],
+   tags:["Cachaça","Citron vert","Sucre en poudre"],
    steps:["Coupez le citron vert en quartiers dans un verre rocks.","Ajoutez le sucre et écrasez vigoureusement.","Remplissez de glace pilée.","Versez la cachaça et mélangez bien. Le cocktail national du Brésil."]},
 {id:100,title:"Tequila Pamplemousse-Romarin",emoji:"🍊",cat:"Longdrinks",baseAlcool:"Tequila",diff:"facile",prep:4,glass:"Highball",portions:1,
- ingredients:[["Tequila",5,"cl"],["Jus de pamplemousse",10,"cl"],["Sirop de romarin",1,"cl"],["Tonic water",5,"cl"],["Romarin frais",1,"brin"]],
- tags:["Tequila","Jus de pamplemousse","Sirop de romarin","Tonic water","Romarin frais"],
+ ingredients:[["Tequila",5,"cl"],["Jus de pamplemousse",10,"cl"],["Sirop de romarin",1,"cl"],["Tonic water",5,"cl"],["Romarin",1,"brin"]],
+ tags:["Tequila","Jus de pamplemousse","Sirop de romarin","Tonic water","Romarin"],
  steps:["Remplissez un highball de glaçons.","Versez la tequila, le jus de pamplemousse et le sirop de romarin.","Complétez avec le tonic.","Décorez d'un brin de romarin."]},
 
   // === CHAMPAGNE / VIN ===
@@ -7260,8 +7288,8 @@ const COCKTAILS = [
    steps:["Versez la purée de pêche fraîche dans une flûte froide.","Complétez avec le prosecco.","Remuez très délicatement une fois pour homogénéiser.","Servez immédiatement."]},
 
   {id:63,title:"Aperol Spritz",emoji:"🍊",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:2,glass:"Ballon",portions:1,
-   ingredients:[["Prosecco",9,"cl"],["Aperol",6,"cl"],["Eau gazeuse",3,"cl"],["Orange fraîche",1,"rondelle"]],
-   tags:["Prosecco","Aperol","Eau gazeuse","Orange fraîche"],
+   ingredients:[["Prosecco",9,"cl"],["Aperol",6,"cl"],["Eau gazeuse",3,"cl"],["Orange",1,"rondelle"]],
+   tags:["Prosecco","Aperol","Eau gazeuse","Orange"],
    steps:["Remplissez un grand verre ballon de glaçons.","Versez le prosecco.","Ajoutez l'Aperol.","Complétez avec un trait d'eau gazeuse.","Décorez d'une rondelle d'orange."]},
 
   {id:64,title:"Mimosa",emoji:"🌼",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:2,glass:"Flûte",portions:1,
@@ -7270,8 +7298,8 @@ const COCKTAILS = [
    steps:["Versez le jus d'orange frais dans une flûte froide.","Complétez avec le champagne bien frais.","Remuez très doucement.","Servez avec un brin de menthe ou une rondelle d'orange."]},
 
   {id:65,title:"Sangria",emoji:"🍷",cat:"Bowls & Punchs",baseAlcool:"Vin",diff:"facile",prep:15,glass:"Pichet",portions:6,
-   ingredients:[["Vin rouge",75,"cl"],["Jus d'orange",20,"cl"],["Brandy",5,"cl"],["Limonade",20,"cl"],["Orange fraîche",1,""],["Citron jaune frais",1,""],["Pomme",1,""],["Sirop de sucre de canne",3,"cl"]],
-   tags:["Vin rouge","Jus d'orange","Brandy","Limonade","Orange fraîche","Pomme"],
+   ingredients:[["Vin rouge",75,"cl"],["Jus d'orange",20,"cl"],["Brandy",5,"cl"],["Limonade",20,"cl"],["Orange",1,""],["Citron jaune",1,""],["Pomme",1,""],["Sirop de sucre de canne",3,"cl"]],
+   tags:["Vin rouge","Jus d'orange","Brandy","Limonade","Orange","Pomme"],
    steps:["Coupez les fruits en rondelles ou en cubes.","Mélangez le vin, le jus d'orange, le brandy et le sirop dans un pichet.","Ajoutez les fruits, laissez macérer 2h minimum au réfrigérateur.","Au moment de servir, complétez avec la limonade.","Servez sur glace dans des grands verres."]},
 {id:110,title:"Mimosa Cranberry",emoji:"🍒",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:2,glass:"Flûte",portions:1,
  ingredients:[["Champagne",10,"cl"],["Jus de cranberry",5,"cl"]],
@@ -7291,12 +7319,12 @@ const COCKTAILS = [
    steps:["Versez tous les ingrédients en parts égales dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Pas de décoration — laissez la robe dorée s'exprimer.","Classique IBA tiré du Savoy Cocktail Book de 1930 — le calvados apporte une note pomme distinctive."]},
 
   {id:114,title:"Porto Flip",emoji:"🍷",cat:"Shortdrinks",baseAlcool:"Vin",diff:"moyen",prep:4,glass:"Coupe",portions:1,
-   ingredients:[["Porto ruby",5,"cl"],["Cognac",1.5,"cl"],["Jaune d'œuf",1,""]],
-   tags:["Porto ruby","Cognac","Jaune d'œuf"],
+   ingredients:[["Porto rouge",5,"cl"],["Cognac",1.5,"cl"],["Jaune d'œuf",1,""]],
+   tags:["Porto rouge","Cognac","Jaune d'œuf"],
    steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement 15–20 secondes pour bien émulsionner le jaune d'œuf.","Filtrez dans une coupe froide.","Râpez un peu de noix de muscade sur le dessus.","Cocktail 'Flip' classique — riche, onctueux, idéal en digestif."]},
 
 {id:119,title:"Champagne Cocktail",emoji:"🍒",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:3,glass:"Flûte",portions:1,
- ingredients:[["Champagne",12,"cl"],["Cognac",1.5,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Cerise au marasquin",1,""],["Citron frais",1,"zeste"]],
+ ingredients:[["Champagne",12,"cl"],["Cognac",1.5,"cl"],["Sirop de sucre de canne",1,"cl"],["Angostura bitters",2,"traits"],["Cerises au marasquin",1,""],["Citron jaune",1,"zeste"]],
  tags:["Champagne","Cognac","Sirop de sucre de canne","Angostura bitters"],
  steps:["Versez le cognac, le sirop et les bitters dans une flûte.","Complétez avec le champagne bien frais.","Décorez d'une cerise et d'un zeste de citron."]},
 {id:120,title:"Black Velvet",emoji:"🖤",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:2,glass:"Flûte",portions:1,
@@ -7304,12 +7332,12 @@ const COCKTAILS = [
  tags:["Champagne","Stout"],
  steps:["Versez doucement la stout dans une flûte à moitié remplie de champagne.","Ne pas mélanger.","Servez immédiatement pour préserver les bulles."]},
 {id:121,title:"Kalimotxo",emoji:"🍷",cat:"Longdrinks",baseAlcool:"Vin",diff:"facile",prep:2,glass:"Highball",portions:1,
- ingredients:[["Vin rouge",10,"cl"],["Coca-Cola",10,"cl"],["Citron frais",1,"rondelle"]],
- tags:["Vin rouge","Coca-Cola","Citron frais"],
+ ingredients:[["Vin rouge",10,"cl"],["Coca-Cola",10,"cl"],["Citron jaune",1,"rondelle"]],
+ tags:["Vin rouge","Coca-Cola","Citron jaune"],
  steps:["Remplissez un highball de glaçons.","Versez le vin rouge et le Coca-Cola.","Remuez légèrement.","Décorez d'une rondelle de citron."]},
 {id:122,title:"Tinto de Verano",emoji:"🍋",cat:"Longdrinks",baseAlcool:"Vin",diff:"facile",prep:2,glass:"Highball",portions:1,
- ingredients:[["Vin rouge",10,"cl"],["Limonade",10,"cl"],["Citron frais",1,"rondelle"]],
- tags:["Vin rouge","Limonade","Citron frais"],
+ ingredients:[["Vin rouge",10,"cl"],["Limonade",10,"cl"],["Citron jaune",1,"rondelle"]],
+ tags:["Vin rouge","Limonade","Citron jaune"],
  steps:["Remplissez un highball de glaçons.","Versez le vin rouge et la limonade.","Remuez légèrement.","Décorez d'une rondelle de citron."]},
 
   // === COGNAC / BRANDY ===
@@ -7332,12 +7360,12 @@ const COCKTAILS = [
  tags:["Cognac","Orgeat","Jus de citron","Angostura bitters"],
  steps:["Shaker tous les ingrédients avec de la glace.","Filtrez dans une coupe froide.","Décorez d'un zeste de citron et d'une cerise."]},
 {id:105,title:"Brandy Crusta",emoji:"🍊",cat:"Shortdrinks",baseAlcool:"Cognac",diff:"moyen",prep:5,glass:"Rocks",portions:1,
- ingredients:[["Cognac",6,"cl"],["Curaçao",1.5,"cl"],["Jus de citron",2,"cl"],["Sirop de sucre de canne",1,"cl"],["Orange fraîche",1,"zeste"]],
+ ingredients:[["Cognac",6,"cl"],["Curaçao",1.5,"cl"],["Jus de citron",2,"cl"],["Sirop de sucre de canne",1,"cl"],["Orange",1,"zeste"]],
  tags:["Cognac","Curaçao","Jus de citron","Sirop de sucre de canne"],
  steps:["Givrez le bord du verre avec du sucre.","Shaker tous les ingrédients avec de la glace.","Filtrez dans le verre préparé.","Décorez d'un gros zeste d'orange."]},
 {id:106,title:"Cognac Kiwi Spritz",emoji:"🥝",cat:"Apéritifs",baseAlcool:"Cognac",diff:"facile",prep:3,glass:"Ballon",portions:1,
- ingredients:[["Cognac",5,"cl"],["Sirop de kiwi",2,"cl"],["Limonade artisanale",10,"cl"],["Kiwi frais",0.5,""],["Angostura bitters",1,"trait"]],
- tags:["Cognac","Sirop de kiwi","Limonade artisanale","Kiwi frais"],
+ ingredients:[["Cognac",5,"cl"],["Sirop de kiwi",2,"cl"],["Limonade artisanale",10,"cl"],["Kiwi",0.5,""],["Angostura bitters",1,"trait"]],
+ tags:["Cognac","Sirop de kiwi","Limonade artisanale","Kiwi"],
  steps:["Remplissez un verre ballon de glaçons.","Versez le cognac et le sirop de kiwi.","Complétez avec la limonade.","Décorez d'une demi-tranche de kiwi et d'un trait de bitters."]},
 {id:115,title:"Brandy Alexander",emoji:"🍫",cat:"Shortdrinks",baseAlcool:"Cognac",diff:"facile",prep:3,glass:"Coupe",portions:1,
  ingredients:[["Cognac",4,"cl"],["Crème de cacao",4,"cl"],["Crème fraîche",4,"cl"],["Noix de muscade",1,"pincée"]],
@@ -7389,8 +7417,8 @@ const COCKTAILS = [
  tags:["Absinthe","Champagne","Sucre en poudre"],
  steps:["Versez l'absinthe dans une flûte bien froide.","Ajoutez un morceau de sucre.","Complétez doucement avec le champagne bien frais.","Ne pas mélanger — l'effet de louche est recherché."]},
 {id:102,title:"Bob Marley Absinthe",emoji:"🌴",cat:"Longdrinks",baseAlcool:"Absinthe",diff:"facile",prep:3,glass:"Highball",portions:1,
- ingredients:[["Absinthe",4,"cl"],["Jus d'orange",8,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1,"cl"],["Menthe fraîche",4,"feuilles"]],
- tags:["Absinthe","Jus d'orange","Jus de citron vert","Sirop de sucre de canne","Menthe fraîche"],
+ ingredients:[["Absinthe",4,"cl"],["Jus d'orange",8,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1,"cl"],["Menthe",4,"feuilles"]],
+ tags:["Absinthe","Jus d'orange","Jus de citron vert","Sirop de sucre de canne","Menthe"],
  steps:["Écrasez légèrement la menthe dans un verre.","Ajoutez les jus, le sirop et l'absinthe.","Remplissez de glaçons et mélangez.","Décorez d'une rondelle d'orange et d'une feuille de menthe."]},
 {id:103,title:"Absinthe Frappe",emoji:"❄️",cat:"Frozen",baseAlcool:"Absinthe",diff:"facile",prep:3,glass:"Coupe",portions:1,
  ingredients:[["Absinthe",5,"cl"],["Eau",15,"cl"],["Sirop de sucre de canne",1,"cl"],["Glace pilée",200,"g"]],
@@ -7404,18 +7432,18 @@ const COCKTAILS = [
    steps:["Mélangez tous les ingrédients dans un grand bol.","Ajoutez beaucoup de glace.","Saupoudrez de noix de muscate sur le dessus.","Décorez de rondelles d'orange, de citron vert et de cerises.","Servez dans des grands verres avec paille."]},
 
   {id:73,title:"Punch des Iles",emoji:"🏝️",cat:"Bowls & Punchs",baseAlcool:"Rhum",diff:"facile",prep:10,glass:"Punch bowl",portions:10,
-   ingredients:[["Rhum blanc",30,"cl"],["Jus d'ananas",60,"cl"],["Purée de mangue",20,"cl"],["Jus de citron vert",15,"cl"],["Sirop de sucre de canne",10,"cl"],["Menthe fraîche",1,"bouquet"]],
-   tags:["Rhum blanc","Jus d'ananas","Purée de mangue","Jus de citron vert","Sirop de sucre de canne","Menthe fraîche"],
+   ingredients:[["Rhum blanc",30,"cl"],["Jus d'ananas",60,"cl"],["Purée de mangue",20,"cl"],["Jus de citron vert",15,"cl"],["Sirop de sucre de canne",10,"cl"],["Menthe",1,"bouquet"]],
+   tags:["Rhum blanc","Jus d'ananas","Purée de mangue","Jus de citron vert","Sirop de sucre de canne","Menthe"],
    steps:["Mélangez tous les ingrédients liquides dans un punch bowl.","Ajoutez des glaçons en grande quantité.","Décorez de feuilles de menthe et de tranches de fruits exotiques.","Servez bien frais."]},
 
   {id:74,title:"Moscow Mule Rosé",emoji:"🌹",cat:"Fizz & Pétillants",baseAlcool:"Vodka",diff:"facile",prep:4,glass:"Mug en cuivre",portions:1,
-   ingredients:[["Vodka",5,"cl"],["Sirop de framboise",2,"cl"],["Jus de citron vert",2,"cl"],["Ginger beer",12,"cl"],["Framboise",5,"pièces"]],
-   tags:["Vodka","Sirop de framboise","Jus de citron vert","Ginger beer","Framboise"],
-   steps:["Remplissez un mug en cuivre de glaçons.","Versez vodka, sirop de framboise et jus de citron vert.","Complétez avec le ginger beer.","Décorez de framboises fraîches et d'un brin de menthe."]},
+   ingredients:[["Vodka",5,"cl"],["Sirop de framboise",2,"cl"],["Jus de citron vert",2,"cl"],["Ginger beer",12,"cl"],["Framboises",5,"pièces"]],
+   tags:["Vodka","Sirop de framboise","Jus de citron vert","Ginger beer","Framboises"],
+   steps:["Remplissez un mug en cuivre de glaçons.","Versez vodka, sirop de framboise et jus de citron vert.","Complétez avec le ginger beer.","Décorez de framboises et d'un brin de menthe."]},
 
   {id:75,title:"Hugo Spritz",emoji:"🌸",cat:"Apéritifs",baseAlcool:"Champagne",diff:"facile",prep:3,glass:"Ballon",portions:1,
-   ingredients:[["Prosecco",9,"cl"],["St-Germain",4,"cl"],["Eau gazeuse",3,"cl"],["Menthe fraîche",3,"feuilles"],["Citron jaune frais",1,"rondelle"]],
-   tags:["Prosecco","St-Germain","Eau gazeuse","Menthe fraîche"],
+   ingredients:[["Prosecco",9,"cl"],["St-Germain",4,"cl"],["Eau gazeuse",3,"cl"],["Menthe",3,"feuilles"],["Citron jaune",1,"rondelle"]],
+   tags:["Prosecco","St-Germain","Eau gazeuse","Menthe"],
    steps:["Remplissez un grand verre ballon de glaçons.","Versez le prosecco.","Ajoutez le St-Germain (liqueur de fleur de sureau).","Complétez avec l'eau gazeuse.","Décorez de menthe fraîche et d'une rondelle de citron."]},
 
   {id:76,title:"Pisco Sour",emoji:"🐦",cat:"Shortdrinks",baseAlcool:"Autre",diff:"moyen",prep:5,glass:"Coupe",portions:1,
@@ -7444,9 +7472,9 @@ const COCKTAILS = [
    steps:["Versez le Kahlúa dans un verre à shot.","Faites couler délicatement le Baileys sur le dos d'une cuillère à café — il doit flotter.","Faites de même avec le Cointreau sur le dessus.","Vous obtenez 3 couches distinctes — ne pas mélanger, caler d'un coup !"]},
 
   {id:81,title:"Limoncello Spritz",emoji:"🍋",cat:"Apéritifs",baseAlcool:"Autre",diff:"facile",prep:3,glass:"Ballon",portions:1,
-   ingredients:[["Prosecco",9,"cl"],["Limoncello",4,"cl"],["Eau gazeuse",3,"cl"],["Citron jaune frais",2,"rondelles"]],
-   tags:["Prosecco","Limoncello","Eau gazeuse","Citron jaune frais"],
-   steps:["Remplissez un grand verre ballon de glaçons.","Versez le prosecco.","Ajoutez le limoncello.","Complétez avec un trait d'eau gazeuse.","Décorez de rondelles de citron frais."]},
+   ingredients:[["Prosecco",9,"cl"],["Limoncello",4,"cl"],["Eau gazeuse",3,"cl"],["Citron jaune",2,"rondelles"]],
+   tags:["Prosecco","Limoncello","Eau gazeuse","Citron jaune"],
+   steps:["Remplissez un grand verre ballon de glaçons.","Versez le prosecco.","Ajoutez le limoncello.","Complétez avec un trait d'eau gazeuse.","Décorez de rondelles de citron jaune."]},
 
   {id:82,title:"Mango Margarita",emoji:"🥭",cat:"Frozen",baseAlcool:"Tequila",diff:"facile",prep:5,glass:"Coupe",portions:1,
    ingredients:[["Tequila",5,"cl"],["Cointreau",2.5,"cl"],["Jus de citron vert",2,"cl"],["Purée de mangue",6,"cl"]],
@@ -7469,8 +7497,8 @@ const COCKTAILS = [
    steps:["Shaker tous les ingrédients avec de la glace.","Verser dans un highball rempli de glaçons.","Saupoudrer de noix de muscade.","Décorer d'une rondelle d'orange et d'une cerise."]},
 
   {id:86,title:"Aperol Negroni",emoji:"🔴",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Rocks",portions:1,
-   ingredients:[["Gin",3,"cl"],["Aperol",3,"cl"],["Vermouth rosso",3,"cl"]],
-   tags:["Gin","Aperol","Vermouth rosso"],
+   ingredients:[["Gin",3,"cl"],["Aperol",3,"cl"],["Vermouth rouge",3,"cl"]],
+   tags:["Gin","Aperol","Vermouth rouge"],
    steps:["Versez les trois ingrédients dans un verre rocks avec un gros glaçon.","Remuez 20 secondes.","Décorez d'un zeste d'orange. Version plus légère et fruitée du Negroni classique."]},
 
   {id:87,title:"White Lady",emoji:"👗",cat:"Shortdrinks",baseAlcool:"Gin",diff:"moyen",prep:5,glass:"Coupe",portions:1,
@@ -7479,8 +7507,8 @@ const COCKTAILS = [
    steps:["Dry shake : tous les ingrédients sans glace 10 secondes.","Ajouter la glace et shaker à nouveau.","Filtrer dans une coupe froide.","Un classique des années 20 — élégant et soyeux."]},
 
   {id:88,title:"Tequila Mule",emoji:"🌵",cat:"Longdrinks",baseAlcool:"Tequila",diff:"facile",prep:3,glass:"Mug en cuivre",portions:1,
-   ingredients:[["Tequila",5,"cl"],["Ginger beer",12,"cl"],["Jus de citron vert",2,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Tequila","Ginger beer","Jus de citron vert","Citron vert frais"],
+   ingredients:[["Tequila",5,"cl"],["Ginger beer",12,"cl"],["Jus de citron vert",2,"cl"],["Citron vert",0.5,""]],
+   tags:["Tequila","Ginger beer","Jus de citron vert","Citron vert"],
    steps:["Remplissez un mug en cuivre de glaçons.","Versez la tequila et le jus de citron vert.","Complétez avec le ginger beer.","Décorez d'une rondelle de citron vert. La version mexicaine du Moscow Mule."]},
 
   {id:89,title:"Baileys sur glace",emoji:"🍫",cat:"Shortdrinks",baseAlcool:"Autre",diff:"facile",prep:1,glass:"Rocks",portions:1,
@@ -7489,8 +7517,8 @@ const COCKTAILS = [
    steps:["Remplissez un verre rocks de glaçons.","Versez le Baileys.","Savourez. Parfois, la simplicité est la meilleure recette."]},
 
   {id:90,title:"Porto Tonic",emoji:"🍇",cat:"Apéritifs",baseAlcool:"Vin",diff:"facile",prep:2,glass:"Copa (ballon)",portions:1,
-   ingredients:[["Porto rouge",6,"cl"],["Tonic water",12,"cl"],["Orange fraîche",2,"rondelles"],["Romarin",1,"brin"]],
-   tags:["Porto rouge","Tonic water","Orange fraîche","Romarin"],
+   ingredients:[["Porto rouge",6,"cl"],["Tonic water",12,"cl"],["Orange",2,"rondelles"],["Romarin",1,"brin"]],
+   tags:["Porto rouge","Tonic water","Orange","Romarin"],
    steps:["Remplissez un verre ballon de glaçons.","Versez le porto rouge.","Complétez avec le tonic.","Décorez de rondelles d'orange et d'un brin de romarin."]},
 
   // === AMARETTO ===
@@ -7500,8 +7528,8 @@ const COCKTAILS = [
    steps:["Shaker tous les ingrédients avec de la glace.","Filtrez dans une coupe froide.","Décorez d'une tranche d'ananas ou d'une cerise."]},
 
   {id:124,title:"Italian Mule",emoji:"🍋",cat:"Shortdrinks",baseAlcool:"Amaretto",diff:"facile",prep:3,glass:"Mug en cuivre",portions:1,
-   ingredients:[["Amaretto",4,"cl"],["Jus de citron vert",2,"cl"],["Ginger beer",12,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Amaretto","Jus de citron vert","Ginger beer","Citron vert frais"],
+   ingredients:[["Amaretto",4,"cl"],["Jus de citron vert",2,"cl"],["Ginger beer",12,"cl"],["Citron vert",0.5,""]],
+   tags:["Amaretto","Jus de citron vert","Ginger beer","Citron vert"],
    steps:["Remplissez un mug en cuivre de glaçons.","Versez l'amaretto et le jus de citron vert.","Complétez avec le ginger beer.","Décorez d'une rondelle de citron vert."]},
 
   {id:125,title:"Amaretto Espresso Martini",emoji:"☕",cat:"Shortdrinks",baseAlcool:"Amaretto",diff:"moyen",prep:4,glass:"Martini",portions:1,
@@ -7541,8 +7569,8 @@ const COCKTAILS = [
    steps:["Dry shake : tous les ingrédients sans glace pour monter le blanc d'œuf.","Ajouter la glace et shaker à nouveau.","Filtrer dans une coupe froide.","Décorez d'une cerise."]},
 
   {id:132,title:"Moscow Mule (variante framboise)",emoji:"🍓",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:3,glass:"Mug en cuivre",portions:1,
-   ingredients:[["Vodka",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de framboise",2,"cl"],["Ginger beer",12,"cl"],["Framboise fraîche",3,"pièces"]],
-   tags:["Vodka","Jus de citron vert","Sirop de framboise","Ginger beer","Framboise fraîche"],
+   ingredients:[["Vodka",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de framboise",2,"cl"],["Ginger beer",12,"cl"],["Framboises",3,"pièces"]],
+   tags:["Vodka","Jus de citron vert","Sirop de framboise","Ginger beer","Framboises"],
    steps:["Remplissez un mug en cuivre de glaçons.","Versez la vodka, le jus de citron vert et le sirop de framboise.","Complétez avec le ginger beer.","Décorez de framboises fraîches."]},
   // === CLASSIQUES IBA MANQUANTS ===
   {id:133,title:"Americano",emoji:"🍊",cat:"Apéritifs",baseAlcool:"Autre",diff:"facile",prep:2,glass:"Highball",portions:1,
@@ -7596,7 +7624,7 @@ const COCKTAILS = [
    steps:["Givrez le bord d'une coupe avec du sucre et un quartier de citron.","Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans la coupe sucrée.","Décorez d'un zeste de citron."]},
 
   {id:143,title:"Planter's Punch",emoji:"🌴",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:4,glass:"Highball",portions:1,
-   ingredients:[["Rhum jamaïcain",6,"cl"],["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Angostura bitters",3,"traits"],["Eau gazeuse",5,"cl"]],
+   ingredients:[["Rhum ambré",6,"cl"],["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Angostura bitters",3,"traits"],["Eau gazeuse",5,"cl"]],
    tags:["Rhum jamaïcain","Jus de citron vert","Sirop de sucre de canne","Angostura bitters"],
    steps:["Versez le rhum, le jus de citron vert, le sirop et les bitters dans un shaker avec de la glace.","Secouez bien.","Filtrez sur glaçons dans un grand verre.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de citron vert et d'un brin de menthe."]},
 
@@ -7616,8 +7644,8 @@ const COCKTAILS = [
    steps:["Remplissez un highball de glaçons.","Versez le Campari.","Ajoutez le jus d'orange fraîchement pressé (ou très frais).","Remuez doucement.","Décorez d'une rondelle d'orange.","Simple mais excellent — le jus doit être bien frais pour ce cocktail."]},
 
   {id:147,title:"Grasshopper",emoji:"🦗",cat:"Shortdrinks",baseAlcool:"Autre",diff:"facile",prep:3,glass:"Coupe",portions:1,
-   ingredients:[["Crème de menthe verte",3,"cl"],["Crème de cacao blanc",3,"cl"],["Crème fraîche",3,"cl"]],
-   tags:["Crème de menthe verte","Crème de cacao blanc","Crème fraîche"],
+   ingredients:[["Crème de menthe",3,"cl"],["Crème de cacao blanc",3,"cl"],["Crème fraîche",3,"cl"]],
+   tags:["Crème de menthe","Crème de cacao blanc","Crème fraîche"],
    steps:["Versez tous les ingrédients dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe bien froide.","Pas de décoration — la couleur verte est la décoration.","Cocktail after-dinner des années 50, doux et crémeux."]},
 
   {id:148,title:"Mary Pickford",emoji:"🍍",cat:"Shortdrinks",baseAlcool:"Rhum",diff:"facile",prep:3,glass:"Coupe",portions:1,
@@ -7636,8 +7664,8 @@ const COCKTAILS = [
    steps:["Versez tous les ingrédients en parts égales dans un shaker avec de la glace.","Secouez vigoureusement.","Filtrez dans une coupe froide.","Pas de décoration pour laisser la belle couleur ambrée s'exprimer.","Variante moderne du Paper Plane — IBA New Era 2020."]},
 
   {id:151,title:"Old Cuban",emoji:"🥂",cat:"Fizz & Pétillants",baseAlcool:"Rhum",diff:"moyen",prep:5,glass:"Coupe",portions:1,
-   ingredients:[["Rhum ambré",4.5,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Angostura bitters",2,"traits"],["Menthe fraîche",6,"feuilles"],["Champagne brut",6,"cl"]],
-   tags:["Rhum ambré","Jus de citron vert","Sirop de sucre de canne","Angostura bitters","Menthe fraîche","Champagne brut"],
+   ingredients:[["Rhum ambré",4.5,"cl"],["Jus de citron vert",2.5,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Angostura bitters",2,"traits"],["Menthe",6,"feuilles"],["Champagne brut",6,"cl"]],
+   tags:["Rhum ambré","Jus de citron vert","Sirop de sucre de canne","Angostura bitters","Menthe","Champagne brut"],
    steps:["Muddlez doucement les feuilles de menthe avec le sirop et le jus de citron vert.","Ajoutez le rhum, les bitters et de la glace. Secouez bien.","Filtrez dans une coupe froide.","Complétez avec le Champagne brut.","Décorez d'une feuille de menthe.","Créé par Audrey Saunders à New York en 2001 — Mojito habillé en Champagne."]},
 
   {id:152,title:"Paradise",emoji:"🏖️",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Coupe",portions:1,
@@ -7648,8 +7676,8 @@ const COCKTAILS = [
 
   // === IBA RESTANTS ACCESSIBLES ===
   {id:153,title:"South Side",emoji:"🌿",cat:"Shortdrinks",baseAlcool:"Gin",diff:"facile",prep:4,glass:"Coupe",portions:1,
-   ingredients:[["Gin",6,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe fraîche",8,"feuilles"]],
-   tags:["Gin","Jus de citron","Sirop de sucre de canne","Menthe fraîche"],
+   ingredients:[["Gin",6,"cl"],["Jus de citron",2.5,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe",8,"feuilles"]],
+   tags:["Gin","Jus de citron","Sirop de sucre de canne","Menthe"],
    steps:["Déposez la menthe dans le shaker et tapotez-la doucement dans la main pour libérer les arômes.","Ajoutez tous les autres ingrédients et de la glace.","Secouez vigoureusement.","Filtrez en double (passoire fine) dans une coupe froide.","Décorez d'une feuille de menthe.","Cousine du Gimlet, né à Chicago pendant la Prohibition."]},
 
   {id:154,title:"Sea Breeze",emoji:"🌊",cat:"Longdrinks",baseAlcool:"Vodka",diff:"facile",prep:2,glass:"Highball",portions:1,
@@ -7663,8 +7691,8 @@ const COCKTAILS = [
    steps:["Rincez une coupe froide avec l'absinthe, jetez l'excédent.","Versez gin, vermouth, marasquin et bitters dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans la coupe parfumée à l'absinthe.","Décorez d'un zeste de citron et d'une cerise.","Variante sèche et élégante du Martini — tiré du Savoy Cocktail Book."]},
 
   {id:156,title:"Ramos Gin Fizz",emoji:"🥛",cat:"Fizz & Pétillants",baseAlcool:"Gin",diff:"difficile",prep:10,glass:"Collins",portions:1,
-   ingredients:[["Gin",4.5,"cl"],["Jus de citron",1.5,"cl"],["Jus de citron vert",1.5,"cl"],["Blanc d'œuf",1,""],["Crème entière",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau de fleur d'oranger",3,"traits"],["Eau gazeuse",5,"cl"]],
-   tags:["Gin","Jus de citron","Jus de citron vert","Blanc d'œuf","Crème entière","Eau de fleur d'oranger"],
+   ingredients:[["Gin",4.5,"cl"],["Jus de citron",1.5,"cl"],["Jus de citron vert",1.5,"cl"],["Blanc d'œuf",1,""],["Crème fraîche",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Eau de fleur d'oranger",3,"traits"],["Eau gazeuse",5,"cl"]],
+   tags:["Gin","Jus de citron","Jus de citron vert","Blanc d'œuf","Crème fraîche","Eau de fleur d'oranger"],
    steps:["Versez tous les ingrédients SAUF l'eau gazeuse dans un shaker sans glace.","Secouez vigoureusement 1 à 2 minutes pour émulsionner le blanc d'œuf et la crème.","Ajoutez la glace et secouez encore 1 minute.","Filtrez dans un grand verre Collins sans glaçons.","Versez délicatement l'eau gazeuse en filet pour soulever la mousse au-dessus du bord.","Le shaking très long est essentiel — cocktail né à La Nouvelle-Orléans en 1888."]},
 
   {id:157,title:"Tipperary",emoji:"🍀",cat:"Shortdrinks",baseAlcool:"Whisky",diff:"moyen",prep:4,glass:"Coupe",portions:1,
@@ -7779,18 +7807,18 @@ const COCKTAILS = [
    steps:["Versez tous les ingrédients dans un verre à mélange avec de la glace.","Remuez longuement (30 secondes).","Filtrez dans une coupe froide.","Décorez d'un zeste d'orange ou d'une cerise.","Le 'Perfect' signifie moitié vermouth rouge, moitié vermouth sec — plus léger et équilibré."]},
 
   {id:179,title:"Whisky & Ginger",emoji:"🥃",cat:"Longdrinks",baseAlcool:"Whisky",diff:"facile",prep:2,glass:"Highball",portions:1,
-   ingredients:[["Scotch whisky",5,"cl"],["Ginger ale",15,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Scotch whisky","Ginger ale","Citron vert frais"],
+   ingredients:[["Scotch whisky",5,"cl"],["Ginger ale",15,"cl"],["Citron vert",0.5,""]],
+   tags:["Scotch whisky","Ginger ale","Citron vert"],
    steps:["Remplissez un highball de glaçons.","Versez le Scotch.","Complétez avec le ginger ale bien frais.","Pressez un quartier de citron vert et déposez-le.","Remuez délicatement.","L'un des highballs les plus populaires au Royaume-Uni. Fonctionne aussi avec le bourbon."]},
 
   {id:180,title:"Pimm's Cup",emoji:"🥒",cat:"Longdrinks",baseAlcool:"Autre",diff:"facile",prep:4,glass:"Highball",portions:1,
-   ingredients:[["Pimm's No.1",5,"cl"],["Limonade",15,"cl"],["Concombre frais",3,"rondelles"],["Fraise fraîche",2,"pièces"],["Menthe fraîche",4,"feuilles"],["Orange",1,"tranche"]],
-   tags:["Pimm's No.1","Limonade","Concombre frais","Fraise fraîche","Menthe fraîche"],
+   ingredients:[["Pimm's No.1",5,"cl"],["Limonade",15,"cl"],["Concombre",3,"rondelles"],["Fraises",2,"pièces"],["Menthe",4,"feuilles"],["Orange",1,"tranche"]],
+   tags:["Pimm's No.1","Limonade","Concombre","Fraises","Menthe"],
    steps:["Remplissez un grand verre de glaçons.","Déposez le concombre, les fraises et l'orange.","Versez le Pimm's.","Complétez avec la limonade (ou ginger ale).","Ajoutez les feuilles de menthe en décoration.","Boisson emblématique de l'été anglais — indispensable à Wimbledon."]},
 
   {id:181,title:"Dark Mojito",emoji:"🌑",cat:"Longdrinks",baseAlcool:"Rhum",diff:"facile",prep:5,glass:"Highball",portions:1,
-   ingredients:[["Rhum brun",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe fraîche",8,"feuilles"],["Eau gazeuse",10,"cl"]],
-   tags:["Rhum brun","Jus de citron vert","Sirop de sucre de canne","Menthe fraîche","Eau gazeuse"],
+   ingredients:[["Rhum brun",5,"cl"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Menthe",8,"feuilles"],["Eau gazeuse",10,"cl"]],
+   tags:["Rhum brun","Jus de citron vert","Sirop de sucre de canne","Menthe","Eau gazeuse"],
    steps:["Déposez la menthe, le jus de citron vert et le sirop dans le verre. Muddlez doucement.","Remplissez de glace pilée.","Versez le rhum brun.","Complétez avec l'eau gazeuse et remuez.","Décorez d'un brin de menthe.","Les notes caramel et vanille du rhum brun apportent plus de profondeur qu'avec le rhum blanc."]},
 
   {id:182,title:"Grapefruit Gin Fizz",emoji:"🍊",cat:"Fizz & Pétillants",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Collins",portions:1,
@@ -7799,8 +7827,8 @@ const COCKTAILS = [
    steps:["Shaker le gin, les jus et le sirop avec de la glace.","Filtrez sur glaçons dans un verre Collins.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de pamplemousse.","Le pamplemousse se marie remarquablement bien avec le gin botanique."]},
 
   {id:183,title:"Vermouth Tonic",emoji:"🌿",cat:"Apéritifs",baseAlcool:"Vin",diff:"facile",prep:1,glass:"Wine glass",portions:1,
-   ingredients:[["Vermouth blanc ou rouge",6,"cl"],["Tonic",10,"cl"],["Citron frais",0.5,""]],
-   tags:["Vermouth blanc ou rouge","Tonic","Citron frais"],
+   ingredients:[["Vermouth blanc ou rouge",6,"cl"],["Tonic",10,"cl"],["Citron jaune",0.5,""]],
+   tags:["Vermouth blanc ou rouge","Tonic","Citron jaune"],
    steps:["Mettez des glaçons dans un grand verre à vin.","Versez le vermouth.","Complétez avec le tonic bien frais.","Pressez un quartier de citron et déposez-le.","Ajoutez quelques herbes aromatiques : romarin, thym ou basilic.","Apéritif très tendance — plus léger et complexe qu'un G&T simple."]},
 
   {id:184,title:"Negroni Bianco",emoji:"⬜",cat:"Apéritifs",baseAlcool:"Gin",diff:"facile",prep:3,glass:"Rocks",portions:1,
@@ -7816,14 +7844,14 @@ const COCKTAILS = [
 
   // === SANS ALCOOL ===
   {id:500,title:"Virgin Mojito",emoji:"🌿",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:4,glass:"Highball",portions:1,
-   ingredients:[["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Menthe fraîche",10,"feuilles"],["Eau gazeuse",20,"cl"],["Citron vert frais",0.5,""]],
-   tags:["Jus de citron vert","Sirop de sucre de canne","Menthe fraîche","Eau gazeuse"],
+   ingredients:[["Jus de citron vert",3,"cl"],["Sirop de sucre de canne",2,"cl"],["Menthe",10,"feuilles"],["Eau gazeuse",20,"cl"],["Citron vert",0.5,""]],
+   tags:["Jus de citron vert","Sirop de sucre de canne","Menthe","Eau gazeuse"],
    steps:["Déposez la menthe et le jus de citron vert dans le verre. Muddlez doucement.","Ajoutez le sirop de sucre de canne.","Remplissez de glace pilée.","Complétez avec l'eau gazeuse et remuez.","Décorez d'un brin de menthe et d'un quartier de citron vert."]},
 
   {id:501,title:"Virgin Mary",emoji:"🍅",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
-   ingredients:[["Jus de tomate",15,"cl"],["Jus de citron",1.5,"cl"],["Worcestershire sauce",3,"traits"],["Tabasco",2,"traits"],["Sel de céleri",1,"pincée"],["Poivre noir",1,"pincée"]],
-   tags:["Jus de tomate","Jus de citron","Worcestershire sauce","Tabasco","Sel de céleri"],
-   steps:["Remplissez un highball de glaçons.","Versez le jus de tomate et le jus de citron.","Ajoutez la Worcestershire sauce, le Tabasco, le sel de céleri et le poivre.","Remuez bien.","Décorez d'une branche de céleri, d'un quartier de citron et d'une olive.","Ajustez le Tabasco selon votre tolérance au piment."]},
+   ingredients:[["Jus de tomate",15,"cl"],["Jus de citron",1.5,"cl"],["Sauce Worcestershire",3,"traits"],["Tabasco",2,"traits"],["Sel de céleri",1,"pincée"],["Poivre noir",1,"pincée"]],
+   tags:["Jus de tomate","Jus de citron","Sauce Worcestershire","Tabasco","Sel de céleri"],
+   steps:["Remplissez un highball de glaçons.","Versez le jus de tomate et le jus de citron.","Ajoutez la Sauce Worcestershire, le Tabasco, le sel de céleri et le poivre.","Remuez bien.","Décorez d'une branche de céleri, d'un quartier de citron et d'une olive.","Ajustez le Tabasco selon votre tolérance au piment."]},
 
   {id:502,title:"Shirley Temple",emoji:"🍒",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:2,glass:"Highball",portions:1,
    ingredients:[["Ginger ale",15,"cl"],["Sirop de grenadine",2,"cl"],["Jus d'orange",5,"cl"]],
@@ -7836,8 +7864,8 @@ const COCKTAILS = [
    steps:["Préparez un thé fort et laissez-le refroidir au réfrigérateur.","Préparez une limonade : 3 cl jus de citron + 1 cl sirop + eau fraîche.","Dans un grand verre de glaçons, versez le thé et la limonade à parts égales.","Remuez et décorez d'une rondelle de citron.","Nommé d'après le légendaire golfeur américain qui buvait ce mélange sur les greens."]},
 
   {id:504,title:"Limonade au Gingembre",emoji:"🫚",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Highball",portions:1,
-   ingredients:[["Jus de citron",4,"cl"],["Sirop de sucre de canne",2,"cl"],["Gingembre frais",3,"cm"],["Eau gazeuse",20,"cl"],["Menthe fraîche",4,"feuilles"]],
-   tags:["Jus de citron","Sirop de sucre de canne","Gingembre frais","Eau gazeuse","Menthe fraîche"],
+   ingredients:[["Jus de citron",4,"cl"],["Sirop de sucre de canne",2,"cl"],["Gingembre",3,"cm"],["Eau gazeuse",20,"cl"],["Menthe",4,"feuilles"]],
+   tags:["Jus de citron","Sirop de sucre de canne","Gingembre","Eau gazeuse","Menthe"],
    steps:["Pelez et râpez finement le gingembre. Pressez-le dans une passoire pour en extraire le jus.","Mélangez le jus de citron, le sirop et le jus de gingembre dans un shaker avec de la glace.","Agitez bien.","Filtrez sur glaçons dans un grand verre.","Complétez avec l'eau gazeuse. Décorez de menthe."]},
 
   {id:505,title:"Sunrise Tropical",emoji:"🌅",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
@@ -7851,8 +7879,8 @@ const COCKTAILS = [
    steps:["Mettez tous les ingrédients dans un blender avec 200 g de glace pilée.","Mixez jusqu'à obtenir une texture onctueuse et crémeuse.","Versez dans un grand verre ou tiki mug.","Décorez d'une tranche d'ananas et d'une cerise.","Aussi savoureux que l'original — la crème de coco est la clé."]},
 
   {id:507,title:"Cucumber Cooler",emoji:"🥒",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Highball",portions:1,
-   ingredients:[["Concombre frais",6,"rondelles"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Eau gazeuse",20,"cl"],["Menthe fraîche",5,"feuilles"]],
-   tags:["Concombre frais","Jus de citron vert","Sirop de sucre de canne","Eau gazeuse","Menthe fraîche"],
+   ingredients:[["Concombre",6,"rondelles"],["Jus de citron vert",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Eau gazeuse",20,"cl"],["Menthe",5,"feuilles"]],
+   tags:["Concombre","Jus de citron vert","Sirop de sucre de canne","Eau gazeuse","Menthe"],
    steps:["Muddlez le concombre, la menthe et le jus de citron vert dans un shaker.","Ajoutez le sirop et de la glace. Secouez bien.","Filtrez en double sur glaçons dans un grand verre.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de concombre et d'un brin de menthe.","Frais, léger, parfait en été."]},
 
   {id:508,title:"Virgin Colada Mangue",emoji:"🥭",cat:"Frozen",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Highball",portions:1,
@@ -7866,8 +7894,8 @@ const COCKTAILS = [
    steps:["Remplissez un grand verre à vin de glaçons.","Mélangez les jus et le sirop, versez sur la glace.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'une tranche d'orange et d'un zeste de citron."]},
 
   {id:510,title:"Mocktail Fraise-Basilic",emoji:"🍓",cat:"Shortdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:5,glass:"Coupe",portions:1,
-   ingredients:[["Fraises fraîches",5,"pièces"],["Jus de citron",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Basilic frais",3,"feuilles"],["Eau gazeuse",4,"cl"]],
-   tags:["Fraises fraîches","Jus de citron","Sirop de sucre de canne","Basilic frais","Eau gazeuse"],
+   ingredients:[["Fraises",5,"pièces"],["Jus de citron",2,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Basilic",3,"feuilles"],["Eau gazeuse",4,"cl"]],
+   tags:["Fraises","Jus de citron","Sirop de sucre de canne","Basilic","Eau gazeuse"],
    steps:["Muddlez les fraises et le basilic dans un shaker.","Ajoutez le jus de citron, le sirop et de la glace.","Secouez vigoureusement.","Double filtrez dans une coupe froide.","Complétez avec un trait d'eau gazeuse.","Décorez d'une fraise et d'une feuille de basilic."]},
 
   {id:511,title:"Ginger Beer Fizz",emoji:"🫚",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:2,glass:"Mug en cuivre",portions:1,
@@ -7881,13 +7909,13 @@ const COCKTAILS = [
    steps:["Versez le jus de citron, les sirops dans un verre de glaçons.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Décorez d'un pétale de rose comestible ou d'un zeste de citron.","Floral et rafraîchissant — le sirop de rose se trouve facilement en épicerie orientale."]},
 
   {id:513,title:"Limonade Lavande",emoji:"💜",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
-   ingredients:[["Jus de citron",4,"cl"],["Sirop de lavande",2,"cl"],["Eau gazeuse",18,"cl"],["Citron frais",0.5,""]],
+   ingredients:[["Jus de citron",4,"cl"],["Sirop de lavande",2,"cl"],["Eau gazeuse",18,"cl"],["Citron jaune",0.5,""]],
    tags:["Jus de citron","Sirop de lavande","Eau gazeuse"],
-   steps:["Versez le jus de citron et le sirop de lavande dans un verre de glaçons.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Pressez un quartier de citron frais.","Décorez d'un brin de lavande.","Le sirop de lavande se prépare facilement : faire infuser de la lavande sèche dans un sirop simple chaud."]},
+   steps:["Versez le jus de citron et le sirop de lavande dans un verre de glaçons.","Complétez avec l'eau gazeuse.","Remuez délicatement.","Pressez un quartier de citron.","Décorez d'un brin de lavande.","Le sirop de lavande se prépare facilement : faire infuser de la lavande sèche dans un sirop simple chaud."]},
 
   {id:514,title:"Mocktail Pamplemousse Romarin",emoji:"🌿",cat:"Longdrinks",baseAlcool:"Sans alcool",diff:"facile",prep:3,glass:"Highball",portions:1,
-   ingredients:[["Jus de pamplemousse",12,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Romarin frais",1,"branche"],["Eau gazeuse",8,"cl"],["Jus de citron vert",1,"cl"]],
-   tags:["Jus de pamplemousse","Sirop de sucre de canne","Romarin frais","Eau gazeuse"],
+   ingredients:[["Jus de pamplemousse",12,"cl"],["Sirop de sucre de canne",1.5,"cl"],["Romarin",1,"branche"],["Eau gazeuse",8,"cl"],["Jus de citron vert",1,"cl"]],
+   tags:["Jus de pamplemousse","Sirop de sucre de canne","Romarin","Eau gazeuse"],
    steps:["Chauffez légèrement le sirop avec le romarin 5 minutes, laissez infuser et refroidir.","Versez le jus de pamplemousse, le jus de citron vert et le sirop parfumé sur glaçons.","Complétez avec l'eau gazeuse.","Décorez d'une rondelle de pamplemousse et d'un brin de romarin.","La version sans alcool de la Tequila Pamplemousse-Romarin."]},
 
 
